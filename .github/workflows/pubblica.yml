@@ -1,5 +1,6 @@
 # Pubblica automaticamente il sito su GitHub Pages a ogni push sul ramo principale.
-# Pages viene attivato automaticamente alla prima esecuzione (enablement: true).
+# Prima esecuzione: attivare Pages in Settings > Pages > Source: GitHub Actions.
+# Finche' non e' attivo, il workflow fallisce senza conseguenze.
 name: Pubblica su GitHub Pages
 
 on:
@@ -27,10 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-        with:
-          # attiva GitHub Pages da solo alla prima esecuzione:
-          # non serve toccare le impostazioni del repository
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
