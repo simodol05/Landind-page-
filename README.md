@@ -9,17 +9,26 @@ e invita l'ospite a tornare nella chat Airbnb per comunicare quale desidera.
 
 ## Come pubblicarla online (gratis)
 
-### Opzione A — Netlify Drop (la piu' veloce, ~2 minuti)
+### Opzione A — Netlify, un tocco solo (funziona anche da iPhone e iPad)
 
-1. Scarica questa cartella sul computer.
-2. Vai su **https://app.netlify.com/drop**
-3. Trascina la cartella dentro la pagina.
-4. Netlify restituisce subito un link pubblico tipo
-   `https://nome-a-caso.netlify.app` — quello e' il link da incollare in Airbnb.
+[![Pubblica su Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/simodol05/Landind-page-)
 
-Nessun account obbligatorio per la prima pubblicazione, nessun dominio da comprare.
-Registrandoti gratuitamente puoi rinominare il sito in qualcosa come
-`il-rustico-servizi.netlify.app`.
+Tocca il bottone qui sopra: Netlify apre la procedura con il repository gia'
+selezionato. Devi solo accedere con GitHub, autorizzare l'accesso e premere
+**Deploy**. Dopo circa 30 secondi ottieni un link tipo
+`https://nome-a-caso.netlify.app`: quello e' il link da incollare in Airbnb.
+
+Il link diretto, se il bottone non fosse toccabile:
+`https://app.netlify.com/start/deploy?repository=https://github.com/simodol05/Landind-page-`
+
+Per un indirizzo piu' bello: **Site configuration → Change site name**, per
+esempio `il-rustico-servizi`.
+
+Da questo momento ogni modifica al repository viene ripubblicata da sola e il
+link resta lo stesso.
+
+> Esiste anche **app.netlify.com/drop**, dove si trascina la cartella: comodo da
+> computer, ma da iPad non si puo' trascinare, quindi usa il bottone qui sopra.
 
 ### Opzione B — GitHub Pages (automatica a ogni modifica)
 
