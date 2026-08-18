@@ -25,10 +25,15 @@ Registrandoti gratuitamente puoi rinominare il sito in qualcosa come
 
 1. Nel repository apri **Settings → Pages**.
 2. Alla voce *Source* scegli **GitHub Actions**.
-3. Fatto: a ogni push sul ramo principale il sito si ripubblica da solo
+3. Fatto: a ogni push il sito si ripubblica da solo
    (vedi `.github/workflows/pubblica.yml`).
 
 Il link sara' `https://<tuo-utente>.github.io/<nome-repository>/`.
+
+> Il repository non aveva ancora nessun ramo: il ramo di lavoro
+> `claude/il-rustico-landing-page-ngmudy` e' diventato il ramo predefinito.
+> Se piu' avanti lo rinomini in `main`, la pubblicazione automatica continua a
+> funzionare: il workflow ascolta entrambi i nomi.
 
 ### Opzione C — qualsiasi altro hosting statico
 

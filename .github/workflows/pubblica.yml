@@ -4,7 +4,9 @@ name: Pubblica su GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - claude/il-rustico-landing-page-ngmudy
   workflow_dispatch:
 
 permissions:
