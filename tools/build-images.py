@@ -25,13 +25,8 @@ SAUNA = "sauna.jpg"             # 1086 x 1448
 # nome-output: (file sorgente, box di ritaglio o None, larghezze da generare)
 ASSETS = {
     "hero-suite":          (SUITE, None,                    [969, 700, 480]),
-    "sogno-damore":        (SUITE, (330, 180, 969, 1000),   [639, 480]),
-    "letto-petali":        (SUITE, (300, 560, 969, 900),    [669, 480]),
-    "asciugamani-petali":  (SUITE, (20, 640, 900, 1180),    [880, 560]),
     "risveglio":           (SUITE, (0, 150, 760, 910),      [760, 520]),
     "sauna-verticale":     (SAUNA, None,                    [1086, 760, 520]),
-    "sauna-infrarossi":    (SAUNA, (400, 660, 1086, 1110),  [686, 480]),
-    "dettaglio-neon":      (SUITE, (500, 150, 920, 870),    [420]),
 }
 
 # immagine di anteprima per la condivisione del link (Airbnb, WhatsApp, ecc.)

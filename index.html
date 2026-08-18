@@ -116,13 +116,6 @@
                width="1086" height="1448" loading="lazy" decoding="async"
                alt="La sauna a infrarossi de Il Rustico, con pareti in legno chiaro, piante verdi sospese e pannelli riscaldanti accesi.">
         </picture>
-        <span class="intro__accent" aria-hidden="true">
-          <picture>
-            <source type="image/webp" srcset="assets/img/dettaglio-neon-420.webp" sizes="22vw">
-            <img src="assets/img/dettaglio-neon-420.jpg"
-                 width="420" height="720" loading="lazy" decoding="async" alt="">
-          </picture>
-        </span>
       </figure>
 
     </div>
@@ -133,21 +126,11 @@
        ============================================================ -->
   <section id="esperienze" aria-labelledby="esperienze-title">
 
-    <div class="band">
-      <div class="band__media">
-        <picture>
-          <source type="image/webp" srcset="assets/img/sauna-infrarossi-480.webp 480w, assets/img/sauna-infrarossi-686.webp 686w" sizes="100vw">
-          <img src="assets/img/sauna-infrarossi-686.jpg"
-               srcset="assets/img/sauna-infrarossi-480.jpg 480w, assets/img/sauna-infrarossi-686.jpg 686w" sizes="100vw"
-               width="686" height="450" loading="lazy" decoding="async"
-               alt="Interno della sauna a infrarossi de Il Rustico con pannelli luminosi color ambra e piante sospese.">
-        </picture>
-        <span class="band__veil" aria-hidden="true"></span>
-      </div>
-      <div class="band__content wrap" data-reveal>
+    <div class="intestazione">
+      <div class="wrap" data-reveal>
         <p class="eyebrow eyebrow--gold">La selezione</p>
-        <h2 class="h2 h2--band" id="esperienze-title">Esperienze d’Amore</h2>
-        <p class="band__lead">Scegli il modo in cui vuoi rendere ancora più speciale il tuo soggiorno.</p>
+        <h2 class="h2 h2--sezione" id="esperienze-title">Esperienze d’Amore</h2>
+        <p class="intestazione__lead">Scegli il modo in cui vuoi rendere ancora più speciale il tuo soggiorno.</p>
       </div>
     </div>
 
@@ -157,21 +140,12 @@
 
           <!-- ---------- PACCHETTO 1 ---------- -->
           <article class="pkg" id="essenza" data-reveal>
-            <div class="pkg__strip">
-              <picture>
-                <source type="image/webp" srcset="assets/img/asciugamani-petali-560.webp 560w, assets/img/asciugamani-petali-880.webp 880w" sizes="(min-width: 780px) 44vw, 92vw">
-                <img src="assets/img/asciugamani-petali-560.jpg"
-                     srcset="assets/img/asciugamani-petali-560.jpg 560w, assets/img/asciugamani-petali-880.jpg 880w" sizes="(min-width: 780px) 44vw, 92vw"
-                     width="880" height="540" loading="lazy" decoding="async"
-                     alt="Asciugamani arrotolati e petali di rosa disposti sul letto della suite.">
-              </picture>
-            </div>
-
-            <div class="pkg__body">
-              <header class="pkg__head">
+            <header class="pkg__head">
                 <h3 class="pkg__title">Essenza d’Amore</h3>
                 <p class="pkg__price">€39</p>
-              </header>
+            </header>
+
+            <div class="pkg__body">
               <p class="pkg__intro">Un tocco romantico per rendere speciale il vostro soggiorno.</p>
               <span class="rule rule--sm" aria-hidden="true"></span>
 
@@ -203,22 +177,13 @@
           </article>
 
           <!-- ---------- PACCHETTO 2 ---------- -->
-          <article class="pkg" id="momento" data-reveal>
-            <div class="pkg__strip">
-              <picture>
-                <source type="image/webp" srcset="assets/img/letto-petali-480.webp 480w, assets/img/letto-petali-669.webp 669w" sizes="(min-width: 780px) 44vw, 92vw">
-                <img src="assets/img/letto-petali-480.jpg"
-                     srcset="assets/img/letto-petali-480.jpg 480w, assets/img/letto-petali-669.jpg 669w" sizes="(min-width: 780px) 44vw, 92vw"
-                     width="669" height="340" loading="lazy" decoding="async"
-                     alt="Letto matrimoniale con lenzuola bordeaux e petali di rosa sparsi.">
-              </picture>
-            </div>
-
-            <div class="pkg__body">
-              <header class="pkg__head">
+          <article class="pkg pkg--evidenza" id="momento" data-reveal>
+            <header class="pkg__head">
                 <h3 class="pkg__title">Momento d’Amore</h3>
                 <p class="pkg__price">€79</p>
-              </header>
+            </header>
+
+            <div class="pkg__body">
               <p class="pkg__intro">Un allestimento più ricco per trasformare il vostro arrivo in un vero momento da ricordare.</p>
               <span class="rule rule--sm" aria-hidden="true"></span>
 
@@ -256,101 +221,87 @@
 
           <!-- ---------- PACCHETTO 3 — PREMIUM ---------- -->
           <article class="pkg pkg--premium" id="sogno" data-reveal>
-            <div class="premium__top">
-
-              <figure class="premium__media">
-                <picture>
-                  <source type="image/webp" srcset="assets/img/sogno-damore-480.webp 480w, assets/img/sogno-damore-639.webp 639w" sizes="(min-width: 900px) 40vw, 92vw">
-                  <img src="assets/img/sogno-damore-639.jpg"
-                       srcset="assets/img/sogno-damore-480.jpg 480w, assets/img/sogno-damore-639.jpg 639w" sizes="(min-width: 900px) 40vw, 92vw"
-                       width="639" height="820" loading="lazy" decoding="async"
-                       alt="La testata del letto de Il Rustico con luce al neon ad arco, cuscini bordeaux e petali di rosa.">
-                </picture>
-              </figure>
-
-              <div class="premium__body">
-                <p class="badge">L’esperienza completa</p>
-
-                <header class="pkg__head pkg__head--premium">
+            <header class="pkg__head pkg__head--premium">
+              <p class="badge">L’esperienza completa</p>
                   <h3 class="pkg__title pkg__title--premium">Sogno d’Amore</h3>
                   <p class="pkg__price pkg__price--premium">€109</p>
-                </header>
+            </header>
 
-                <p class="pkg__intro">La nostra esperienza romantica più completa, pensata per trasformare il soggiorno in un ricordo speciale.</p>
-                <span class="rule rule--sm" aria-hidden="true"></span>
+            <div class="pkg__body">
+              <p class="pkg__intro">La nostra esperienza romantica più completa, pensata per trasformare il soggiorno in un ricordo speciale.</p>
+              <span class="rule rule--sm" aria-hidden="true"></span>
 
-                <ul class="items">
-                  <li class="item">
-                    <span class="item__icon" aria-hidden="true">💐</span>
+              <ul class="items">
+              <li class="item">
+              <span class="item__icon" aria-hidden="true">💐</span>
               <h4 class="item__name">Bouquet di rose</h4>
-                    <p class="item__note">Un dettaglio elegante che rende l’arrivo ancora più speciale.</p>
-                  </li>
-                  <li class="item">
-                    <span class="item__icon" aria-hidden="true">🌹</span>
+              <p class="item__note">Un dettaglio elegante che rende l’arrivo ancora più speciale.</p>
+              </li>
+              <li class="item">
+              <span class="item__icon" aria-hidden="true">🌹</span>
               <h4 class="item__name">Allestimento romantico premium con petali di rosa</h4>
-                    <p class="item__note">Una scenografia più ricca e curata per un’atmosfera esclusiva.</p>
-                  </li>
-                  <li class="item">
-                    <span class="item__icon" aria-hidden="true">🎈</span>
+              <p class="item__note">Una scenografia più ricca e curata per un’atmosfera esclusiva.</p>
+              </li>
+              <li class="item">
+              <span class="item__icon" aria-hidden="true">🎈</span>
               <h4 class="item__name">Allestimento premium con palloncini</h4>
-                    <p class="item__note">Per un effetto scenografico ancora più suggestivo.</p>
-                  </li>
-                  <li class="item">
-                    <span class="item__icon" aria-hidden="true">🍫</span>
+              <p class="item__note">Per un effetto scenografico ancora più suggestivo.</p>
+              </li>
+              <li class="item">
+              <span class="item__icon" aria-hidden="true">🍫</span>
               <h4 class="item__name">Selezione di cioccolatini</h4>
-                    <p class="item__note">Una dolce coccola da condividere.</p>
-                  </li>
-                  <li class="item">
-                    <span class="item__icon" aria-hidden="true">💌</span>
+              <p class="item__note">Una dolce coccola da condividere.</p>
+              </li>
+              <li class="item">
+              <span class="item__icon" aria-hidden="true">💌</span>
               <h4 class="item__name">Biglietto personalizzato</h4>
-                    <p class="item__note">Per rendere il momento unico e personale.</p>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- IL DOLCE RISVEGLIO — incluso nel pacchetto Sogno d’Amore -->
-            <section class="risveglio" aria-labelledby="risveglio-title">
-              <p class="eyebrow eyebrow--gold">Incluso nel pacchetto</p>
-              <p class="glyph" aria-hidden="true">☕</p>
-              <h4 class="risveglio__title" id="risveglio-title">Il Dolce Risveglio</h4>
-              <p class="risveglio__sub">Colazione per 2 persone</p>
-              <p class="risveglio__lead">Una selezione pensata per iniziare insieme la giornata con dolcezza.</p>
-
-              <ul class="items items--two">
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🍓</span>
-              <h5 class="item__name">2 mini marmellate</h5>
-                  <p class="item__note">Per accompagnare la vostra colazione.</p>
-                </li>
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🍯</span>
-              <h5 class="item__name">2 mini mieli</h5>
-                  <p class="item__note">Una dolce alternativa da gustare al mattino.</p>
-                </li>
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🍫</span>
-              <h5 class="item__name">2 mini creme spalmabili</h5>
-                  <p class="item__note">Per rendere ancora più goloso il risveglio.</p>
-                </li>
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🍞</span>
-              <h5 class="item__name">Fette biscottate</h5>
-                  <p class="item__note">Perfette da accompagnare alle creme e alle confetture.</p>
-                </li>
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🧃</span>
-              <h5 class="item__name">2 mini succhi di frutta</h5>
-                  <p class="item__note">Per completare la colazione.</p>
-                </li>
-                <li class="item">
-                  <span class="item__icon" aria-hidden="true">🎁</span>
-              <h5 class="item__name">Presentazione elegante e curata</h5>
-                  <p class="item__note">Perché anche il modo in cui viene servita fa parte dell’esperienza.</p>
-                </li>
+              <p class="item__note">Per rendere il momento unico e personale.</p>
+              </li>
               </ul>
-            </section>
+
+            </div>
           </article>
+
+          <section class="risveglio" aria-labelledby="risveglio-title">
+          <p class="eyebrow eyebrow--gold">Incluso nel pacchetto</p>
+          <p class="glyph" aria-hidden="true">☕</p>
+          <h4 class="risveglio__title" id="risveglio-title">Il Dolce Risveglio</h4>
+          <p class="risveglio__sub">Colazione per 2 persone</p>
+          <p class="risveglio__lead">Una selezione pensata per iniziare insieme la giornata con dolcezza.</p>
+
+          <ul class="items">
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍓</span>
+          <h5 class="item__name">2 mini marmellate</h5>
+          <p class="item__note">Per accompagnare la vostra colazione.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍯</span>
+          <h5 class="item__name">2 mini mieli</h5>
+          <p class="item__note">Una dolce alternativa da gustare al mattino.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍫</span>
+          <h5 class="item__name">2 mini creme spalmabili</h5>
+          <p class="item__note">Per rendere ancora più goloso il risveglio.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍞</span>
+          <h5 class="item__name">Fette biscottate</h5>
+          <p class="item__note">Perfette da accompagnare alle creme e alle confetture.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🧃</span>
+          <h5 class="item__name">2 mini succhi di frutta</h5>
+          <p class="item__note">Per completare la colazione.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🎁</span>
+          <h5 class="item__name">Presentazione elegante e curata</h5>
+          <p class="item__note">Perché anche il modo in cui viene servita fa parte dell’esperienza.</p>
+          </li>
+          </ul>
+          </section>
 
         </div>
       </div>
@@ -361,63 +312,67 @@
        SEZIONE 4 — BUONGIORNO DAL RUSTICO (proposta separata)
        ============================================================ -->
   <section class="colazione section" id="colazione" aria-labelledby="colazione-title">
-    <div class="wrap colazione__grid">
+    <div class="wrap">
 
-      <figure class="colazione__figure" data-reveal>
+      <article class="pkg pkg--quarto" data-reveal>
+        <header class="pkg__head pkg__head--quarto">
+          <p class="eyebrow">Proposta indipendente</p>
+          <p class="glyph" aria-hidden="true">☕</p>
+          <h2 class="pkg__title" id="colazione-title">Buongiorno <br class="br-wide">dal Rustico</h2>
+          <p class="pkg__price">€24,90</p>
+          <p class="pkg__sub">Colazione per 2 persone</p>
+        </header>
+
+        <div class="pkg__body">
+          <p class="pkg__intro">Una piccola coccola per iniziare la giornata con gusto.</p>
+          <span class="rule rule--sm" aria-hidden="true"></span>
+
+          <ul class="items">
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍓</span>
+          <h3 class="item__name">2 mini marmellate</h3>
+          <p class="item__note">Per accompagnare dolcemente la vostra colazione.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍯</span>
+          <h3 class="item__name">2 mini mieli</h3>
+          <p class="item__note">Una dolce alternativa da gustare al mattino.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍫</span>
+          <h3 class="item__name">2 mini creme spalmabili</h3>
+          <p class="item__note">Per un tocco goloso.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🍞</span>
+          <h3 class="item__name">Fette biscottate</h3>
+          <p class="item__note">Ideali da abbinare alle vostre creme preferite.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🧃</span>
+          <h3 class="item__name">2 mini succhi di frutta</h3>
+          <p class="item__note">Per completare il vostro risveglio.</p>
+          </li>
+          <li class="item">
+          <span class="item__icon" aria-hidden="true">🎁</span>
+          <h3 class="item__name">Presentazione elegante e curata</h3>
+          <p class="item__note">Pronta da gustare e pensata per rendere speciale anche una semplice colazione.</p>
+          </li>
+          </ul>
+
+          <p class="pkg__outro">Disponibile anche singolarmente, senza pacchetto romantico.</p>
+        </div>
+
+        <figure class="colazione__figure" data-reveal>
         <picture>
-          <source type="image/webp" srcset="assets/img/risveglio-520.webp 520w, assets/img/risveglio-760.webp 760w" sizes="(min-width: 900px) 42vw, 92vw">
-          <img src="assets/img/risveglio-760.jpg"
-               srcset="assets/img/risveglio-520.jpg 520w, assets/img/risveglio-760.jpg 760w" sizes="(min-width: 900px) 42vw, 92vw"
-               width="760" height="760" loading="lazy" decoding="async"
-               alt="Angolo della suite con mensole bianche, piante verdi e il letto bordeaux nella luce del mattino.">
+        <source type="image/webp" srcset="assets/img/risveglio-520.webp 520w, assets/img/risveglio-760.webp 760w" sizes="(min-width: 900px) 42vw, 92vw">
+        <img src="assets/img/risveglio-760.jpg"
+        srcset="assets/img/risveglio-520.jpg 520w, assets/img/risveglio-760.jpg 760w" sizes="(min-width: 900px) 42vw, 92vw"
+        width="760" height="760" loading="lazy" decoding="async"
+        alt="Angolo della suite con mensole bianche, piante verdi e il letto bordeaux nella luce del mattino.">
         </picture>
-      </figure>
-
-      <div class="colazione__text" data-reveal>
-        <p class="eyebrow">Proposta indipendente</p>
-        <p class="glyph" aria-hidden="true">☕</p>
-        <h2 class="h2" id="colazione-title">Buongiorno <br class="br-wide">dal Rustico</h2>
-
-        <p class="colazione__price">€24,90</p>
-        <p class="colazione__sub">Colazione per 2 persone</p>
-        <span class="rule" aria-hidden="true"></span>
-        <p class="colazione__lead">Una piccola coccola per iniziare la giornata con gusto.</p>
-
-        <ul class="items">
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🍓</span>
-              <h3 class="item__name">2 mini marmellate</h3>
-            <p class="item__note">Per accompagnare dolcemente la vostra colazione.</p>
-          </li>
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🍯</span>
-              <h3 class="item__name">2 mini mieli</h3>
-            <p class="item__note">Una dolce alternativa da gustare al mattino.</p>
-          </li>
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🍫</span>
-              <h3 class="item__name">2 mini creme spalmabili</h3>
-            <p class="item__note">Per un tocco goloso.</p>
-          </li>
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🍞</span>
-              <h3 class="item__name">Fette biscottate</h3>
-            <p class="item__note">Ideali da abbinare alle vostre creme preferite.</p>
-          </li>
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🧃</span>
-              <h3 class="item__name">2 mini succhi di frutta</h3>
-            <p class="item__note">Per completare il vostro risveglio.</p>
-          </li>
-          <li class="item">
-            <span class="item__icon" aria-hidden="true">🎁</span>
-              <h3 class="item__name">Presentazione elegante e curata</h3>
-            <p class="item__note">Pronta da gustare e pensata per rendere speciale anche una semplice colazione.</p>
-          </li>
-        </ul>
-
-        <p class="colazione__note">Disponibile anche singolarmente, senza pacchetto romantico.</p>
-      </div>
+        </figure>
+      </article>
 
     </div>
   </section>
