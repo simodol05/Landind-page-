@@ -53,9 +53,10 @@ L'ospite apre il link **senza creare account**, da iPhone, iPad, Android o compu
 
 ---
 
-## L'unica cosa da personalizzare: il link Airbnb
+## Il link Airbnb (solo nella versione narrativa)
 
-Apri `assets/js/main.js` e modifica la prima riga utile:
+La vetrina non ha pulsanti. Se usi `versione-completa.html`, apri
+`assets/js/completa.js` e modifica la prima riga utile:
 
 ```js
 const AIRBNB_URL = "";
@@ -75,28 +76,34 @@ const AIRBNB_URL = "";
 
 ---
 
-## Contenuti della pagina
+## Le due versioni
 
-| Sezione | Contenuto |
+| File | Cos'e' |
 |---|---|
-| Hero | Marchio, titolo, sottotitolo, bottone verso le esperienze |
-| Introduzione | "Un'esperienza pensata per voi" |
-| Esperienze d'Amore | Essenza d'Amore **€39** · Momento d'Amore **€79** · Sogno d'Amore **€109** |
-| Il Dolce Risveglio | Colazione per 2, **inclusa** nel pacchetto Sogno d'Amore |
-| Buongiorno dal Rustico | **€24,90** — proposta separata e indipendente |
-| Call to action | Invito a scrivere in chat Airbnb indicando il servizio scelto |
-| Footer | Marchio e claim |
+| `index.html` | **La vetrina.** Una sola facciata: la camera resta ferma sullo sfondo, i petali scendono, i quattro riquadri scorrono sopra. Nessun pulsante, nessun testo di contorno. E' la pagina che viene pubblicata. |
+| `versione-completa.html` | La versione narrativa precedente, con introduzione, invito finale a scrivere in chat Airbnb e piè di pagina. Conservata se dovesse servire. |
 
----
+## Contenuti della vetrina
+
+| Riquadro | Prezzo |
+|---|---|
+| Essenza d'Amore | **€39** |
+| Momento d'Amore (in evidenza) | **€79** |
+| Sogno d'Amore (l'esperienza completa) | **€109** |
+| Il Dolce Risveglio | incluso nel pacchetto Sogno d'Amore €109 |
+| Buongiorno dal Rustico (proposta indipendente) | **€24,90** |
 
 ## Struttura dei file
 
 ```
-index.html                    la pagina
-assets/css/style.css          grafica e impaginazione
+index.html                    la vetrina
+versione-completa.html        la versione narrativa precedente
+assets/css/vetrina.css        grafica della vetrina
+assets/css/completa.css       grafica della versione narrativa
 assets/css/fonts.css          dichiarazioni dei caratteri
-assets/fonts/                 caratteri ospitati localmente (nessuna chiamata a Google)
-assets/js/main.js             link Airbnb + animazioni leggere
+assets/fonts/                 caratteri ospitati localmente
+assets/js/vetrina.js          petali, parallasse, entrata in scena
+assets/js/completa.js         link Airbnb della versione narrativa
 assets/img/                   fotografie ottimizzate (WebP + JPEG)
 foto-originali/               le fotografie originali, non toccare
 tools/build-images.py         rigenera le immagini ottimizzate
@@ -107,20 +114,15 @@ tools/build-images.py         rigenera le immagini ottimizzate
 1. Metti la nuova foto in `foto-originali/`.
 2. Apri `tools/build-images.py` e aggiungi una voce nel dizionario `ASSETS`
    indicando file di partenza, ritaglio e larghezze desiderate.
-3. Lancia:
-
-   ```bash
-   python3 tools/build-images.py
-   ```
-
-4. Richiama il nuovo nome dentro `index.html`.
-
-Lo script produce automaticamente le versioni WebP e JPEG a piu' risoluzioni,
-cosi' ogni dispositivo scarica solo quella che gli serve.
+3. Lancia `python3 tools/build-images.py`.
+4. Richiama il nuovo nome dentro la pagina.
 
 ## Note tecniche
 
 - Nessuna dipendenza esterna: la pagina funziona anche offline una volta caricata.
+- Nessun pulsante, nessun modulo, nessun collegamento in uscita nella vetrina.
+- Le animazioni si fermano a scheda nascosta e rispettano l'impostazione
+  di sistema "riduci le animazioni".
 - Caratteri ospitati localmente: nessun dato dell'ospite viene inviato a terze parti.
 - Immagini in WebP con fallback JPEG, caricamento differito, dimensioni dichiarate.
 - Contrasto dei testi verificato secondo WCAG 2.1 livello AA.
