@@ -1,7 +1,8 @@
 /* ==========================================================================
    IL RUSTICO — vetrina dei servizi extra
-   Petali che scendono sullo sfondo, con profondita' e raffiche di vento,
-   e entrata in scena dei riquadri.
+   Due strati di petali: uno dietro ai riquadri, nitido, e uno davanti,
+   fuori fuoco come un petalo vicinissimo all'obiettivo. Piu' la parallasse
+   dello sfondo e l'entrata in scena dei riquadri.
    Nessun pagamento, nessun modulo, nessun collegamento esterno.
    ========================================================================== */
 
@@ -53,72 +54,148 @@
     }, { passive: true });
   }
 
-  /* ---- 3. petali di rosa ------------------------------------------------ */
-  var tela = document.getElementById("petali");
-  if (!tela) return;
-  var ctx = tela.getContext("2d", { alpha: true });
-  if (!ctx) return;
-
+  /* ---- 3. petali --------------------------------------------------------- */
   // tonalita' riprese dai petali veri della fotografia
   var TINTE = ["#D64430", "#C0342A", "#E2604A", "#B62B25", "#E8735C", "#CF3B2E"];
+  var scegliTinta = function () { return TINTE[(Math.random() * TINTE.length) | 0]; };
 
-  var petali = [];
-  var larghezza = 0, altezza = 0, dpr = 1;
-  var attivo = true;
-  var telefono = false;
+  var larghezza = 0, altezza = 0, telefono = false;
+  // vento condiviso dai due strati, cosi' si muovono d'accordo
+  var brezza = 0, raffica = 0, raffApp = 0, tempo = 0, spinta = 0;
 
-  // vento: una brezza di fondo piu' raffiche che vanno e vengono
-  var brezza = 0, raffica = 0, raffApp = 0, tempo = 0;
-
-  function quanti() {
-    var area = window.innerWidth * window.innerHeight;
-    var n = Math.round(area / (telefono ? 44000 : 28000));
-    return Math.max(12, Math.min(telefono ? 22 : 42, n));
+  function Strato(tela, conf) {
+    this.tela = tela;
+    this.ctx = tela.getContext("2d", { alpha: true });
+    this.conf = conf;
+    this.petali = [];
   }
 
-  function nuovoPetalo(sopra) {
-    // profondita': 0.45 lontano e lento, 1 vicino e veloce
-    var z = 0.45 + Math.random() * 0.55;
+  Strato.prototype.nuovo = function (sopra) {
+    var c = this.conf;
+    // profondita': verso 1 il petalo e' vicino, veloce e nitido
+    var z = c.zMin + Math.random() * (c.zMax - c.zMin);
     return {
       z: z,
       x: Math.random() * larghezza,
-      y: sopra ? -30 - Math.random() * 120 : Math.random() * altezza,
-      dim: (5 + Math.random() * 6) * z,
-      caduta: (0.16 + Math.random() * 0.3) * z,
-      ondaAmp: (0.3 + Math.random() * 0.8),
+      y: sopra ? -40 - Math.random() * 140 : Math.random() * altezza,
+      dim: (c.dim + Math.random() * c.dimVar) * z,
+      caduta: (c.caduta + Math.random() * c.cadutaVar) * z,
+      ondaAmp: c.onda + Math.random() * c.ondaVar,
       ondaVel: 0.005 + Math.random() * 0.011,
       fase: Math.random() * Math.PI * 2,
       giro: Math.random() * Math.PI * 2,
-      velGiro: (Math.random() - 0.5) * 0.018,
+      velGiro: (Math.random() - 0.5) * 0.02,
       capriola: Math.random() * Math.PI * 2,
-      velCapriola: 0.012 + Math.random() * 0.022,
-      opacita: (0.3 + Math.random() * 0.34) * (0.5 + z * 0.5),
-      tinta: TINTE[(Math.random() * TINTE.length) | 0]
+      velCapriola: 0.012 + Math.random() * 0.024,
+      opacita: (c.opac + Math.random() * c.opacVar) * (0.55 + z * 0.45),
+      // i petali di primo piano compaiono a tratti, non di continuo
+      attesa: sopra ? Math.round(Math.random() * c.attesa) : 0,
+      tinta: scegliTinta()
     };
+  };
+
+  Strato.prototype.ridimensiona = function () {
+    var f = this.conf.risoluzione;
+    this.tela.width = Math.max(1, Math.round(larghezza * f));
+    this.tela.height = Math.max(1, Math.round(altezza * f));
+    this.ctx.setTransform(f, 0, 0, f, 0, 0);
+
+    var n = this.conf.quanti();
+    while (this.petali.length < n) this.petali.push(this.nuovo(false));
+    this.petali.length = n;
+  };
+
+  Strato.prototype.forma = function (s) {
+    var c = this.ctx;
+    c.beginPath();
+    c.moveTo(0, -s);
+    c.bezierCurveTo(s * 0.82, -s * 0.62, s * 0.58, s * 0.7, 0, s);
+    c.bezierCurveTo(-s * 0.58, s * 0.7, -s * 0.82, -s * 0.62, 0, -s);
+    c.closePath();
+    c.fill();
+  };
+
+  Strato.prototype.disegna = function () {
+    var c = this.ctx;
+    c.clearRect(0, 0, larghezza, altezza);
+
+    for (var i = 0; i < this.petali.length; i++) {
+      var p = this.petali[i];
+
+      if (p.attesa > 0) { p.attesa--; continue; }
+
+      p.fase += p.ondaVel;
+      p.capriola += p.velCapriola;
+      p.giro += p.velGiro + spinta * 0.004 * p.z;
+
+      p.y += p.caduta;
+      p.x += Math.sin(p.fase) * p.ondaAmp * p.z + spinta * p.z;
+
+      if (p.y - p.dim > altezza) { this.petali[i] = this.nuovo(true); continue; }
+      if (p.x < -60) p.x = larghezza + 60;
+      else if (p.x > larghezza + 60) p.x = -60;
+
+      // la capriola mostra il petalo ora di piatto ora di taglio
+      var taglio = Math.cos(p.capriola);
+      var largo = Math.max(0.12, Math.abs(taglio));
+
+      c.save();
+      c.translate(p.x, p.y);
+      c.rotate(p.giro);
+      c.scale(largo, 1);
+      c.globalAlpha = p.opacita * (0.45 + 0.55 * largo);
+      c.fillStyle = p.tinta;
+      this.forma(p.dim);
+      c.restore();
+    }
+  };
+
+  var telaDietro = document.getElementById("petali");
+  var telaAvanti = document.getElementById("petali-avanti");
+  if (!telaDietro || !telaDietro.getContext) return;
+
+  var strati = [];
+
+  strati.push(new Strato(telaDietro, {
+    risoluzione: 1,               // impostata a ogni ridimensionamento
+    zMin: 0.45, zMax: 1,
+    dim: 6, dimVar: 7,
+    caduta: 0.19, cadutaVar: 0.34,
+    onda: 0.3, ondaVar: 0.8,
+    opac: 0.4, opacVar: 0.38,
+    attesa: 0,
+    quanti: function () {
+      var area = window.innerWidth * window.innerHeight;
+      var n = Math.round(area / (telefono ? 34000 : 23000));
+      return Math.max(16, Math.min(telefono ? 30 : 54, n));
+    }
+  }));
+
+  if (telaAvanti && telaAvanti.getContext) {
+    strati.push(new Strato(telaAvanti, {
+      // disegnato in piccolo e riportato a schermo intero: l'ingrandimento
+      // sfoca da solo, la sfocatura CSS rifinisce
+      risoluzione: 0.4,
+      zMin: 1.5, zMax: 2.4,
+      dim: 14, dimVar: 11,
+      caduta: 0.58, cadutaVar: 0.5,
+      onda: 0.5, ondaVar: 0.9,
+      opac: 0.34, opacVar: 0.18,
+      attesa: 200,                // fino a ~3 secondi di pausa fra un petalo e l'altro
+      quanti: function () { return telefono ? 4 : 6; }
+    }));
   }
 
   function ridimensiona() {
     telefono = window.innerWidth < 800;
-    dpr = Math.min(window.devicePixelRatio || 1, telefono ? 1.5 : 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, telefono ? 1.5 : 2);
     larghezza = window.innerWidth;
     altezza = window.innerHeight;
-    tela.width = Math.round(larghezza * dpr);
-    tela.height = Math.round(altezza * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    var n = quanti();
-    while (petali.length < n) petali.push(nuovoPetalo(false));
-    petali.length = n;
+    strati[0].conf.risoluzione = dpr;
+    strati.forEach(function (s) { s.ridimensiona(); });
   }
 
-  function forma(s) {
-    ctx.beginPath();
-    ctx.moveTo(0, -s);
-    ctx.bezierCurveTo(s * 0.82, -s * 0.62, s * 0.58, s * 0.7, 0, s);
-    ctx.bezierCurveTo(-s * 0.58, s * 0.7, -s * 0.82, -s * 0.62, 0, -s);
-    ctx.closePath();
-    ctx.fill();
-  }
+  var attivo = true;
 
   function passo() {
     if (!attivo) return;
@@ -131,41 +208,13 @@
       raffica = 90 + Math.random() * 130;
       raffApp = (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.9);
     }
-    var spinta = brezza;
+    spinta = brezza;
     if (raffica > 0) {
       raffica--;
       spinta += raffApp * Math.sin((raffica / 220) * Math.PI);
     }
 
-    ctx.clearRect(0, 0, larghezza, altezza);
-
-    for (var i = 0; i < petali.length; i++) {
-      var p = petali[i];
-
-      p.fase += p.ondaVel;
-      p.capriola += p.velCapriola;
-      p.giro += p.velGiro + spinta * 0.004 * p.z;
-
-      p.y += p.caduta;
-      p.x += Math.sin(p.fase) * p.ondaAmp * p.z + spinta * p.z;
-
-      if (p.y - p.dim > altezza) { petali[i] = nuovoPetalo(true); continue; }
-      if (p.x < -40) p.x = larghezza + 40;
-      else if (p.x > larghezza + 40) p.x = -40;
-
-      // la capriola mostra il petalo ora di piatto ora di taglio
-      var taglio = Math.cos(p.capriola);
-      var largo = Math.max(0.12, Math.abs(taglio));
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.giro);
-      ctx.scale(largo, 1);
-      ctx.globalAlpha = p.opacita * (0.45 + 0.55 * largo);
-      ctx.fillStyle = p.tinta;
-      forma(p.dim);
-      ctx.restore();
-    }
+    for (var i = 0; i < strati.length; i++) strati[i].disegna();
     requestAnimationFrame(passo);
   }
 
