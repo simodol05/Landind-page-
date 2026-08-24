@@ -36,10 +36,10 @@
     window.setTimeout(mostraTutto, 3000);   // rete di sicurezza
   }
 
-  if (motoRidotto) return;
-
   /* ---- 2. parallasse dello sfondo --------------------------------------- */
-  var foto = document.querySelector(".scena__foto");
+  // La parallasse e' un movimento ampio: e' la prima cosa da togliere
+  // quando il sistema chiede meno animazioni. I petali invece restano.
+  var foto = motoRidotto ? null : document.querySelector(".scena__foto");
   if (foto) {
     var inCoda = false;
     window.addEventListener("scroll", function () {
@@ -201,10 +201,10 @@
     if (!attivo) return;
 
     tempo += 0.0055;
-    brezza = Math.sin(tempo) * 0.32 + Math.sin(tempo * 0.37) * 0.2;
+    brezza = (Math.sin(tempo) * 0.32 + Math.sin(tempo * 0.37) * 0.2) * (motoRidotto ? 0.5 : 1);
 
     // ogni tanto arriva una raffica, che poi si spegne da sola
-    if (raffica <= 0 && Math.random() < 0.0022) {
+    if (!motoRidotto && raffica <= 0 && Math.random() < 0.0022) {
       raffica = 90 + Math.random() * 130;
       raffApp = (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.9);
     }

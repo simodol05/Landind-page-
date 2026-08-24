@@ -478,16 +478,31 @@ body{
   .scena__avanti{filter:blur(4px);opacity:.55}
 }
 
+/* Molti computer hanno le animazioni di sistema disattivate. In quel caso
+   non spegniamo tutto: restano i petali, che sono piccoli e lenti, e la
+   pulsazione diventa un respiro di luce. Spariscono invece i movimenti
+   ampi, che sono quelli che davvero danno fastidio a chi e' sensibile:
+   parallasse, zoom dello sfondo e spostamenti dei riquadri. */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+
+  /* i riquadri compaiono senza spostarsi */
   .js [data-entra]{opacity:1;transform:none;transition:none}
+  .riquadro:hover{transform:none}
+
+  /* via i movimenti ampi */
   .scena__foto img{animation:none}
-  .scena__avanti{display:none}
-  .riquadro--evidenza{animation:none}
   .riquadro--premium::before,.fascia::before{animation:none}
   .marchio__filetto{animation:none;width:min(220px,52%)}
-  .riquadro:hover{transform:none}
-  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+
+  /* la pulsazione resta, senza l'onda che si allarga */
+  .riquadro--evidenza{animation:respiroCalmo 3.4s ease-in-out infinite}
+  @keyframes respiroCalmo{
+    0%,100%{box-shadow:0 30px 76px -34px rgba(126,32,41,.5),
+                       0 0 22px 0 rgba(126,32,41,.14)}
+    50%    {box-shadow:0 34px 84px -32px rgba(126,32,41,.6),
+                       0 0 44px 8px rgba(126,32,41,.34)}
+  }
 }
 
 @media (prefers-contrast:more){
