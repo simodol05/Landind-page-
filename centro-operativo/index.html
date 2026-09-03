@@ -1,0 +1,2028 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0b">
+  <title>Luxury Business</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --ink: #f5f1e8;
+      --muted: #a9a397;
+      --gold: #c9a86a;
+      --gold-soft: #e6d5af;
+      --line: rgba(230, 213, 175, .17);
+      --glass: rgba(17, 18, 19, .78);
+      --glass-2: rgba(28, 29, 30, .76);
+      --red: #ed7e78;
+      --amber: #e7b766;
+      --green: #76b999;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(120deg, rgba(3,4,5,.72), rgba(5,6,7,.42) 46%, rgba(3,4,5,.74)),
+        url("luxury-marble-bg.png") center / cover fixed,
+        #060708;
+      background-attachment: fixed;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .32;
+      background:
+        radial-gradient(ellipse at 52% 8%, transparent, rgba(0,0,0,.34) 76%),
+        linear-gradient(90deg, rgba(0,0,0,.08), transparent 35%, rgba(0,0,0,.12));
+    }
+    button { font: inherit; }
+    .screen { min-height: 100vh; }
+    .hidden { display: none !important; }
+    .entry-screen { display: grid; place-items: center; padding: 24px; position: relative; }
+    .entry-card { width: min(100%, 470px); padding: clamp(28px, 5vw, 52px); border: 1px solid rgba(235,198,122,.48); border-radius: 30px; background: linear-gradient(145deg, rgba(21,22,23,.88), rgba(5,6,7,.86)); box-shadow: 0 38px 110px rgba(0,0,0,.55), 0 0 70px rgba(198,145,55,.08), inset 0 1px rgba(255,255,255,.07); backdrop-filter: blur(18px); }
+    .app-wordmark { margin-bottom: 36px; text-align: center; }
+    .app-wordmark .seal { width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center; border: 1px solid rgba(222,190,126,.55); border-radius: 50%; color: var(--gold-soft); font: 600 13px Georgia, serif; letter-spacing: .12em; }
+    .app-wordmark h1 { font-size: clamp(34px, 7vw, 46px); }
+    .app-wordmark p { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .22em; }
+    .field { display: grid; gap: 8px; margin-bottom: 16px; }
+    .field label { color: var(--gold-soft); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+    .field input { width: 100%; height: 49px; padding: 0 15px; color: var(--ink); border: 1px solid var(--line); border-radius: 13px; outline: none; background: rgba(255,255,255,.035); transition: .2s ease; }
+    .field input:focus { border-color: rgba(222,190,126,.6); box-shadow: 0 0 0 3px rgba(201,168,106,.08); }
+    .primary-button { width: 100%; height: 50px; margin-top: 10px; border: 1px solid rgba(235,210,160,.46); border-radius: 13px; color: #17130c; background: linear-gradient(135deg, #ead9b5, #b99252); font-weight: 750; letter-spacing: .04em; cursor: pointer; box-shadow: 0 13px 35px rgba(172,130,66,.16); }
+    .demo-note { margin: 17px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; text-align: center; }
+    .business-screen { padding: 42px clamp(18px, 5vw, 70px); }
+    .business-shell { max-width: 1120px; margin: 0 auto; }
+    .business-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 21px; border-bottom: 1px solid var(--line); }
+    .business-top strong { font: 500 25px Georgia, serif; }
+    .business-top span { color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .business-heading { margin: clamp(56px, 10vw, 100px) 0 30px; }
+    .business-heading h2 { margin: 0 0 9px; font: 400 clamp(35px, 5vw, 58px) Georgia, serif; }
+    .business-heading p { margin: 0; color: var(--muted); }
+    .personal-notes { margin-bottom:22px; padding:22px 24px; border:1px solid rgba(222,190,126,.24); border-radius:20px; background:linear-gradient(145deg,rgba(24,24,25,.92),rgba(7,8,9,.88)); box-shadow:0 22px 65px rgba(0,0,0,.3); }
+    .personal-notes-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px; }
+    .personal-notes h3 { margin:0 0 5px; font:500 21px Georgia,serif; }
+    .personal-notes p { margin:0; color:var(--muted); font-size:11px; }
+    .note-save-status { color:var(--gold-soft); font-size:9px; letter-spacing:.11em; text-transform:uppercase; white-space:nowrap; }
+    .personal-notes textarea { width:100%; min-height:116px; resize:vertical; padding:15px 16px; color:var(--ink); border:1px solid rgba(222,190,126,.16); border-radius:14px; outline:none; background:rgba(255,255,255,.025); font:inherit; line-height:1.55; }
+    .personal-notes textarea:focus { border-color:rgba(222,190,126,.55); box-shadow:0 0 0 3px rgba(201,168,106,.07); }
+    .business-list { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .business-card { min-height: 190px; padding: 28px 30px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; color: var(--ink); border: 1px solid rgba(235,198,122,.38); border-radius: 25px; background: linear-gradient(135deg, rgba(27,28,29,.88), rgba(7,8,9,.84)); cursor: pointer; box-shadow: 0 26px 75px rgba(0,0,0,.35), 0 0 50px rgba(184,128,38,.06); backdrop-filter: blur(16px); transition: transform .25s ease, border-color .25s ease; }
+    .business-card:hover { transform: translateY(-4px); border-color: rgba(222,190,126,.58); }
+    .business-card small { color: var(--gold); text-transform: uppercase; letter-spacing: .16em; }
+    .business-card h3 { margin: 10px 0; font: 400 clamp(25px, 4vw, 38px) Georgia, serif; }
+    .business-card p { margin: 0; max-width: 470px; color: var(--muted); line-height: 1.55; }
+    .business-card .open-label { align-self: flex-end; color: var(--gold-soft); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+    .business-card.future { cursor: default; opacity: .48; border-style: dashed; }
+    .business-card.future:hover { transform: none; border-color: rgba(222,190,126,.25); }
+    .shell { max-width: 1420px; margin: auto; padding: 24px clamp(16px, 3vw, 48px) 52px; position: relative; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 17px 20px; border: 1px solid rgba(222,190,126,.2); border-radius: 18px; background: rgba(7,8,9,.77); box-shadow: 0 24px 80px rgba(0,0,0,.3), inset 0 1px rgba(255,255,255,.035); backdrop-filter: blur(20px); }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .monogram { width: 45px; height: 45px; border: 1px solid rgba(201,168,106,.55); display: grid; place-items: center; color: var(--gold-soft); border-radius: 50%; background: linear-gradient(145deg, rgba(201,168,106,.14), rgba(255,255,255,.01)); box-shadow: inset 0 0 22px rgba(201,168,106,.06); font: 600 10px Georgia, serif; letter-spacing: .08em; }
+    .eyebrow { color: var(--gold); font-size: 10px; text-transform: uppercase; letter-spacing: .24em; margin-bottom: 5px; }
+    h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(21px, 2.2vw, 31px); font-weight: 500; letter-spacing: .02em; margin: 0; }
+    .property { display: flex; align-items: center; gap: 9px; color: var(--gold-soft); font-size: 12px; letter-spacing: .04em; padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.025); }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .menu-button { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; color: var(--gold-soft); background: rgba(255,255,255,.025); cursor: pointer; }
+    .menu-lines, .menu-lines::before, .menu-lines::after { width: 17px; height: 1px; display: block; background: currentColor; content: ""; }
+    .menu-lines { position: relative; }
+    .menu-lines::before { position: absolute; top: -5px; }
+    .menu-lines::after { position: absolute; top: 5px; }
+    .menu-overlay { position: fixed; inset: 0; z-index: 20; visibility: hidden; opacity: 0; background: rgba(0,0,0,.6); transition: .25s ease; }
+    .menu-overlay.open { visibility: visible; opacity: 1; }
+    .drawer { position: absolute; top: 0; left: 0; width: min(86vw, 340px); height: 100%; padding: 31px 24px; transform: translateX(-100%); border-right: 1px solid rgba(222,190,126,.25); background: linear-gradient(150deg, #171819, #060708 65%); box-shadow: 30px 0 90px rgba(0,0,0,.55); transition: .3s ease; }
+    .menu-overlay.open .drawer { transform: translateX(0); }
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 26px; border-bottom: 1px solid var(--line); }
+    .drawer-head strong { font: 500 23px Georgia, serif; }
+    .close-button { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: transparent; cursor: pointer; }
+    .drawer nav { display: grid; gap: 8px; padding-top: 25px; }
+    .nav-item { width: 100%; padding: 15px 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; border-radius: 13px; color: var(--ink); background: transparent; text-align: left; cursor: pointer; }
+    .nav-item:hover { border-color: var(--line); background: rgba(201,168,106,.07); }
+    .nav-item small { color: var(--gold); letter-spacing: .08em; }
+    .section-view { animation: reveal .3s ease; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 43px 5px 25px; }
+    .section-heading h2 { margin: 0 0 8px; font: 400 clamp(34px, 5vw, 52px) Georgia, serif; }
+    .section-heading p { margin: 0; color: var(--muted); }
+    .outline-button { min-height: 43px; padding: 0 17px; border: 1px solid rgba(222,190,126,.35); border-radius: 12px; color: var(--gold-soft); background: rgba(201,168,106,.06); cursor: pointer; }
+    .reservation-layout { display: grid; grid-template-columns: minmax(290px, .72fr) minmax(0, 1.28fr); gap: 20px; }
+    .reservation-form { padding: 22px; }
+    .reservation-form h3 { margin: 0 0 20px; font: 500 24px Georgia, serif; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .form-grid .wide { grid-column: 1 / -1; }
+    .field select, .field textarea { width: 100%; padding: 0 15px; color: var(--ink); border: 1px solid var(--line); border-radius: 13px; outline: none; background: #151617; }
+    .field select { height: 49px; }
+    .field textarea { min-height: 86px; padding-top: 13px; resize: vertical; }
+    .reservations-list { padding: 22px; min-height: 420px; }
+    .empty-state { height: 100%; min-height: 370px; display: grid; place-items: center; text-align: center; border: 1px dashed rgba(222,190,126,.22); border-radius: 17px; }
+    .empty-state h3 { margin: 0 0 8px; font: 500 26px Georgia, serif; }
+    .empty-state p { max-width: 390px; margin: 0; color: var(--muted); line-height: 1.55; }
+    .reservation-item { padding: 18px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto; gap: 14px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.025); }
+    .reservation-item h4 { margin: 0 0 7px; font-size: 15px; }
+    .reservation-item p { margin: 0; color: var(--muted); font-size: 12px; }
+    .reservation-item .platform { color: var(--gold); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+    .reservation-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+    .chip { padding:4px 8px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.08em; }
+    .guest-name-row { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:11px; }
+    .guest-name-input { flex:1; min-width:150px; padding:9px 11px; color:var(--ink); border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.035); outline:none; font-size:12px; }
+    .guest-name-input:focus { border-color:rgba(222,190,126,.45); }
+    .guest-name-save { padding:9px 15px; color:#0a0a0a; background:var(--gold-soft); border:none; border-radius:10px; font-weight:700; font-size:11px; cursor:pointer; }
+    .guest-name-save:disabled { opacity:.55; cursor:default; }
+    .guest-name-feedback { color:var(--muted); font-size:10px; }
+    .guest-name-feedback.ok { color:var(--green); }
+    .guest-name-feedback.ko { color:#e39292; }
+    .guest-name-link { display:inline-block; margin-top:8px; color:var(--gold-soft); font-size:10px; text-decoration:underline; }
+    .integration-strip { margin-bottom: 20px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid rgba(222,190,126,.22); border-radius: 16px; background: rgba(7,8,9,.75); }
+    .integration-strip p { margin: 0; color: var(--muted); font-size: 12px; }
+    .provider-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .provider { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--gold-soft); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+    .reservation-item details { grid-column: 1 / -1; margin-top: 5px; border-top: 1px solid rgba(230,213,175,.1); }
+    .reservation-item summary { padding: 14px 0 4px; color: var(--gold-soft); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; }
+    .reminder-list { display: grid; gap: 7px; padding-top: 10px; }
+    .reminder-row { min-height: 44px; padding: 9px 11px; display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: center; border: 1px solid rgba(230,213,175,.08); border-radius: 11px; background: rgba(255,255,255,.018); }
+    .reminder-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--gold); }
+    .reminder-row label { font-size: 12px; }
+    .reminder-row select { height: 31px; padding: 0 8px; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; background: #151617; font-size: 11px; }
+    .reminder-progress { margin-top: 11px; color: var(--muted); font-size: 10px; text-align: right; }
+    .module-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 20px; }
+    .module-body { padding: 20px; }
+    .workflow-step { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 14px 6px; border-bottom: 1px solid rgba(230,213,175,.09); }
+    .workflow-step:last-child { border-bottom: 0; }
+    .step-number { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--gold); font-size: 11px; }
+    .workflow-step strong { display: block; font-size: 13px; }
+    .workflow-step small { color: var(--muted); font-size: 11px; }
+    .step-toggle { min-width: 84px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--gold-soft); background: rgba(255,255,255,.025); cursor: pointer; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+    .workflow-step.done { opacity: .62; }
+    .workflow-step.done .step-toggle { color: #102219; background: var(--green); border-color: var(--green); }
+    .workflow-step.locked { opacity: .4; }
+    .workflow-step.locked .step-toggle { cursor: not-allowed; }
+    .module-note { padding: 20px; }
+    .module-note h3 { margin: 0 0 10px; font: 500 23px Georgia, serif; }
+    .module-note p { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .cleaning-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+    .meta-box { padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.02); }
+    .meta-box span { display:block; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; }
+    .meta-box strong { font-size: 12px; }
+    .check-row { display:grid; grid-template-columns: 22px 1fr auto; gap:11px; align-items:center; padding:12px 5px; border-bottom:1px solid rgba(230,213,175,.08); }
+    .check-row input { accent-color: var(--gold); width:16px; height:16px; }
+    .check-row label { font-size:13px; }
+    .check-row input[type=number] { width:58px; height:34px; padding:0 8px; color:var(--ink); border:1px solid var(--line); border-radius:9px; background:#151617; }
+    .confirmation { margin-top:16px; padding:15px; border:1px solid rgba(222,190,126,.2); border-radius:14px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .empty-tasks { margin: 10px; padding: 32px 18px; text-align: center; color: var(--muted); border: 1px dashed rgba(222,190,126,.2); border-radius: 15px; font-size: 12px; line-height: 1.55; }
+    .codes-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 20px; }
+    .code-card { padding: 23px; }
+    .code-card h3 { margin: 0 0 7px; font: 500 24px Georgia, serif; }
+    .code-card > p { margin: 0 0 21px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .code-row { display: flex; gap: 9px; }
+    .code-row input { flex: 1; min-width: 0; height: 49px; padding: 0 15px; color: var(--ink); border: 1px solid var(--line); border-radius: 13px; background: #151617; }
+    .code-row button { min-width: 86px; border: 1px solid var(--line); border-radius: 13px; color: var(--gold-soft); background: rgba(201,168,106,.06); cursor: pointer; }
+    .code-row input:disabled, .code-row button:disabled { opacity: .4; cursor: not-allowed; }
+    .code-history { padding: 23px; }
+    .code-history h3 { margin: 0 0 18px; font: 500 24px Georgia, serif; }
+    .history-item { display: flex; justify-content: space-between; gap: 16px; padding: 14px 3px; border-bottom: 1px solid rgba(230,213,175,.09); }
+    .history-item span { color: var(--muted); font-size: 12px; }
+    .history-item strong { color: var(--gold-soft); letter-spacing: .16em; }
+    .finance-layout { display: grid; grid-template-columns: minmax(300px,.72fr) minmax(0,1.28fr); gap:20px; }
+    .ledger-filter { display:flex; align-items:center; gap:8px; }
+    .ledger-filter label { color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.09em; }
+    .ledger-filter input { padding:9px 11px; color:var(--ink); border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.035); outline:none; font-size:12px; }
+    .ledger-item { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:14px; padding:15px 18px; margin-bottom:10px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.025); }
+    .ledger-item h4 { margin:0 0 5px; font-size:14px; }
+    .ledger-item p { margin:0; color:var(--muted); font-size:11px; }
+    .ledger-amount { text-align:right; }
+    .ledger-amount strong { display:block; font-size:15px; }
+    .ledger-amount small { color:var(--muted); font-size:10px; }
+    .ledger-remove { padding:8px 11px; border:1px solid rgba(222,190,126,.28); border-radius:10px; color:var(--muted); background:transparent; cursor:pointer; font-size:14px; line-height:1; }
+    .ledger-remove:hover { color:#e39292; }
+    @media (max-width:640px) { .ledger-item { grid-template-columns:1fr auto; } }
+    .finance-form, .finance-results { padding:23px; }
+    .finance-form h3, .finance-results h3 { margin:0 0 20px; font:500 24px Georgia,serif; }
+    .allocation-group { margin-top:14px; border:1px solid var(--line); border-radius:15px; overflow:hidden; }
+    .allocation-title { padding:11px 14px; color:var(--gold); background:rgba(201,168,106,.055); font-size:10px; text-transform:uppercase; letter-spacing:.14em; }
+    .allocation-row { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:12px 14px; border-top:1px solid rgba(230,213,175,.08); font-size:12px; }
+    .allocation-row span { color:var(--muted); }
+    .allocation-row strong { color:var(--gold-soft); font-family:Georgia,serif; font-size:15px; }
+    .allocation-row.total { background:rgba(201,168,106,.07); }
+    .delete-reservation { grid-column:1/-1; justify-self:end; padding:7px 10px; border:1px solid rgba(237,126,120,.34); border-radius:9px; color:var(--red); background:transparent; cursor:pointer; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+    .earnings-panel { grid-column:1/-1; padding:22px; position:relative; overflow:hidden; }
+    .earnings-panel::after { content:""; position:absolute; inset:auto -10% -80% 40%; height:210px; background:radial-gradient(circle,rgba(201,168,106,.16),transparent 65%); pointer-events:none; }
+    .earnings-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:15px; }
+    .earnings-head h3 { margin:0 0 5px; font:500 22px Georgia,serif; }
+    .earnings-head p { margin:0; color:var(--muted); font-size:11px; }
+    .earnings-value { text-align:right; }
+    .earnings-value strong { display:block; color:var(--gold-soft); font:500 29px Georgia,serif; }
+    .earnings-value span { color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.12em; }
+    .earnings-chart { width:100%; height:120px; display:block; }
+    .chart-line { fill:none; stroke:url(#goldLine); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:800; stroke-dashoffset:800; filter:drop-shadow(0 0 3px #f0d59e) drop-shadow(0 0 10px rgba(228,177,81,.82)) drop-shadow(0 0 22px rgba(201,132,28,.5)); }
+    .dashboard-animate .chart-line { animation:drawLine 2.4s ease forwards, glowLine 2.2s ease-in-out infinite alternate; }
+    .chart-area { fill:url(#goldArea); opacity:.42; }
+    .chart-dot { fill:#f0d59e; filter:drop-shadow(0 0 6px rgba(237,197,117,.75)); animation:pulseDot 1.8s ease-in-out infinite; }
+    @keyframes drawLine { to { stroke-dashoffset:0; } }
+    @keyframes glowLine { from { filter:drop-shadow(0 0 3px #f0d59e) drop-shadow(0 0 9px rgba(228,177,81,.65)); } to { filter:drop-shadow(0 0 5px #fff0c9) drop-shadow(0 0 18px rgba(232,176,65,.95)) drop-shadow(0 0 30px rgba(188,112,18,.6)); } }
+    @keyframes pulseDot { 50% { r:6; opacity:.68; } }
+    .accounting-view { margin-top:28px; padding:24px; border:1px solid rgba(222,190,126,.3); border-radius:24px; background:linear-gradient(145deg,rgba(23,24,25,.96),rgba(7,8,9,.95)); box-shadow:0 30px 90px rgba(0,0,0,.48),0 0 70px rgba(201,168,106,.08); }
+    .accounting-top { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:18px; }
+    .accounting-top h3 { margin:0 0 6px; color:var(--gold-soft); font:500 27px Georgia,serif; }
+    .accounting-top p { margin:0; color:var(--muted); font-size:11px; }
+    .accounting-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .accounting-nav button { padding:10px 13px; border:1px solid rgba(106,211,210,.28); border-radius:11px; color:#a9e1df; background:rgba(22,69,72,.2); font:inherit; font-size:10px; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; }
+    .accounting-nav button:hover { border-color:rgba(231,195,125,.55); color:var(--gold-soft); }
+    .accounting-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+    .accounting-kpi { padding:18px; border:1px solid rgba(106,211,210,.18); border-radius:16px; background:rgba(3,13,17,.48); }
+    .accounting-kpi span { display:block; color:#7fa4a6; font-size:9px; text-transform:uppercase; letter-spacing:.12em; }
+    .accounting-kpi strong { display:block; margin-top:8px; color:#d9ffff; font:500 24px Georgia,serif; }
+    .accounting-ledger { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .accounting-ledger .panel { padding:20px; border-color:rgba(106,211,210,.18); background:rgba(3,13,17,.44); }
+    .accounting-ledger h4 { margin:0 0 14px; color:#d9ffff; font:500 18px Georgia,serif; }
+    .accounting-note { margin-top:14px; color:#7fa4a6; font-size:10px; line-height:1.5; }
+    .accounting-frame { width:100%; min-height:690px; border:1px solid rgba(222,190,126,.22); border-radius:18px; background:#f4f7f7; }
+    .connections-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0; }
+    .connection-card { padding:20px; border:1px solid rgba(222,190,126,.2); border-radius:20px; background:linear-gradient(145deg,rgba(23,24,25,.95),rgba(7,8,9,.92)); }
+    .connection-card h3 { margin:0 0 6px; font:500 21px Georgia,serif; }
+    .connection-card p { margin:0 0 16px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .connection-card input { width:100%; padding:12px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); outline:none; }
+    .connection-actions { display:flex; gap:8px; margin-top:10px; }
+    .connection-actions button { flex:1; padding:10px; border:1px solid rgba(222,190,126,.3); border-radius:10px; color:var(--ink); background:transparent; cursor:pointer; }
+    .connection-actions .connect-calendar { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
+    .connection-status { display:inline-flex; margin-top:13px; padding:6px 9px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.09em; }
+    .connection-status.connected { color:var(--green); border-color:rgba(116,208,164,.35); }
+    .sync-panel { padding:22px; }
+    .sync-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .sync-toolbar h3 { margin:0 0 5px; font:500 22px Georgia,serif; }
+    .sync-toolbar p { margin:0; color:var(--muted); font-size:11px; }
+    .api-readiness { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+    .api-ready-item { padding:13px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.02); }
+    .api-ready-item strong { display:block; margin-bottom:5px; }
+    .api-ready-item small { color:var(--amber); }
+    .field-with-toggle { display:flex; align-items:center; gap:6px; }
+    .field-with-toggle input { flex:1; min-width:0; }
+    .reveal-toggle { padding:9px 11px; border:1px solid rgba(222,190,126,.3); border-radius:10px; color:var(--muted); background:transparent; cursor:pointer; font-size:9px; text-transform:uppercase; letter-spacing:.08em; }
+    .connection-detail { margin:9px 0 0; color:var(--muted); font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
+    .connection-detail.ok { color:var(--green); }
+    .connection-detail.ko { color:#e39292; }
+    .api-readiness { align-items:start; }
+    .api-card { display:flex; flex-direction:column; gap:9px; padding:15px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.02); }
+    .api-card strong { font-size:13px; letter-spacing:.04em; }
+    .api-card label { display:flex; flex-direction:column; gap:5px; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.08em; }
+    .api-card input, .api-card select { width:100%; padding:10px 11px; color:var(--ink); border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.035); outline:none; font-size:12px; text-transform:none; letter-spacing:normal; }
+    .api-card select { appearance:none; cursor:pointer; }
+    .api-card option { color:#111; }
+    .api-card .connection-actions { margin-top:2px; }
+    .api-card .connection-actions button { padding:9px; font-size:11px; }
+    .api-card .api-save { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
+    .api-feedback { margin:0; color:var(--muted); font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
+    .api-feedback.ok { color:var(--green); }
+    .api-feedback.ko { color:#e39292; }
+    #serviceHealth.ok { color:var(--green); }
+    #serviceHealth.ko { color:var(--amber); }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin: 48px 6px 28px; }
+    .intro h2 { margin: 0 0 9px; font-family: Georgia, serif; font-size: clamp(30px, 5vw, 56px); font-weight: 400; line-height: .98; max-width: 720px; }
+    .intro p { margin: 0; color: var(--muted); font-size: 14px; }
+    .date { color: var(--muted); text-align: right; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(310px, .65fr); gap: 20px; }
+    .operations-section { grid-column:1/-1; }
+    .panel { border: 1px solid rgba(222,190,126,.19); border-radius: 22px; background: linear-gradient(145deg, rgba(23,24,25,.94), rgba(8,9,10,.92)); backdrop-filter: blur(22px); box-shadow: 0 28px 80px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.045); overflow: hidden; }
+    .panel-head { padding: 20px 22px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); }
+    .panel-title { display: flex; align-items: center; gap: 11px; }
+    .panel-title h3 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .02em; }
+    .count { min-width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; color: #0a0a0a; background: var(--gold-soft); font-size: 11px; font-weight: 800; }
+    .tasks { padding: 8px 12px 12px; }
+    .day-label { padding: 18px 10px 8px; color: var(--gold); font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .18em; }
+    .priority-date { margin: 0 0 11px 5px; color: var(--gold-soft); font: 500 15px Georgia, serif; letter-spacing: .04em; text-transform: capitalize; }
+    .task { display: grid; grid-template-columns: 54px 38px 1fr auto; gap: 13px; align-items: center; padding: 14px 10px; border-bottom: 1px solid rgba(230,213,175,.09); }
+    .task.no-time { grid-template-columns:38px 1fr auto; }
+    .task-time { color: var(--gold-soft); font: 600 12px Georgia, serif; text-align: center; }
+    .task:last-child { border-bottom: 0; }
+    .task-icon { width: 38px; height: 38px; display: grid; place-items: center; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.055); border-radius: 12px; font-size: 18px; }
+    .task-icon input { width:18px; height:18px; accent-color:var(--gold); cursor:pointer; }
+    .task:has(input:checked) strong { text-decoration:line-through; opacity:.5; }
+    .task strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .task small { color: var(--muted); font-size: 12px; }
+    .status { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 7px 9px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+    .urgent { color: var(--red); } .important { color: var(--amber); } .normal { color: var(--green); }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+    .goals { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+    .goal-card { padding:18px; border:1px solid rgba(222,190,126,.22); border-radius:17px; background:linear-gradient(135deg,rgba(201,168,106,.08),rgba(255,255,255,.02)); }
+    .goal-card span { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.11em; }
+    .goal-card strong { display:block; margin:7px 0 10px; color:var(--gold-soft); font:500 22px Georgia,serif; }
+    .goal-track { height:5px; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.07); }
+    .goal-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#8f672f,#f0d59e); box-shadow:0 0 12px rgba(240,213,158,.55); transform-origin:left; }
+    .dashboard-animate .goal-track i { animation:goalSweep 1.6s cubic-bezier(.2,.8,.2,1) both, goalGlow 1.8s ease-in-out infinite alternate; }
+    @keyframes goalSweep { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+    @keyframes goalGlow { from { filter:brightness(.85); } to { filter:brightness(1.35) drop-shadow(0 0 8px rgba(240,213,158,.7)); } }
+    .metric { padding: 17px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.025); }
+    .metric span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+    .metric strong { font: 500 24px Georgia, serif; }
+    .metric strong.compact { font-size: 17px; line-height: 1.2; }
+    .metric-detail { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .metric-detail:empty { display: none; }
+    .inventory { padding: 8px 12px 13px; }
+    .inventory-row { display: grid; grid-template-columns: 32px 1fr auto 30px; gap: 11px; align-items: center; min-height: 52px; padding: 8px 9px; border-bottom: 1px solid rgba(230,213,175,.08); }
+    .inventory-save { display:flex; align-items:center; gap:11px; flex-wrap:wrap; padding:13px 12px 0; }
+    .inventory-save button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .inventory-save button:disabled { opacity:.5; cursor:default; }
+    .inventory-save-status { color:var(--muted); font-size:12px; }
+    .inventory-save-status.ok { color:var(--gold-soft); }
+    .inventory-save-status.ko { color:var(--red); }
+    .inventory-add { display:grid; grid-template-columns:1fr auto; gap:9px; padding:14px 12px; border-top:1px solid var(--line); }
+    .inventory-add input { min-width:0; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); outline:none; }
+    .inventory-add button { padding:0 15px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .inventory-row:last-child { border-bottom: 0; }
+    .inventory-row .emoji { font-size: 17px; }
+    .inventory-row strong { display: block; font-size: 13px; }
+    .inventory-row small { color: var(--muted); font-size: 10px; }
+    .qty { display: inline-flex; align-items: center; gap: 9px; color: var(--gold-soft); font-size: 12px; }
+    .qty button { width: 27px; height: 27px; padding: 0; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.035); color: var(--ink); cursor: pointer; transition: .2s ease; }
+    .qty button:hover { background: rgba(201,168,106,.16); border-color: rgba(201,168,106,.45); }
+    .fixed { color: var(--muted); font-size: 11px; }
+    .foot-note { margin: 12px 20px 18px; padding: 12px 13px; color: var(--muted); font-size: 11px; line-height: 1.45; border: 1px solid rgba(201,168,106,.12); background: rgba(201,168,106,.035); border-radius: 13px; }
+    .quote { grid-column: 1 / -1; margin-top: 20px; padding: 17px 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid rgba(222,190,126,.2); border-radius: 18px; background: linear-gradient(90deg, rgba(9,10,11,.92), rgba(38,30,18,.78), rgba(9,10,11,.92)); box-shadow: 0 20px 55px rgba(0,0,0,.26); }
+    .quote q { font-family: Georgia, serif; font-size: 16px; color: var(--gold-soft); }
+    .quote span { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    @media (max-width: 860px) {
+      .shell { padding-top: 18px; }
+      header { align-items: flex-start; }
+      .property { max-width: 190px; border-radius: 13px; }
+      .intro { align-items: flex-start; margin-top: 28px; }
+      .date { display: none; }
+      .grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      h1 { font-size: 18px; }
+      .monogram { width: 40px; height: 40px; }
+      .eyebrow { font-size: 8px; }
+      .property { display: none; }
+      .intro h2 { font-size: 38px; }
+      .task { grid-template-columns: 38px 1fr; }
+      .task-time { grid-column: 1; grid-row: 1; }
+      .task-icon { grid-column: 1; grid-row: 2; }
+      .task > div:nth-of-type(3) { grid-column: 2; grid-row: 1 / span 2; }
+      .status { grid-column: 2; justify-self: start; }
+      .summary { gap: 8px; }
+      .metric { padding: 13px 10px; }
+      .metric strong { font-size: 20px; }
+      .metric span { font-size: 9px; }
+      .quote { align-items: flex-start; flex-direction: column; }
+      .business-list { grid-template-columns: 1fr; }
+      .reservation-layout { grid-template-columns: 1fr; }
+      .module-grid { grid-template-columns: 1fr; }
+      .codes-layout { grid-template-columns: 1fr; }
+      .finance-layout { grid-template-columns:1fr; }
+      .accounting-top { align-items:flex-start; flex-direction:column; }
+      .accounting-kpis, .accounting-ledger { grid-template-columns:1fr; }
+      .connections-grid, .api-readiness { grid-template-columns:1fr; }
+      .cleaning-meta { grid-template-columns: 1fr; }
+      .integration-strip { align-items: flex-start; flex-direction: column; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <section id="loginScreen" class="screen entry-screen">
+    <form id="loginForm" class="entry-card">
+      <div class="app-wordmark">
+        <div class="seal">B</div>
+        <p>Private Business Platform</p>
+        <h1>Luxury Business</h1>
+      </div>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="email" placeholder="Inserisci la tua e-mail" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Inserisci la password" required>
+      </div>
+      <button class="primary-button" type="submit">Accedi</button>
+      <p class="demo-note">Anteprima interattiva: puoi utilizzare qualsiasi e-mail e password. Le credenziali non vengono salvate.</p>
+    </form>
+  </section>
+
+  <section id="businessScreen" class="screen business-screen hidden">
+    <div class="business-shell">
+      <div class="business-top"><strong>Luxury Business</strong><span>Selezione business</span></div>
+      <div class="business-heading">
+        <h2>Quale attività vuoi gestire?</h2>
+        <p>Scegli il tuo spazio operativo. Ogni business mantiene dati e strumenti separati.</p>
+      </div>
+      <section class="personal-notes" aria-labelledby="personalNotesTitle">
+        <div class="personal-notes-head"><div><h3 id="personalNotesTitle">Note</h3><p>Annota cose da fare, idee, scadenze o qualsiasi informazione utile.</p></div><span id="noteSaveStatus" class="note-save-status">Salvato</span></div>
+        <textarea id="personalNotes" placeholder="Scrivi qui le tue note…" aria-label="Note"></textarea>
+      </section>
+      <div class="business-list">
+        <button id="openSuite" class="business-card" type="button">
+          <div><small>Business 01 · Ospitalità</small><h3>Il Rustico Romantic<br>Suite &amp; Sauna</h3><p>Prenotazioni, ospiti, pulizie, promemoria e inventario in un unico centro operativo.</p></div>
+          <span class="open-label">Apri business</span>
+        </button>
+        <div class="business-card future">
+          <div><small>Espansione futura</small><h3>Nuovo business</h3><p>Lo spazio è già predisposto per le prossime attività.</p></div>
+          <span class="open-label">Prossimamente</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="menuOverlay" class="menu-overlay" aria-hidden="true">
+    <aside class="drawer" aria-label="Menu principale">
+      <div class="drawer-head"><strong>Luxury Business</strong><button id="closeMenu" class="close-button" type="button" aria-label="Chiudi menu">×</button></div>
+      <nav>
+        <button id="dashboardLink" class="nav-item" type="button"><span>Centro operativo</span><small>Apri</small></button>
+        <button id="inventoryLink" class="nav-item" type="button"><span>Inventario</span><small>Apri</small></button>
+        <button id="reservationsLink" class="nav-item" type="button"><span>Prenotazioni</span><small>Apri</small></button>
+        <button id="connectionsLink" class="nav-item" type="button"><span>Collegamenti</span><small>Apri</small></button>
+        <button id="workflowLink" class="nav-item" type="button"><span>Workflow ospite</span><small>Apri</small></button>
+        <button id="cleaningLink" class="nav-item" type="button"><span>Pulizie</span><small>Apri</small></button>
+        <button id="codesLink" class="nav-item" type="button"><span>Codici cassetta</span><small>Apri</small></button>
+        <button id="accountingLink" class="nav-item" type="button"><span>Contabilità</span><small>Apri</small></button>
+      </nav>
+    </aside>
+  </div>
+
+  <main id="appScreen" class="shell screen hidden">
+    <header>
+      <div class="brand">
+        <div class="monogram">B</div>
+        <div>
+          <div class="eyebrow">Hospitality Management</div>
+          <h1>Luxury Business</h1>
+        </div>
+      </div>
+      <div class="header-actions"><div class="property">Il Rustico Romantic Suite &amp; Sauna</div><button id="openMenu" class="menu-button" type="button" aria-label="Apri menu"><span class="menu-lines"></span></button></div>
+    </header>
+
+    <div id="dashboardView" class="section-view">
+    <section class="intro">
+      <div>
+        <h2>La tua giornata,<br>in perfetto ordine.</h2>
+        <p>Solo ciò che richiede attenzione. Niente rumore.</p>
+      </div>
+      <div id="currentDate" class="date"></div>
+    </section>
+
+    <div class="grid">
+      <section class="operations-section">
+        <div id="priorityDate" class="priority-date"></div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span>✨</span><h3>Priorità di oggi</h3></div>
+            <div id="taskCount" class="count">0</div>
+          </div>
+          <div id="todayTasks" class="tasks"><div class="empty-tasks">Nessuna prenotazione o attività operativa prevista per oggi.</div></div>
+        </div>
+
+        <div class="summary">
+          <div class="metric"><span>Prenotazione attuale</span><strong id="occupancyValue" class="compact">Nessun ospite</strong><small id="occupancyDetail" class="metric-detail"></small></div>
+          <div class="metric"><span>Prossimo ospite</span><strong id="nextCheckInValue" class="compact">Non programmato</strong><small id="nextCheckInDetail" class="metric-detail"></small></div>
+          <div class="metric"><span>Prossimo check-out</span><strong id="nextCheckOutValue" class="compact">Non programmato</strong><small id="nextCheckOutDetail" class="metric-detail"></small></div>
+          <div class="metric"><span>Alert reali</span><strong id="alertCount">00</strong></div>
+        </div>
+        <div class="goals">
+          <div class="goal-card"><span>Prossimo goal mensile</span><strong>€2.500</strong><div class="goal-track" aria-label="66,6% dell’obiettivo"><i style="width:66.6%"></i></div></div>
+          <div class="goal-card"><span>Prossimo goal TikTok</span><strong>1.000 follower</strong><div class="goal-track" aria-label="Obiettivo TikTok da aggiornare"><i style="width:8%"></i></div></div>
+        </div>
+      </section>
+
+      <aside id="inventoryPanel" class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span>📦</span><h3>Inventario essenziale</h3></div>
+          <span class="status normal">Il Rustico</span>
+        </div>
+        <div class="inventory">
+          <div class="inventory-row"><span class="emoji">💧</span><div><strong>Acqua</strong><small>Consumabile</small></div><div class="qty"><button aria-label="Riduci acqua" data-action="minus" data-item="water">−</button><b id="water">12</b><button aria-label="Aumenta acqua" data-action="plus" data-item="water">+</button></div></div>
+          <div class="inventory-row"><span class="emoji">🍷</span><div><strong>Vino</strong><small>Consumabile</small></div><div class="qty"><button aria-label="Riduci vino" data-action="minus" data-item="wine">−</button><b id="wine">6</b><button aria-label="Aumenta vino" data-action="plus" data-item="wine">+</button></div></div>
+          <div class="inventory-row"><span class="emoji">🪥</span><div><strong>Spazzolini</strong><small>Consumabile</small></div><span class="fixed">Presente</span></div>
+          <div class="inventory-row"><span class="emoji">🧻</span><div><strong>Carta igienica</strong><small>Consumabile</small></div><span class="fixed">Presente</span></div>
+          <div class="inventory-row"><span class="emoji">☕</span><div><strong>Cialde caffè</strong><small>Colazione</small></div><span class="fixed">Presente</span></div>
+          <div class="inventory-row"><span class="emoji">🌿</span><div><strong>Camomilla</strong><small>Colazione</small></div><span class="fixed">Presente</span></div>
+          <div class="inventory-row"><span class="emoji">🧂</span><div><strong>Zucchero e stecchini</strong><small>Colazione</small></div><span class="fixed">Presente</span></div>
+          <div class="inventory-row"><span class="emoji">🛏️</span><div><strong>Lenzuola e stracci</strong><small>Riutilizzabili</small></div><span class="fixed">In dotazione</span></div>
+          <div class="inventory-row"><span class="emoji">🧺</span><div><strong>Asciugamani grigi e doccia</strong><small>Riutilizzabili</small></div><span class="fixed">In dotazione</span></div>
+          <div class="inventory-row"><span class="emoji">🧹</span><div><strong>Aspirapolvere e lava/asciuga</strong><small>Attrezzatura</small></div><span class="fixed">Disponibili</span></div>
+        </div>
+        <div class="inventory-save">
+          <button id="saveInventory" type="button">Salva quantità</button>
+          <span id="inventorySaveStatus" class="inventory-save-status"></span>
+        </div>
+        <form id="inventoryAddForm" class="inventory-add"><input id="newInventoryItem" type="text" placeholder="Nuovo oggetto" required><button type="submit">Aggiungi</button></form>
+        <p class="foot-note">Regola acqua e vino con − e +, poi premi <strong>Salva quantità</strong>: il valore resta anche riaprendo l’app.</p>
+      </aside>
+
+      <section class="panel earnings-panel">
+        <div class="earnings-head"><div><h3>Guadagno del mese</h3><p id="monthlyNote">In attesa dei dati dalla Contabilità…</p></div><div class="earnings-value"><strong id="monthlyEarnings">€0,00</strong><span id="monthlyLabel">—</span></div></div>
+        <svg class="earnings-chart" viewBox="0 0 900 120" preserveAspectRatio="none" aria-label="Andamento animato del guadagno mensile">
+          <defs><linearGradient id="goldLine" x1="0" x2="1"><stop stop-color="#8f672f"/><stop offset=".5" stop-color="#f0d59e"/><stop offset="1" stop-color="#c0954d"/></linearGradient><linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dcb56a" stop-opacity=".45"/><stop offset="1" stop-color="#dcb56a" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0 104 L900 104" stroke="rgba(230,213,175,.12)"/>
+          <path id="earningsArea" class="chart-area" d="M0 104 L180 104 L360 104 L540 104 L720 104 L900 104 L900 120 L0 120 Z"/>
+          <path id="earningsLine" class="chart-line" d="M0 104 L180 104 L360 104 L540 104 L720 104 L900 104"/>
+          <circle id="earningsDot" class="chart-dot" cx="900" cy="104" r="4"/>
+        </svg>
+      </section>
+
+      <div class="quote"><q>La cura dei dettagli trasforma un soggiorno in un ricordo.</q><span>Focus del giorno · Qualità prima di tutto</span></div>
+    </div>
+    </div>
+
+    <section id="reservationsView" class="section-view hidden">
+      <div class="section-heading">
+        <div><h2>Prenotazioni</h2><p>Inserisci manualmente una prenotazione. I dati alimenteranno il centro operativo.</p></div>
+        <button id="backDashboard" class="outline-button" type="button">Torna al centro operativo</button>
+      </div>
+      <div class="integration-strip"><p>Le prossime prenotazioni compariranno qui automaticamente quando collegheremo canali ufficiali verificati.</p><div class="provider-list"><span class="provider">Airbnb · da collegare</span><span class="provider">Booking · da collegare</span><span class="provider">VRBO · da collegare</span></div></div>
+      <div class="reservation-layout">
+        <form id="reservationForm" class="panel reservation-form">
+          <h3>Nuova prenotazione</h3>
+          <div class="form-grid">
+            <div class="field wide"><label for="guestName">Nome ospite</label><input id="guestName" required placeholder="Nome e cognome"></div>
+            <div class="field"><label for="guestCount">Numero ospiti</label><input id="guestCount" type="number" min="1" value="2" required></div>
+            <div class="field"><label for="platform">Piattaforma</label><select id="platform"><option>Airbnb</option><option>Booking</option><option>VRBO</option><option>Diretta</option></select></div>
+            <div class="field"><label for="checkIn">Check-in</label><input id="checkIn" type="date" required></div>
+            <div class="field"><label for="checkOut">Check-out</label><input id="checkOut" type="date" required></div>
+            <div class="field"><label for="arrivalTime">Orario arrivo</label><input id="arrivalTime" type="time" value="15:00"></div>
+            <div class="field"><label for="amount">Compenso prenotazione</label><input id="amount" type="number" min="0" step="0.01" placeholder="0,00"></div>
+            <div class="field wide"><label for="reservationNotes">Note e richieste speciali</label><textarea id="reservationNotes" placeholder="Facoltativo"></textarea></div>
+          </div>
+          <button class="primary-button" type="submit">Salva prenotazione</button>
+          <p class="demo-note">Anteprima locale: i dati inseriti restano solo fino al prossimo aggiornamento della pagina.</p>
+        </form>
+        <div class="panel reservations-list">
+          <div id="emptyReservations" class="empty-state"><div><h3>Nessuna prenotazione inserita</h3><p>Aggiungi la prima prenotazione reale. Check-in, check-out e stato dell’ospite verranno aggiornati automaticamente.</p></div></div>
+          <div id="reservationItems"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="connectionsView" class="section-view hidden">
+      <div class="section-heading"><div><h2>Collegamenti</h2><p>Calendari operativi ora, API complete appena saranno autorizzate dai portali.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
+      <div class="integration-strip"><p id="serviceHealth">Controllo del servizio in corso…</p><div class="provider-list"><span class="provider">iCal · operativo</span><span class="provider">Chiavi API · configurabili</span></div></div>
+      <div class="connections-grid">
+        <article class="connection-card" data-provider="airbnb">
+          <h3>Airbnb</h3>
+          <p>Incolla il link “Esporta calendario” della struttura.</p>
+          <div class="field-with-toggle"><input class="calendar-url" type="password" autocomplete="off" placeholder="https://… .ics" aria-label="Link iCal Airbnb"><button class="reveal-toggle" type="button">Mostra</button></div>
+          <div class="connection-actions"><button class="connect-calendar" type="button">Collega</button><button class="disconnect-calendar" type="button">Scollega</button></div>
+          <span class="connection-status">Non collegato</span>
+          <p class="connection-detail"></p>
+        </article>
+        <article class="connection-card" data-provider="booking">
+          <h3>Booking.com</h3>
+          <p>Incolla il link di esportazione calendario della struttura.</p>
+          <div class="field-with-toggle"><input class="calendar-url" type="password" autocomplete="off" placeholder="https://… .ics" aria-label="Link iCal Booking.com"><button class="reveal-toggle" type="button">Mostra</button></div>
+          <div class="connection-actions"><button class="connect-calendar" type="button">Collega</button><button class="disconnect-calendar" type="button">Scollega</button></div>
+          <span class="connection-status">Non collegato</span>
+          <p class="connection-detail"></p>
+        </article>
+        <article class="connection-card" data-provider="vrbo">
+          <h3>Vrbo</h3>
+          <p>Incolla il link “Esporta calendario” della struttura.</p>
+          <div class="field-with-toggle"><input class="calendar-url" type="password" autocomplete="off" placeholder="https://… .ics" aria-label="Link iCal Vrbo"><button class="reveal-toggle" type="button">Mostra</button></div>
+          <div class="connection-actions"><button class="connect-calendar" type="button">Collega</button><button class="disconnect-calendar" type="button">Scollega</button></div>
+          <span class="connection-status">Non collegato</span>
+          <p class="connection-detail"></p>
+        </article>
+      </div>
+      <div class="panel sync-panel"><div class="sync-toolbar"><div><h3>Sincronizzazione prenotazioni</h3><p id="syncStatus">Collega almeno un calendario per iniziare.</p></div><button id="syncCalendars" class="primary-button" type="button">Sincronizza ora</button></div><div id="syncResults" class="reservation-list"><div class="empty-tasks">Nessuna prenotazione importata.</div></div></div>
+      <div class="panel sync-panel" style="margin-top:16px">
+        <div class="sync-toolbar"><div><h3>Software contabilità</h3><p id="accountingStatus">Non collegato.</p></div><button id="accountingRefresh" class="primary-button" type="button">Aggiorna ora</button></div>
+        <p class="accounting-note">Collegamento in <strong>sola lettura</strong>: leggiamo la stessa scheda che apre il tuo software contabilità e sommiamo il guadagno del mese in corso per il riquadro in home. Il software contabilità non viene mai modificato. Indirizzo e tabella sono gia compilati: servono la chiave <strong>anon public</strong> (app.supabase.com &gt; il tuo progetto &gt; Settings &gt; API) e le <strong>stesse e-mail e password con cui entri nel software contabilità</strong>: senza login il database non mostra nulla e il totale resta a zero. La password serve solo per accedere e non viene salvata da nessuna parte.</p>
+        <div class="api-card" style="margin-top:14px">
+          <label>Indirizzo del progetto<input id="accountingUrl" type="url" autocomplete="off" value="https://qgeqksuplsagwzkyiqhx.supabase.co" placeholder="https://xxxxxxxx.supabase.co"></label>
+          <label>Tabella<input id="accountingTable" type="text" autocomplete="off" value="app_data" placeholder="app_data"></label>
+          <label>Chiave anon del progetto<input id="accountingKey" type="password" autocomplete="new-password" placeholder="incolla qui la chiave"></label>
+          <p class="accounting-note" style="margin:2px 0 0">Se dopo il collegamento l'importo resta 0, il tuo database mostra i dati solo dopo il login: aggiungi qui l'e-mail e la password con cui accedi al software contabilità.</p>
+          <label>E-mail del software contabilità<input id="accountingEmail" type="email" autocomplete="off" placeholder="la stessa del login contabilità"></label>
+          <label>Password del software contabilità<input id="accountingPassword" type="password" autocomplete="new-password" placeholder="quella del login contabilità"></label>
+          <div class="connection-actions"><button id="accountingSave" class="api-save" type="button">Collega</button><button id="accountingClear" type="button">Scollega</button></div>
+          <p id="accountingFeedback" class="api-feedback">Nessun collegamento salvato.</p>
+        </div>
+      </div>
+      <div class="panel sync-panel" style="margin-top:16px">
+        <h3>Chiavi API</h3>
+        <p class="accounting-note">Endpoint, utente e chiave restano su questo computer nel file <code>data/store.json</code>. La chiave non torna mai al browser: dopo il salvataggio vedi soltanto le ultime quattro cifre. “Verifica” esegue una chiamata reale all’endpoint e riporta la risposta del portale.</p>
+        <div class="api-readiness">
+          <article class="api-card" data-provider="airbnb">
+            <strong>Airbnb API</strong>
+            <label>Endpoint<input class="api-endpoint" type="url" autocomplete="off" placeholder="https://api.airbnb.com/v2/listings"></label>
+            <label>Autenticazione<select class="api-scheme"><option value="bearer">Bearer token</option><option value="basic">Utente e password</option><option value="header">Header personalizzato</option></select></label>
+            <label class="api-header-field hidden">Nome header<input class="api-header" type="text" autocomplete="off" placeholder="X-Api-Key"></label>
+            <label class="api-username-field hidden">Utente o account<input class="api-username" type="text" autocomplete="off"></label>
+            <label>Chiave o password<input class="api-secret" type="password" autocomplete="new-password" placeholder="incolla qui la chiave"></label>
+            <div class="connection-actions"><button class="api-save" type="button">Salva</button><button class="api-test" type="button">Verifica</button><button class="api-clear" type="button">Elimina</button></div>
+            <p class="api-feedback">Nessuna chiave salvata.</p>
+          </article>
+          <article class="api-card" data-provider="booking">
+            <strong>Booking.com API</strong>
+            <label>Endpoint<input class="api-endpoint" type="url" autocomplete="off" placeholder="https://supply-xml.booking.com/hotels/xml/reservations"></label>
+            <label>Autenticazione<select class="api-scheme"><option value="basic">Utente e password</option><option value="bearer">Bearer token</option><option value="header">Header personalizzato</option></select></label>
+            <label class="api-header-field hidden">Nome header<input class="api-header" type="text" autocomplete="off" placeholder="X-Api-Key"></label>
+            <label class="api-username-field hidden">Utente o account<input class="api-username" type="text" autocomplete="off" placeholder="machine account"></label>
+            <label>Chiave o password<input class="api-secret" type="password" autocomplete="new-password" placeholder="incolla qui la password"></label>
+            <div class="connection-actions"><button class="api-save" type="button">Salva</button><button class="api-test" type="button">Verifica</button><button class="api-clear" type="button">Elimina</button></div>
+            <p class="api-feedback">Nessuna chiave salvata.</p>
+          </article>
+          <article class="api-card" data-provider="vrbo">
+            <strong>Vrbo API</strong>
+            <label>Endpoint<input class="api-endpoint" type="url" autocomplete="off" placeholder="https://api.expediapartnercentral.com/properties/v1"></label>
+            <label>Autenticazione<select class="api-scheme"><option value="basic">Utente e password</option><option value="bearer">Bearer token</option><option value="header">Header personalizzato</option></select></label>
+            <label class="api-header-field hidden">Nome header<input class="api-header" type="text" autocomplete="off" placeholder="X-Api-Key"></label>
+            <label class="api-username-field hidden">Utente o account<input class="api-username" type="text" autocomplete="off"></label>
+            <label>Chiave o password<input class="api-secret" type="password" autocomplete="new-password" placeholder="incolla qui la chiave"></label>
+            <div class="connection-actions"><button class="api-save" type="button">Salva</button><button class="api-test" type="button">Verifica</button><button class="api-clear" type="button">Elimina</button></div>
+            <p class="api-feedback">Nessuna chiave salvata.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflowView" class="section-view hidden">
+      <div class="section-heading"><div><h2>Workflow ospite</h2><p>Passaggi operativi in sequenza. Ogni invio rimane manuale.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
+      <div class="module-grid">
+        <div class="panel module-body">
+          <div id="workflowEmpty" class="empty-tasks">Nessun workflow attivo: inserisci prima una prenotazione.</div>
+          <div id="workflowSteps" class="hidden">
+          <div class="workflow-step"><span class="step-number">01</span><div><strong>Messaggio di benvenuto</strong><small>Subito dopo la nuova prenotazione</small></div><button class="step-toggle" type="button">Da fare</button></div>
+          <div class="workflow-step locked"><span class="step-number">02</span><div><strong>Richiesta documenti</strong><small>Si sblocca dopo il benvenuto</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">03</span><div><strong>Check-in effettuato</strong><small>Conferma manuale dopo l’ingresso dell’ospite, dalle 15:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked" data-compliance-step><span class="step-number">04</span><div><strong>Alloggiati Web e ROSS1000</strong><small>Solo dopo il check-in effettuato e dopo le 15:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">05</span><div><strong>Istruzioni di check-in</strong><small>Invio con codice inserito manualmente</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">06</span><div><strong>Siamo a vostra disposizione</strong><small>Dopo le istruzioni di check-in</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">07</span><div><strong>Pulizia completata</strong><small>Dopo il check-out, dalle ore 11:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">08</span><div><strong>Recensione dell’ospite</strong><small>Obbligatoria prima del messaggio finale</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">09</span><div><strong>Messaggio finale</strong><small>Richiesta recensione dopo pulizia e recensione ospite</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          </div>
+        </div>
+        <aside class="panel module-note"><h3>Controllo manuale</h3><p>Il sistema prepara e ordina le attività, ma non invia messaggi né documenti senza una tua azione esplicita.</p><div class="confirmation">La demo permette di completare i passaggi in ordine. Nella versione definitiva le date e gli sblocchi dipenderanno dalla prenotazione selezionata.</div></aside>
+      </div>
+    </section>
+
+    <section id="cleaningView" class="section-view hidden">
+      <div class="section-heading"><div><h2>Pulizie</h2><p>Attività condivisa da Simona e Lorenzo dopo ogni check-out.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
+      <div class="module-grid">
+        <div class="panel module-body">
+          <div class="cleaning-meta"><div class="meta-box"><span>Assegnatari</span><strong>Simona e Lorenzo</strong></div><div class="meta-box"><span>Orario</span><strong>Dalle 11:00</strong></div><div class="meta-box"><span>Stato</span><strong>Da programmare</strong></div></div>
+          <div id="cleaningChecklist">
+            <div class="check-row"><input id="cWater" type="checkbox"><label for="cWater">Acqua</label><input id="qWater" type="number" min="0" value="1" aria-label="Quantità acqua"></div>
+            <div class="check-row"><input id="cWine" type="checkbox"><label for="cWine">Vino</label><input id="qWine" type="number" min="0" value="1" aria-label="Quantità vino"></div>
+            <div class="check-row"><input id="cGrey" type="checkbox"><label for="cGrey">2 coppie di asciugamani grigi</label><span class="fixed">Riutilizzabile</span></div>
+            <div class="check-row"><input id="cShower" type="checkbox"><label for="cShower">1 coppia di asciugamani da doccia</label><span class="fixed">Riutilizzabile</span></div>
+            <div class="check-row"><input id="cSheets" type="checkbox"><label for="cSheets">Lenzuola e stracci</label><span class="fixed">Riutilizzabile</span></div>
+            <div class="check-row"><input id="cVacuum" type="checkbox"><label for="cVacuum">Aspirapolvere</label><span class="fixed">Attrezzatura</span></div>
+            <div class="check-row"><input id="cWasher" type="checkbox"><label for="cWasher">Lava/asciuga</label><span class="fixed">Attrezzatura</span></div>
+          </div>
+          <button id="confirmCleaning" class="primary-button" type="button">Conferma materiali utilizzati</button>
+          <div id="cleaningResult" class="confirmation">Nessuna quantità verrà scalata finché non confermi questa schermata.</div>
+        </div>
+        <aside class="panel module-note"><h3>Scarico controllato</h3><p>Solo gli articoli spuntati vengono considerati. Acqua e vino possono essere modificati per quantità; biancheria e attrezzature restano dotazioni riutilizzabili.</p></aside>
+      </div>
+    </section>
+
+    <section id="codesView" class="section-view hidden">
+      <div class="section-heading"><div><h2>Codici cassetta</h2><p>Codice attuale, prossimo codice e storico protetto per Il Rustico.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
+      <div class="codes-layout">
+        <div class="panel code-card">
+          <h3>Codice attuale</h3><p>Inseriscilo manualmente. Non viene mostrato nella dashboard generale.</p>
+          <div class="code-row"><input id="currentCode" type="password" inputmode="numeric" placeholder="Inserisci codice"><button id="saveCurrentCode" type="button">Salva</button></div>
+          <button id="toggleCode" class="outline-button" type="button" style="margin-top:10px">Mostra / nascondi</button>
+          <div id="currentCodeResult" class="confirmation">Nessun codice salvato nell’anteprima.</div>
+        </div>
+        <div class="panel code-card">
+          <h3>Prossimo codice</h3><p>Si abilita dopo la conferma della pulizia. Sarà associato alla prenotazione successiva.</p>
+          <div class="code-row"><input id="nextCode" type="password" inputmode="numeric" placeholder="Completa prima la pulizia" disabled><button id="activateNextCode" type="button" disabled>Attiva</button></div>
+          <div id="nextCodeResult" class="confirmation">In attesa della pulizia completata.</div>
+        </div>
+        <div class="panel code-history" style="grid-column:1/-1"><h3>Storico codici</h3><div id="codeHistory"><div class="empty-tasks">Nessun cambio codice registrato.</div></div></div>
+      </div>
+    </section>
+
+    <section id="accountingView" class="section-view hidden">
+      <div class="section-heading"><div><h2>Contabilità</h2><p>Il gestionale contabile integrato direttamente in Luxury Business.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
+      <div class="accounting-view">
+        <div class="accounting-top"><div><h3>Software contabilità</h3><p>Versione originale incorporata senza alcuna modifica.</p></div><span class="provider">Login originale</span></div>
+        <iframe class="accounting-frame" src="https://regal-lamington-b59ecf.netlify.app/" title="Software contabilità originale"></iframe>
+      </div>
+      <div class="integration-strip"><p>Sezione aggiuntiva: inserisci gli importi ricevuti e ottieni la ripartizione finale.</p><div class="provider-list"><span class="provider">Calcolo automatico attivo</span></div></div>
+      <div class="finance-layout">
+        <form id="financeForm" class="panel finance-form">
+          <h3>Compensi</h3>
+          <div class="field"><label for="grossAmount">Totale ricevuto sul conto</label><input id="grossAmount" type="number" min="0" step="0.01" placeholder="0,00" required></div>
+          <div class="field"><label for="cleaningAmount">Pulizie</label><input id="cleaningAmount" type="number" min="0" step="0.01" placeholder="0,00" required></div>
+          <div class="field"><label for="packageAmount">Pacchetti</label><input id="packageAmount" type="number" min="0" step="0.01" value="0"></div>
+          <button class="primary-button" type="submit">Calcola</button>
+          <div id="financeMessage" class="confirmation">Inserisci gli importi e premi Calcola.</div>
+        </form>
+        <div class="panel finance-results">
+          <h3>Risultato</h3>
+          <div class="allocation-group"><div class="allocation-row total"><span>Gian</span><strong id="rOwnerFinal">€0,00</strong></div><div class="allocation-row total"><span>Simona</span><strong id="rSFinal">€0,00</strong></div><div class="allocation-row total"><span>Lorenzo</span><strong id="rLFinal">€0,00</strong></div></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script>
+    const loginScreen = document.getElementById('loginScreen');
+    const businessScreen = document.getElementById('businessScreen');
+    const appScreen = document.getElementById('appScreen');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const dashboardView = document.getElementById('dashboardView');
+    const reservationsView = document.getElementById('reservationsView');
+    const workflowView = document.getElementById('workflowView');
+    const cleaningView = document.getElementById('cleaningView');
+    const codesView = document.getElementById('codesView');
+    const accountingView = document.getElementById('accountingView');
+    const connectionsView = document.getElementById('connectionsView');
+    const inventoryPanel = document.getElementById('inventoryPanel');
+    const inventoryView = document.createElement('section');
+    inventoryView.id = 'inventoryView';
+    inventoryView.className = 'section-view hidden';
+    inventoryView.innerHTML = '<div class="section-heading"><div><h2>Inventario</h2><p>Dotazioni e consumabili del business.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>';
+    inventoryView.appendChild(inventoryPanel);
+    document.getElementById('appScreen').insertBefore(inventoryView, document.getElementById('reservationsView'));
+    const personalNotes = document.getElementById('personalNotes');
+    const noteSaveStatus = document.getElementById('noteSaveStatus');
+    // Note e inventario non vivono piu' nel browser: stanno nello stato condiviso,
+    // quindi si aggiornano su ogni dispositivo che apre il link.
+    let noteSaveTimer;
+    personalNotes.addEventListener('input', () => {
+      noteSaveStatus.textContent = 'Salvataggio…';
+      clearTimeout(noteSaveTimer);
+      noteSaveTimer = setTimeout(() => savePrefs({ notes: personalNotes.value }), 500);
+    });
+
+    const inventoryList = inventoryPanel.querySelector('.inventory');
+    // Fotografia delle righe di serie: cosi' possiamo ricostruire la lista da zero a ogni aggiornamento.
+    const baseInventoryRows = [...inventoryList.querySelectorAll('.inventory-row')].map((row) => ({
+      name: row.querySelector('strong').textContent,
+      html: row.innerHTML
+    }));
+    const customRowHtml = '<span class="emoji">📦</span><div><strong></strong><small>Oggetto aggiunto</small></div><span class="fixed">Presente</span>';
+    let hiddenInventory = [];
+    let customInventory = [];
+
+    /* Le quantita di acqua e vino non vivevano da nessuna parte: ogni ridisegno
+       dell'inventario le riportava al valore di serie. Ora hanno uno stato loro,
+       salvato sul servizio e ricopiato in locale come rete di sicurezza. */
+    const QUANTITIES_KEY = 'centroOperativoQuantita';
+    const quantityIds = ['water', 'wine'];
+    let quantities = Object.fromEntries(quantityIds.map((id) => [id, Number(document.getElementById(id)?.textContent) || 0]));
+    let quantitiesDirty = false;
+    try {
+      const salvate = JSON.parse(localStorage.getItem(QUANTITIES_KEY) || 'null');
+      if (salvate && typeof salvate === 'object') quantities = { ...quantities, ...salvate };
+    } catch { /* modalita privata: restiamo sui valori di serie */ }
+
+    // I codici cassetta si definiscono a fondo pagina: qui lasciamo l'aggancio.
+    let applyKeyCodesPrefs = () => {};
+    const setInventoryStatus = (message, tone) => setNote(document.getElementById('inventorySaveStatus'), message, tone);
+    const applyQuantities = () => {
+      quantityIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = String(quantities[id] ?? 0);
+      });
+      const button = document.getElementById('saveInventory');
+      if (button) button.disabled = !quantitiesDirty;
+    };
+    const changeQuantity = (id, delta) => {
+      if (!quantityIds.includes(id)) return false;
+      quantities[id] = Math.max(0, (quantities[id] ?? 0) + delta);
+      quantitiesDirty = true;
+      applyQuantities();
+      setInventoryStatus('Modifiche non ancora salvate');
+      return true;
+    };
+    const saveQuantities = async (silenzioso) => {
+      try { localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities)); } catch { /* modalita privata */ }
+      try {
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ quantities }) });
+        lastVersion = data.version;
+        quantitiesDirty = false;
+        if (!silenzioso) setInventoryStatus('Quantità salvate su tutti i dispositivi', 'ok');
+      } catch (error) {
+        /* Il salvataggio locale e' comunque andato: il numero non si perde ricaricando. */
+        quantitiesDirty = false;
+        if (!silenzioso) setInventoryStatus('Salvate su questo dispositivo: ' + (error.message || 'servizio non raggiungibile'), 'ko');
+      }
+      applyQuantities();
+    };
+
+    const inventoryRow = (name, html, custom) => {
+      const row = document.createElement('div');
+      row.className = 'inventory-row';
+      row.innerHTML = html;
+      row.querySelector('strong').textContent = name;
+      row.dataset.inventoryName = name;
+      row.dataset.custom = String(custom);
+      return row;
+    };
+
+    const renderInventory = () => {
+      inventoryList.replaceChildren();
+      baseInventoryRows.forEach(({ name, html }) => {
+        if (!hiddenInventory.includes(name)) inventoryList.append(inventoryRow(name, html, false));
+      });
+      customInventory.forEach((name) => inventoryList.append(inventoryRow(name, customRowHtml, true)));
+      applyQuantities();
+    };
+
+    document.getElementById('saveInventory').addEventListener('click', () => {
+      document.getElementById('saveInventory').disabled = true;
+      setInventoryStatus('Salvataggio…');
+      saveQuantities(false);
+    });
+
+    document.getElementById('inventoryAddForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('newInventoryItem');
+      const name = input.value.trim();
+      if (!name) return;
+      customInventory = [...customInventory, name];
+      renderInventory();
+      input.value = '';
+      savePrefs({ customInventory });
+    });
+
+    // Chiamata quando arrivano dati freschi dal server (anche da un altro dispositivo).
+    const applyPrefs = (prefs) => {
+      if (!prefs) return;
+      // Non sovrascriviamo mentre l'utente sta scrivendo.
+      if (document.activeElement !== personalNotes && typeof prefs.notes === 'string' && personalNotes.value !== prefs.notes) {
+        personalNotes.value = prefs.notes;
+      }
+      hiddenInventory = Array.isArray(prefs.hiddenInventory) ? prefs.hiddenInventory : [];
+      customInventory = Array.isArray(prefs.customInventory) ? prefs.customInventory : [];
+      // Se l'utente ha modifiche in sospeso non gliele sovrascriviamo sotto le dita.
+      if (prefs.quantities && typeof prefs.quantities === 'object' && !quantitiesDirty) {
+        quantities = { ...quantities, ...prefs.quantities };
+      }
+      applyKeyCodesPrefs(prefs.keyCodes);
+      renderInventory();
+    };
+
+    renderInventory();
+    let activeBooking = null;
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const updateClock = () => {
+      const now = new Date();
+      document.getElementById('currentDate').innerHTML = new Intl.DateTimeFormat('it-IT', { weekday: 'long' }).format(now) + '<br>' + new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'long', year: 'numeric' }).format(now) + '<br><strong>' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit', second:'2-digit' }).format(now) + '</strong>';
+    };
+    updateClock();
+    setInterval(updateClock, 1000);
+    document.getElementById('priorityDate').textContent = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(today);
+    const updateEarningsChart = (cents) => {
+      document.getElementById('monthlyEarnings').textContent = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
+      const days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const progressX = Math.max(40, Math.round((today.getDate() / days) * 900));
+      const rise = cents > 0 ? Math.min(82, 22 + Math.log10(cents / 100 + 1) * 21) : 0;
+      const y = 104 - rise;
+      const line = `M0 104 L${Math.round(progressX*.32)} ${104-rise*.18} L${Math.round(progressX*.64)} ${104-rise*.58} L${progressX} ${y} L900 ${y}`;
+      document.getElementById('earningsLine').setAttribute('d', line);
+      document.getElementById('earningsArea').setAttribute('d', `${line} L900 120 L0 120 Z`);
+      document.getElementById('earningsDot').setAttribute('cx', '900');
+      document.getElementById('earningsDot').setAttribute('cy', String(y));
+    };
+    const animateDashboardGold = () => {
+      dashboardView.classList.remove('dashboard-animate');
+      void dashboardView.offsetWidth;
+      dashboardView.classList.add('dashboard-animate');
+    };
+
+    const loginNote = document.querySelector('#loginForm .demo-note');
+    const loginButton = document.querySelector('#loginForm button[type="submit"]');
+    const enterApp = () => {
+      loginScreen.classList.add('hidden');
+      businessScreen.classList.remove('hidden');
+      startLiveSync();
+    };
+
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      // In locale il login resta simbolico; online serve la password vera del sito.
+      if (!authRequired) return enterApp();
+      loginButton.disabled = true;
+      loginNote.textContent = 'Verifica in corso…';
+      try {
+        const data = await api('/api/login', { method:'POST', body: JSON.stringify({
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value
+        }) });
+        setToken(data.token);
+        document.getElementById('password').value = '';
+        loginNote.textContent = '';
+        enterApp();
+      } catch (error) {
+        loginNote.textContent = error.message || 'Accesso non riuscito.';
+      } finally { loginButton.disabled = false; }
+    });
+
+    document.getElementById('openSuite').addEventListener('click', () => {
+      businessScreen.classList.add('hidden');
+      appScreen.classList.remove('hidden');
+      animateDashboardGold();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const setMenu = (open) => {
+      menuOverlay.classList.toggle('open', open);
+      menuOverlay.setAttribute('aria-hidden', String(!open));
+    };
+    document.getElementById('openMenu').addEventListener('click', () => setMenu(true));
+    document.getElementById('closeMenu').addEventListener('click', () => setMenu(false));
+    menuOverlay.addEventListener('click', (event) => { if (event.target === menuOverlay) setMenu(false); });
+    const views = [dashboardView, inventoryView, reservationsView, connectionsView, workflowView, cleaningView, codesView, accountingView];
+    const showView = (view) => {
+      views.forEach((item) => item.classList.toggle('hidden', item !== view));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const showDashboard = () => { showView(dashboardView); animateDashboardGold(); };
+    const showReservations = () => showView(reservationsView);
+    document.getElementById('dashboardLink').addEventListener('click', () => { setMenu(false); showDashboard(); });
+    document.getElementById('reservationsLink').addEventListener('click', () => { setMenu(false); showReservations(); });
+    document.getElementById('connectionsLink').addEventListener('click', () => { setMenu(false); showView(connectionsView); pullState(); checkServiceHealth(); });
+    document.getElementById('workflowLink').addEventListener('click', () => { setMenu(false); showView(workflowView); });
+    document.getElementById('cleaningLink').addEventListener('click', () => { setMenu(false); showView(cleaningView); });
+    document.getElementById('codesLink').addEventListener('click', () => { setMenu(false); showView(codesView); });
+    document.getElementById('accountingLink').addEventListener('click', () => { setMenu(false); showView(accountingView); });
+    document.querySelectorAll('[data-account-action]').forEach((button) => button.addEventListener('click', () => {
+      const action = button.dataset.accountAction;
+      if (action === 'reservations') return showReservations();
+      const target = action === 'packages' ? document.getElementById('packageAmount') : action === 'expenses' ? document.getElementById('gianExpenses') : action === 'overview' ? document.querySelector('.accounting-view') : document.querySelector('.finance-results');
+      target?.scrollIntoView({ behavior:'smooth', block:'center' });
+      if (target?.matches('input')) setTimeout(() => target.focus(), 350);
+    }));
+    document.getElementById('backDashboard').addEventListener('click', showDashboard);
+    document.querySelectorAll('.back-home').forEach((button) => button.addEventListener('click', showDashboard));
+    document.getElementById('inventoryLink').addEventListener('click', () => {
+      setMenu(false);
+      showView(inventoryView);
+    });
+
+    const providerLabel = { airbnb:'Airbnb', booking:'Booking.com', vrbo:'Vrbo' };
+
+    /* ================= client API: uguale in locale e online ================= */
+    const TOKEN_KEY = 'centroOperativoToken';
+    let authRequired = false;
+    const getToken = () => { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; } };
+    const setToken = (value) => {
+      try { if (value) localStorage.setItem(TOKEN_KEY, value); else localStorage.removeItem(TOKEN_KEY); } catch { /* modalita privata */ }
+    };
+
+    const api = async (path, options = {}) => {
+      const headers = { ...(options.headers || {}) };
+      if (options.body) headers['Content-Type'] = 'application/json';
+      const token = getToken();
+      if (token) headers.Authorization = 'Bearer ' + token;
+      const response = await fetch(path, { ...options, headers, cache:'no-store' });
+      let data = {};
+      try { data = await response.json(); } catch { /* risposta senza corpo */ }
+      if (response.status === 401) {
+        setToken('');
+        showLogin(data.error || 'Sessione scaduta: inserisci di nuovo la password.');
+        throw new Error(data.error || 'Sessione scaduta');
+      }
+      if (!response.ok) throw new Error(data.error || 'Operazione non riuscita');
+      return data;
+    };
+
+    const showLogin = (message) => {
+      stopLiveSync();
+      appScreen.classList.add('hidden');
+      businessScreen.classList.add('hidden');
+      loginScreen.classList.remove('hidden');
+      if (message) loginNote.textContent = message;
+    };
+
+    const setNote = (element, message, tone) => {
+      if (!element) return;
+      element.textContent = message || '';
+      element.classList.remove('ok', 'ko');
+      if (tone) element.classList.add(tone);
+    };
+    const syncStatusEl = () => document.getElementById('syncStatus');
+    const setSyncStatus = (message) => { const el = syncStatusEl(); if (el) el.textContent = message; };
+
+    /* ================= salvataggio note e inventario ================= */
+    const savePrefs = async (patch) => {
+      try {
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify(patch) });
+        lastVersion = data.version;
+        if ('notes' in patch) noteSaveStatus.textContent = 'Salvato su tutti i dispositivi';
+      } catch (error) {
+        if ('notes' in patch) noteSaveStatus.textContent = 'Non salvato: ' + (error.message || 'servizio non raggiungibile');
+      }
+    };
+
+    /* ================= chiavi API ================= */
+    // Alcune modalita di autenticazione hanno campi diversi: mostriamo solo quelli utili.
+    const applySchemeFields = (card) => {
+      const scheme = card.querySelector('.api-scheme').value;
+      card.querySelector('.api-username-field').classList.toggle('hidden', scheme !== 'basic');
+      card.querySelector('.api-header-field').classList.toggle('hidden', scheme !== 'header');
+    };
+
+    const fillCredentialCard = (card, credential) => {
+      if (!credential) return;
+      const endpoint = card.querySelector('.api-endpoint');
+      const scheme = card.querySelector('.api-scheme');
+      const header = card.querySelector('.api-header');
+      const username = card.querySelector('.api-username');
+      const secret = card.querySelector('.api-secret');
+      if (document.activeElement !== endpoint) endpoint.value = credential.endpoint || '';
+      if (document.activeElement !== scheme && credential.scheme) scheme.value = credential.scheme;
+      if (document.activeElement !== header) header.value = credential.headerName || '';
+      if (document.activeElement !== username) username.value = credential.username || '';
+      applySchemeFields(card);
+      secret.placeholder = credential.configured ? 'salvata: ' + credential.secretMask : 'incolla qui la chiave';
+      const feedback = card.querySelector('.api-feedback');
+      if (!credential.configured) return setNote(feedback, 'Nessuna chiave salvata.');
+      if (credential.lastTest) {
+        const when = new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }).format(new Date(credential.lastTest.at));
+        return setNote(feedback, credential.lastTest.message + ' · ' + when, credential.lastTest.ok ? 'ok' : 'ko');
+      }
+      setNote(feedback, 'Chiave salvata. Premi Verifica per provarla.', 'ok');
+    };
+
+    /* ================= schede collegamento ================= */
+    const renderConnections = (state) => {
+      document.querySelectorAll('.connection-card').forEach((card) => {
+        const provider = card.dataset.provider;
+        const connected = Boolean(state.calendars?.[provider]);
+        const status = card.querySelector('.connection-status');
+        status.textContent = connected ? 'Collegato' : 'Non collegato';
+        status.classList.toggle('connected', connected);
+        const detail = card.querySelector('.connection-detail');
+        if (!connected) return setNote(detail, '');
+        if (!detail.classList.contains('ko')) setNote(detail, state.preview?.[provider] || '', 'ok');
+      });
+      document.querySelectorAll('.api-card').forEach((card) => {
+        fillCredentialCard(card, state.credentials?.[card.dataset.provider]);
+      });
+    };
+
+    const describeSync = (state) => {
+      if (!state.syncedAt) return 'Collega almeno un calendario e premi Sincronizza ora.';
+      const time = new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }).format(new Date(state.syncedAt));
+      const bloccati = state.blockedCount || 0;
+      const prenotazioni = (state.events?.length || 0) - bloccati;
+      const mancanti = state.missingNames || 0;
+      const errori = state.syncErrors?.length || 0;
+      return prenotazioni + ' prenotazioni'
+        + (bloccati ? ' + ' + bloccati + ' periodi bloccati' : '')
+        + ' · aggiornato ' + time
+        + (mancanti ? ' · ' + mancanti + " senza nome ospite: i portali non lo forniscono nell'iCal, scrivilo tu qui sotto" : '')
+        + (errori ? ' · ' + errori + ' calendario/i in errore, vedi le schede sopra' : '');
+    };
+
+    /* ================= sincronizzazione tra dispositivi ================= */
+    let lastVersion = -1;
+    let liveTimer = null;
+
+    const applyState = (state) => {
+      if (!state) return;
+      lastVersion = state.version;
+      renderConnections(state);
+      renderImportedEvents(state.events || []);
+      applyPrefs(state.prefs);
+      applyEarnings(state.accounting);
+      renderAccounting(state);
+      setSyncStatus(describeSync(state));
+    };
+
+    // Ogni pochi secondi chiediamo lo stato: se un altro dispositivo ha modificato qualcosa, lo recepiamo.
+    const pullState = async () => {
+      try {
+        const state = await api('/api/state');
+        if (state.version !== lastVersion) applyState(state);
+      } catch { /* offline momentaneo: riprova al giro dopo */ }
+    };
+
+    const startLiveSync = () => {
+      if (liveTimer) return;
+      checkServiceHealth();
+      liveTimer = setInterval(pullState, 8000);
+      /* Il totale del mese deve seguire da vicino la contabilita: rilettura ogni minuto.
+         La prima lettura aspetta lo stato, altrimenti parte prima di sapere che
+         la contabilita e' collegata e viene saltata in silenzio. */
+      pullState().finally(() => refreshAccounting(false));
+      accountingTimer = setInterval(() => refreshAccounting(false), 60000);
+    };
+    let accountingTimer = null;
+    const stopLiveSync = () => { clearInterval(liveTimer); liveTimer = null; clearInterval(accountingTimer); accountingTimer = null; };
+    // Tornando sull'app dopo averla lasciata in secondo piano, aggiorniamo subito.
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && liveTimer) { pullState(); refreshAccounting(false); } });
+    window.addEventListener('online', () => { if (liveTimer) { pullState(); refreshAccounting(false); } });
+
+    const checkServiceHealth = async () => {
+      const banner = document.getElementById('serviceHealth');
+      if (!banner) return;
+      try {
+        const data = await api('/api/health');
+        if (data.online) setNote(banner, 'Servizio attivo e collegato a internet: i calendari possono essere scaricati.', 'ok');
+        else setNote(banner, 'Il servizio e attivo ma non raggiunge internet. ' + (data.detail || ''), 'ko');
+      } catch {
+        setNote(banner, 'Servizio non raggiungibile.', 'ko');
+      }
+    };
+
+    /* ================= azioni sui collegamenti ================= */
+    document.querySelectorAll('.reveal-toggle').forEach((button) => button.addEventListener('click', () => {
+      const input = button.parentElement.querySelector('input');
+      const hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      button.textContent = hidden ? 'Nascondi' : 'Mostra';
+    }));
+
+    document.querySelectorAll('.connect-calendar').forEach((button) => button.addEventListener('click', async () => {
+      const card = button.closest('.connection-card');
+      const input = card.querySelector('.calendar-url');
+      const detail = card.querySelector('.connection-detail');
+      if (!input.value.trim()) { setNote(detail, 'Incolla prima il link del calendario.', 'ko'); return input.focus(); }
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = 'Verifico…';
+      setNote(detail, 'Controllo il link sul portale…');
+      try {
+        const data = await api('/api/connections', { method:'POST', body: JSON.stringify({ provider: card.dataset.provider, url: input.value.trim() }) });
+        input.value = '';
+        input.type = 'password';
+        const toggle = card.querySelector('.reveal-toggle');
+        if (toggle) toggle.textContent = 'Mostra';
+        applyState(data.state);
+        setNote(detail, data.events + ' eventi trovati nel calendario.', 'ok');
+        setSyncStatus(providerLabel[card.dataset.provider] + ' collegato. Premi Sincronizza ora.');
+      } catch (error) {
+        setNote(detail, error.message || 'Collegamento non riuscito.', 'ko');
+      } finally { button.disabled = false; button.textContent = original; }
+    }));
+
+    document.querySelectorAll('.disconnect-calendar').forEach((button) => button.addEventListener('click', async () => {
+      const card = button.closest('.connection-card');
+      try {
+        const data = await api('/api/connections/' + card.dataset.provider, { method:'DELETE' });
+        applyState(data.state);
+        setNote(card.querySelector('.connection-detail'), '');
+        setSyncStatus(providerLabel[card.dataset.provider] + ' scollegato.');
+      } catch (error) {
+        setNote(card.querySelector('.connection-detail'), error.message, 'ko');
+      }
+    }));
+
+    /* ================= azioni sulle chiavi API ================= */
+    document.querySelectorAll('.api-scheme').forEach((select) => select.addEventListener('change', () => applySchemeFields(select.closest('.api-card'))));
+
+    document.querySelectorAll('.api-save').forEach((button) => button.addEventListener('click', async () => {
+      const card = button.closest('.api-card');
+      const feedback = card.querySelector('.api-feedback');
+      button.disabled = true;
+      try {
+        const data = await api('/api/credentials', {
+          method:'POST',
+          body: JSON.stringify({
+            provider: card.dataset.provider,
+            endpoint: card.querySelector('.api-endpoint').value.trim(),
+            scheme: card.querySelector('.api-scheme').value,
+            headerName: card.querySelector('.api-header').value.trim(),
+            username: card.querySelector('.api-username').value.trim(),
+            secret: card.querySelector('.api-secret').value
+          })
+        });
+        card.querySelector('.api-secret').value = '';
+        applyState(data.state);
+        setNote(feedback, 'Chiave salvata. Premi Verifica per provarla.', 'ok');
+      } catch (error) {
+        setNote(feedback, error.message || 'Salvataggio non riuscito.', 'ko');
+      } finally { button.disabled = false; }
+    }));
+
+    document.querySelectorAll('.api-test').forEach((button) => button.addEventListener('click', async () => {
+      const card = button.closest('.api-card');
+      const feedback = card.querySelector('.api-feedback');
+      button.disabled = true;
+      setNote(feedback, 'Chiamata in corso verso il portale…');
+      try {
+        const data = await api('/api/credentials/' + card.dataset.provider + '/test', { method:'POST' });
+        setNote(feedback, data.message || 'Verifica completata.', data.ok ? 'ok' : 'ko');
+      } catch (error) {
+        setNote(feedback, error.message || 'Verifica non riuscita.', 'ko');
+      } finally { button.disabled = false; }
+    }));
+
+    document.querySelectorAll('.api-clear').forEach((button) => button.addEventListener('click', async () => {
+      const card = button.closest('.api-card');
+      try {
+        const data = await api('/api/credentials/' + card.dataset.provider, { method:'DELETE' });
+        card.querySelector('.api-secret').value = '';
+        card.querySelector('.api-username').value = '';
+        applyState(data.state);
+        setNote(card.querySelector('.api-feedback'), 'Chiave eliminata.');
+      } catch (error) {
+        setNote(card.querySelector('.api-feedback'), error.message, 'ko');
+      }
+    }));
+
+    /* ================= lettura diretta della contabilita =================
+       Perche' il riquadro in home restava a zero: il servizio somma i movimenti
+       riga per riga, ma il software contabilita non tiene una riga per movimento.
+       Tiene UNA sola riga per utente (tabella app_data) con dentro, nella colonna
+       "data", tutto il JSON: prenotazioni, pacchetti, spese. Sommando le righe
+       non si trova nessun importo, quindi il totale usciva 0 anche a
+       collegamento riuscito. In piu' quella riga e' protetta: senza login il
+       database risponde con una lista vuota, di nuovo 0 e senza errore.
+       Qui leggiamo la stessa riga che legge il software contabilita, con lo
+       stesso login, e sommiamo come fa lui. */
+    const ACCOUNTING_KEY = 'centroOperativoContabilita';
+    let accountingClient = null;
+    let accountingConfig = null;
+    let directAccounting = null;
+    try {
+      const salvata = JSON.parse(localStorage.getItem(ACCOUNTING_KEY) || 'null');
+      if (salvata && salvata.url && salvata.key) accountingConfig = salvata;
+    } catch { /* modalita privata */ }
+
+    const meseCorrente = (iso) => typeof iso === 'string' && iso.slice(0, 7) === todayKey.slice(0, 7);
+    const etichettaMese = () => new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
+
+    // Stesso calcolo del software contabilita: incasso = revenue delle
+    // prenotazioni che iniziano nel mese, piu' i pacchetti venduti nel mese.
+    const totaleDelMese = (blob) => {
+      const prenotazioni = (Array.isArray(blob?.bookings) ? blob.bookings : []).filter(b => meseCorrente(b.startDate));
+      const pacchetti = (Array.isArray(blob?.packages) ? blob.packages : []).filter(p => meseCorrente(p.date));
+      const incassi = prenotazioni.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
+      const extra = pacchetti.reduce((somma, p) => somma + (Number(p.amount) || 0), 0);
+      return {
+        configured: true,
+        monthLabel: etichettaMese(),
+        total: Math.round((incassi + extra) * 100),
+        count: prenotazioni.length + pacchetti.length,
+        bookingsTotal: Math.round(incassi * 100),
+        bookingsCount: prenotazioni.length,
+        packagesTotal: Math.round(extra * 100),
+        packagesCount: pacchetti.length,
+        readAt: new Date().toISOString()
+      };
+    };
+
+    const buildAccountingClient = (config) => {
+      if (!window.supabase || !config?.url || !config?.key) return null;
+      return window.supabase.createClient(config.url, config.key, {
+        auth: { persistSession: true, autoRefreshToken: true, storageKey: 'centroOperativoContabilitaAuth' }
+      });
+    };
+
+    // Legge la riga e aggiorna il riquadro. Torna un messaggio da mostrare nella scheda.
+    const leggiContabilita = async () => {
+      if (!accountingConfig) return { ok:false, message:'Contabilità non ancora collegata.' };
+      if (!accountingClient) accountingClient = buildAccountingClient(accountingConfig);
+      if (!accountingClient) return { ok:false, message:'Libreria di lettura non disponibile: ricarica la pagina.' };
+      const { data: sessione } = await accountingClient.auth.getSession();
+      if (!sessione?.session) return { ok:false, message:'Serve di nuovo la password del software contabilità: inseriscila qui sotto e premi Collega.' };
+      const tabella = accountingConfig.table || 'app_data';
+      const { data: righe, error } = await accountingClient.from(tabella).select('data').limit(1);
+      if (error) return { ok:false, message:'Lettura non riuscita: ' + error.message };
+      if (!righe || !righe.length) return { ok:false, message:'Nessuna scheda trovata nella tabella ' + tabella + ' per questo login.' };
+      directAccounting = totaleDelMese(righe[0].data);
+      applyEarnings(null);
+      const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
+      return {
+        ok: true,
+        message: euroDi(directAccounting.total) + ' nel mese · '
+          + directAccounting.bookingsCount + (directAccounting.bookingsCount === 1 ? ' prenotazione (' : ' prenotazioni (') + euroDi(directAccounting.bookingsTotal) + ')'
+          + (directAccounting.packagesCount
+              ? ' + ' + directAccounting.packagesCount + (directAccounting.packagesCount === 1 ? ' pacchetto (' : ' pacchetti (') + euroDi(directAccounting.packagesTotal) + ')'
+              : '')
+      };
+    };
+
+    /* ================= collegamento software contabilita ================= */
+    let accountingConfigured = false;
+    const renderAccountingStatus = () => {
+      const status = document.getElementById('accountingStatus');
+      if (!status) return;
+      if (!accountingConfig) { status.textContent = 'Non collegato.'; return; }
+      status.textContent = accountingConfig.url.replace('https://', '')
+        + ' · tabella ' + (accountingConfig.table || 'app_data')
+        + (accountingConfig.email ? ' · login ' + accountingConfig.email : '')
+        + ' · lettura diretta';
+    };
+    const renderAccounting = (state) => {
+      const source = state.accountingSource;
+      accountingConfigured = Boolean(source);
+      const info = state.accounting || {};
+      const status = document.getElementById('accountingStatus');
+      const feedback = document.getElementById('accountingFeedback');
+      const url = document.getElementById('accountingUrl');
+      const table = document.getElementById('accountingTable');
+      const key = document.getElementById('accountingKey');
+      if (!source) {
+        renderAccountingStatus();
+        if (!accountingConfig) setNote(feedback, 'Nessun collegamento salvato.');
+        key.placeholder = accountingConfig ? 'salvata su questo dispositivo' : 'incolla qui la chiave';
+        if (accountingConfig) {
+          if (document.activeElement !== url) url.value = accountingConfig.url;
+          if (document.activeElement !== table) table.value = accountingConfig.table || 'app_data';
+          const email = document.getElementById('accountingEmail');
+          if (document.activeElement !== email) email.value = accountingConfig.email || '';
+        }
+        return;
+      }
+      const email = document.getElementById('accountingEmail');
+      const password = document.getElementById('accountingPassword');
+      if (document.activeElement !== url) url.value = source.url || '';
+      if (document.activeElement !== table) table.value = source.table || 'app_data';
+      if (document.activeElement !== email) email.value = source.email || '';
+      key.placeholder = 'salvata: ' + source.keyMask;
+      password.placeholder = source.hasPassword ? 'salvata, lascia vuoto per tenerla' : 'quella del login contabilità';
+      status.textContent = source.url.replace('https://', '') + ' · tabella ' + source.table + (source.email ? ' · login ' + source.email : '');
+      if (info.error) return setNote(feedback, info.error, 'ko');
+      const quando = info.readAt ? new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt)) : '';
+      setNote(feedback, (info.count || 0) + ' incassi nel mese · ' + (info.movementsFound || 0) + ' movimenti letti in totale' + (quando ? ' · alle ' + quando : ''), 'ok');
+    };
+
+    document.getElementById('accountingSave').addEventListener('click', async () => {
+      const button = document.getElementById('accountingSave');
+      const feedback = document.getElementById('accountingFeedback');
+      const url = document.getElementById('accountingUrl').value.trim();
+      const table = document.getElementById('accountingTable').value.trim() || 'app_data';
+      const key = document.getElementById('accountingKey').value.trim();
+      const email = document.getElementById('accountingEmail').value.trim();
+      const password = document.getElementById('accountingPassword').value;
+
+      if (!url) return setNote(feedback, 'Manca l’indirizzo del progetto.', 'ko');
+      if (!key && !accountingConfig?.key) return setNote(feedback, 'Manca la chiave anon del progetto.', 'ko');
+
+      button.disabled = true;
+      setNote(feedback, 'Provo a leggere la contabilità…');
+      try {
+        accountingConfig = { url, table, key: key || accountingConfig.key, email: email || accountingConfig?.email || '' };
+        accountingClient = buildAccountingClient(accountingConfig);
+        if (!accountingClient) throw new Error('Libreria di lettura non disponibile: ricarica la pagina.');
+
+        // Senza login il database risponde vuoto: e' questo che teneva il totale a zero.
+        if (email && password) {
+          const { error } = await accountingClient.auth.signInWithPassword({ email, password });
+          if (error) throw new Error('Login al software contabilità non riuscito: ' + error.message);
+        }
+
+        const esito = await leggiContabilita();
+        setNote(feedback, esito.message, esito.ok ? 'ok' : 'ko');
+        if (esito.ok) {
+          // La password non viene salvata: resta solo la sessione gestita da Supabase.
+          try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
+          renderAccountingStatus();
+        }
+        document.getElementById('accountingKey').value = '';
+        document.getElementById('accountingPassword').value = '';
+
+        // Teniamo allineata anche la copia sul servizio, ma senza dipenderne.
+        try {
+          const data = await api('/api/accounting', { method:'POST', body: JSON.stringify({ url, table, key, email, password }) });
+          applyState(data.state);
+        } catch { /* il riquadro in home ora si regge sulla lettura diretta */ }
+      } catch (error) {
+        setNote(feedback, error.message || 'Collegamento non riuscito.', 'ko');
+      } finally { button.disabled = false; }
+    });
+
+    document.getElementById('accountingRefresh').addEventListener('click', () => refreshAccounting(true));
+
+    document.getElementById('accountingClear').addEventListener('click', async () => {
+      try { await accountingClient?.auth?.signOut(); } catch { /* sessione gia chiusa */ }
+      try { localStorage.removeItem(ACCOUNTING_KEY); } catch { /* modalita privata */ }
+      accountingConfig = null;
+      accountingClient = null;
+      directAccounting = null;
+      renderAccountingStatus();
+      applyEarnings(null);
+      try {
+        const data = await api('/api/accounting', { method:'DELETE' });
+        document.getElementById('accountingKey').value = '';
+        document.getElementById('accountingPassword').value = '';
+        document.getElementById('accountingEmail').value = '';
+        applyState(data.state);
+      } catch (error) {
+        setNote(document.getElementById('accountingFeedback'), error.message, 'ko');
+      }
+    });
+
+    // Rilettura periodica: il riquadro in home segue la contabilita senza intervento.
+    const refreshAccounting = async (manuale) => {
+      const feedback = document.getElementById('accountingFeedback');
+      if (accountingConfig) {
+        if (manuale) setNote(feedback, 'Rileggo la contabilità…');
+        try {
+          const esito = await leggiContabilita();
+          if (esito.ok || manuale) setNote(feedback, esito.message, esito.ok ? 'ok' : 'ko');
+          if (esito.ok) return;
+        } catch (error) {
+          if (manuale) setNote(feedback, error.message || 'Rilettura non riuscita.', 'ko');
+        }
+      }
+      if (!accountingConfigured) {
+        if (manuale && !accountingConfig) setNote(feedback, 'Collega prima la contabilità qui sopra.', 'ko');
+        return;
+      }
+      if (manuale) setNote(feedback, 'Rileggo la contabilità…');
+      try {
+        const data = await api('/api/accounting/refresh', { method:'POST', body: JSON.stringify({}) });
+        lastVersion = data.version;
+        applyEarnings(data.accounting);
+        if (data.accounting?.error) setNote(feedback, data.accounting.error, 'ko');
+        else {
+          const quando = new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date());
+          setNote(feedback, (data.accounting.count || 0) + ' incassi nel mese · aggiornato alle ' + quando, 'ok');
+        }
+      } catch (error) {
+        if (manuale) setNote(feedback, error.message || 'Rilettura non riuscita.', 'ko');
+      }
+    };
+
+    /* ================= prenotazioni ================= */
+    let importedEvents = [];
+
+    const displayName = (event) => (event && (event.guestName || event.title)) || '';
+
+    /* Sul riquadro in home vogliamo sempre un nome leggibile: se il portale non lo
+       ha mandato lo diciamo esplicitamente invece di lasciare la casella vuota. */
+    const guestLabel = (event) => {
+      if (!event) return '';
+      if (event.blocked) return 'Periodo bloccato';
+      return displayName(event) || 'Nome ospite da inserire';
+    };
+    const soggiorno = (event) => event ? formatDate(event.checkIn) + ' → ' + formatDate(event.checkOut) : '';
+    const canale = (event) => (event && (providerLabel[event.provider] || event.provider)) || '';
+    const setMetric = (valueId, detailId, value, detail) => {
+      document.getElementById(valueId).textContent = value;
+      const el = document.getElementById(detailId);
+      if (el) el.textContent = detail || '';
+    };
+
+    const applyDashboard = () => {
+      /* L'ordine di arrivo dai portali non e' garantito: ordiniamo noi prima di
+         cercare "il prossimo", altrimenti find() restituisce il primo a caso. */
+      const inOrder = [...importedEvents].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+      const present = inOrder.find(event => event.checkIn <= todayKey && event.checkOut > todayKey);
+      /* "Prossimo ospite" e' una prenotazione vera: i periodi bloccati non hanno un ospite. */
+      const nextIn = inOrder.find(event => event.checkIn >= todayKey && event !== present && !event.blocked)
+        || inOrder.find(event => event.checkIn >= todayKey && event !== present);
+      const nextOut = [...inOrder].sort((a, b) => a.checkOut.localeCompare(b.checkOut))
+        .find(event => event.checkOut >= todayKey);
+
+      setMetric('occupancyValue', 'occupancyDetail',
+        present ? guestLabel(present) : 'Nessun ospite',
+        present ? soggiorno(present) + (canale(present) ? ' · ' + canale(present) : '') : 'Nessuna prenotazione in corso oggi');
+      setMetric('nextCheckInValue', 'nextCheckInDetail',
+        nextIn ? guestLabel(nextIn) : 'Non programmato',
+        nextIn ? 'Check-in ' + formatDate(nextIn.checkIn) + (canale(nextIn) ? ' · ' + canale(nextIn) : '') : '');
+      setMetric('nextCheckOutValue', 'nextCheckOutDetail',
+        nextOut ? guestLabel(nextOut) : 'Non programmato',
+        nextOut ? 'Check-out ' + formatDate(nextOut.checkOut) : '');
+      // Una prenotazione che esce OGGI non e' piu' "presente" ma ha ancora tutte le attivita' del check-out.
+      const outToday = importedEvents.find(event => event.checkOut === todayKey && !event.blocked);
+      activeBooking = present || outToday || (nextIn?.checkIn === todayKey ? nextIn : null);
+      /* Se il portale non ha dato un nome lo lasciamo vuoto: le attivita usano un testo neutro. */
+      if (activeBooking && !activeBooking.guestName) activeBooking.guestName = '';
+      renderTodayTasks(activeBooking);
+    };
+
+    const buildReservationCard = (event, editable) => {
+      const card = document.createElement('article');
+      card.className = 'reservation-item';
+      const text = document.createElement('div');
+      const title = document.createElement('h4');
+      title.textContent = displayName(event);
+      const dates = document.createElement('p');
+      const nights = event.nights ? ' · ' + event.nights + (event.nights === 1 ? ' notte' : ' notti') : '';
+      dates.textContent = formatDate(event.checkIn) + ' → ' + formatDate(event.checkOut) + nights;
+      text.append(title, dates);
+
+      // Il portale non manda il nome, ma manda codice e ultime cifre del telefono: servono a riconoscere l'ospite.
+      const chips = document.createElement('div');
+      chips.className = 'reservation-chips';
+      const addChip = (label) => { const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = label; chips.append(chip); };
+      if (event.code) addChip('Cod. ' + event.code);
+      if (event.phoneLast4) addChip('Tel. ••••' + event.phoneLast4);
+      if (event.blocked) addChip('Periodo bloccato');
+      if (chips.children.length) text.append(chips);
+
+      if (editable && !event.blocked) {
+        const row = document.createElement('div');
+        row.className = 'guest-name-row';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'guest-name-input';
+        input.placeholder = 'Nome ospite';
+        input.autocomplete = 'off';
+        input.value = event.guestName || '';
+        input.setAttribute('aria-label', 'Nome ospite');
+        const save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'guest-name-save';
+        save.textContent = 'Salva';
+        const feedback = document.createElement('span');
+        feedback.className = 'guest-name-feedback';
+        const commit = async () => {
+          save.disabled = true;
+          try {
+            const data = await api('/api/guests', { method:'POST', body: JSON.stringify({ id: event.id, name: input.value }) });
+            event.guestName = data.name;
+            title.textContent = displayName(event);
+            setNote(feedback, data.name ? 'Salvato su tutti i dispositivi' : 'Nome rimosso', 'ok');
+            lastVersion = data.state.version;
+            importedEvents = data.state.events || importedEvents;
+            applyDashboard();
+            renderReservationMirror();
+          } catch (error) {
+            setNote(feedback, error.message || 'Salvataggio non riuscito', 'ko');
+          } finally { save.disabled = false; }
+        };
+        save.addEventListener('click', commit);
+        input.addEventListener('keydown', (keyEvent) => { if (keyEvent.key === 'Enter') commit(); });
+        row.append(input, save, feedback);
+        text.append(row);
+        if (event.link) {
+          const open = document.createElement('a');
+          open.className = 'guest-name-link';
+          open.href = event.link;
+          open.target = '_blank';
+          open.rel = 'noopener noreferrer';
+          open.textContent = 'Apri su ' + (providerLabel[event.provider] || event.provider) + ' per leggere il nome';
+          text.append(open);
+        }
+      }
+
+      const source = document.createElement('span');
+      source.className = 'platform';
+      source.textContent = providerLabel[event.provider] || event.provider;
+      card.append(text, source);
+      return card;
+    };
+
+    // La lista Prenotazioni e' uno specchio in sola lettura: il nome si modifica dai Collegamenti.
+    const renderReservationMirror = () => {
+      const list = document.getElementById('reservationItems');
+      list.querySelectorAll('.imported-reservation').forEach(item => item.remove());
+      importedEvents.forEach((event) => {
+        const card = buildReservationCard(event, false);
+        card.classList.add('imported-reservation');
+        list.append(card);
+      });
+      if (importedEvents.length) document.getElementById('emptyReservations').style.display = 'none';
+    };
+
+    const renderImportedEvents = (events) => {
+      importedEvents = events || [];
+      const syncResults = document.getElementById('syncResults');
+      syncResults.replaceChildren();
+      document.querySelectorAll('#reservationItems .imported-reservation').forEach(item => item.remove());
+      if (!importedEvents.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-tasks';
+        empty.textContent = 'Nessuna prenotazione futura trovata nei calendari.';
+        syncResults.append(empty);
+        return;
+      }
+      importedEvents.forEach((event) => syncResults.append(buildReservationCard(event, true)));
+      renderReservationMirror();
+      applyDashboard();
+    };
+
+    document.getElementById('syncCalendars').addEventListener('click', async () => {
+      const button = document.getElementById('syncCalendars');
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = 'Sincronizzo…';
+      setSyncStatus('Sincronizzazione in corso…');
+      try {
+        const data = await api('/api/sync', { method:'POST' });
+        applyState(data);
+        // Ogni portale ha il suo esito: lo scriviamo sulla scheda corrispondente.
+        document.querySelectorAll('.connection-card').forEach((card) => {
+          const outcome = data.perProvider?.[card.dataset.provider];
+          if (!outcome) return;
+          const detail = card.querySelector('.connection-detail');
+          if (outcome.ok) setNote(detail, outcome.upcoming + ' prenotazioni attive su ' + outcome.total + ' eventi.', 'ok');
+          else setNote(detail, outcome.message, 'ko');
+        });
+        if (data.errors?.length) checkServiceHealth();
+      } catch (error) {
+        setSyncStatus(error.message || 'Sincronizzazione non riuscita.');
+      } finally { button.disabled = false; button.textContent = original; }
+    });
+
+    /* ================= avvio ================= */
+    const bootstrapSession = async () => {
+      try {
+        const headers = getToken() ? { Authorization: 'Bearer ' + getToken() } : {};
+        const response = await fetch('/api/session', { cache:'no-store', headers });
+        const session = await response.json();
+        if (session.setupRequired) {
+          loginNote.textContent = session.error;
+          return;
+        }
+        authRequired = Boolean(session.authRequired);
+        if (authRequired) {
+          // E-mail e password come sempre. L'e-mail viene controllata solo se e' stata configurata.
+          loginNote.textContent = session.emailChecked
+            ? 'Accesso riservato: inserisci e-mail e password del centro operativo.'
+            : 'Accesso riservato: inserisci la password del centro operativo (l’e-mail e libera).';
+          if (session.authenticated) enterApp();
+        } else {
+          loginNote.textContent = 'Servizio locale su questo computer: inserisci qualsiasi e-mail e password.';
+          startLiveSync();
+        }
+      } catch {
+        loginNote.textContent = 'Servizio non raggiungibile. Avvia il centro operativo e ricarica la pagina.';
+      }
+    };
+
+    bootstrapSession();
+
+    const formatDate = (value) => new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value + 'T12:00:00'));
+    /* La lista di cosa portare arriva dalla sezione Pulizie: una sola fonte, sempre allineata. */
+    const cleaningSupplies = () => {
+      const rows = [...document.querySelectorAll('#cleaningChecklist .check-row')];
+      const voci = rows.map((row) => {
+        const nome = row.querySelector('label')?.textContent?.trim();
+        if (!nome) return null;
+        const quantita = row.querySelector('input[type=number]');
+        return quantita ? nome + ' x' + (quantita.value || 0) : nome;
+      }).filter(Boolean);
+      return voci.length ? voci.join(', ') : 'vedi sezione Pulizie';
+    };
+    const renderTodayTasks = (booking, complianceReady = false) => {
+      const tasks = [
+        ['', '', '1 storia Instagram', 'Contenuto giornaliero', 'Normale'],
+        ['', '', '1 storia TikTok', 'Contenuto giornaliero', 'Normale'],
+        ['', '', '1 Reel', 'Contenuto giornaliero', 'Importante'],
+        ['', '', '1 TikTok', 'Contenuto giornaliero', 'Importante']
+      ];
+      if (booking?.checkIn === todayKey) {
+        tasks.push(['10:00', '💬', 'Messaggio mattutino e istruzioni check-in', booking.guestName, 'Importante']);
+        tasks.push(['15:00', '🚪', 'Confermare check-in effettuato', 'L’ospite deve essere entrato prima degli adempimenti', 'Urgente']);
+        if (complianceReady) tasks.push(['15:15', '🧾', 'Alloggiati Web e ROSS1000', 'Da completare dopo il check-in', 'Urgente']);
+      }
+      if (booking?.checkOut === todayKey) {
+        const ospite = booking.guestName || 'ospite in uscita';
+        tasks.push(['10:00', '🚪', 'Check-out ospite', ospite, 'Importante']);
+        /* La pulizia serve a poco senza la lista di cosa portare: la mettiamo nell'attivita. */
+        tasks.push(['11:00', '🧹', 'Pulizia programmata · Simona e Lorenzo', 'Da portare: ' + cleaningSupplies(), 'Importante']);
+        tasks.push(['12:30', '⭐', 'Messaggio di richiesta recensione', 'Da inviare a ' + ospite + ' dopo la pulizia', 'Importante']);
+        tasks.push(['12:45', '✍️', "Lasciare la recensione all'ospite", ospite + ' · obbligatoria prima del messaggio finale', 'Urgente']);
+      }
+      const container = document.getElementById('todayTasks');
+      container.replaceChildren();
+      if (tasks.length) {
+        const label = document.createElement('div');
+        label.className = 'day-label';
+        label.textContent = booking ? 'Oggi · attività operative e contenuti' : 'Oggi · contenuti giornalieri';
+        container.append(label);
+        tasks.sort((a,b) => a[0].localeCompare(b[0])).forEach(([time, icon, title, note, priority]) => {
+          const row = document.createElement('article');
+          row.className = `task${time ? '' : ' no-time'}`;
+          row.innerHTML = `${time ? `<div class="task-time">${time}</div>` : ''}<label class="task-icon" aria-label="Completa attività"><input type="checkbox"></label><div><strong></strong><small></small></div><span class="status ${priority === 'Urgente' ? 'urgent' : priority === 'Normale' ? 'normal' : 'important'}">${priority}</span>`;
+          row.querySelector('strong').textContent = title;
+          row.querySelector('small').textContent = note;
+          container.append(row);
+        });
+      }
+      document.getElementById('taskCount').textContent = String(tasks.length);
+      document.getElementById('alertCount').textContent = String(tasks.filter((task) => task[4] === 'Urgente').length).padStart(2, '0');
+    };
+    renderTodayTasks(null);
+    document.getElementById('reservationForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      if (new Date(checkOut) <= new Date(checkIn)) {
+        alert('Il check-out deve essere successivo al check-in.');
+        return;
+      }
+      const guestName = document.getElementById('guestName').value.trim();
+      const platform = document.getElementById('platform').value;
+      const arrivalTime = document.getElementById('arrivalTime').value || '15:00';
+      const item = document.createElement('article');
+      item.className = 'reservation-item';
+      const details = document.createElement('div');
+      const name = document.createElement('h4');
+      name.textContent = guestName;
+      const dates = document.createElement('p');
+      dates.textContent = `${formatDate(checkIn)} · ${arrivalTime}  →  ${formatDate(checkOut)} · 10:00`;
+      details.append(name, dates);
+      const source = document.createElement('span');
+      source.className = 'platform';
+      source.textContent = platform;
+      const reminderMenu = document.createElement('details');
+      const reminderTitle = document.createElement('summary');
+      reminderTitle.textContent = 'Promemoria della prenotazione';
+      const reminderList = document.createElement('div');
+      reminderList.className = 'reminder-list';
+      const reminderLabels = [
+        'Messaggio di benvenuto',
+        'Richiesta documenti',
+        'Check-in effettuato',
+        'Alloggiati Web e ROSS1000 dopo le 15:00',
+        'Istruzioni check-in',
+        'Siamo a vostra disposizione',
+        'Istruzioni check-out',
+        'Pulizia completata',
+        'Nuovo codice cassetta inserito',
+        'Rilascio recensione ospite',
+        'Arrivederci e messaggio richiesta recensione'
+      ];
+      reminderLabels.forEach((text, index) => {
+        const row = document.createElement('div');
+        row.className = 'reminder-row';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `reminder-${Date.now()}-${index}`;
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.textContent = text;
+        row.append(checkbox, label);
+        reminderList.append(row);
+      });
+      const packageRow = document.createElement('div');
+      packageRow.className = 'reminder-row';
+      const packageMarker = document.createElement('span');
+      const packageLabel = document.createElement('label');
+      packageLabel.textContent = 'Acquisto pacchetto';
+      const packageSelect = document.createElement('select');
+      ['Da definire', 'Sì', 'No'].forEach((text) => { const option = document.createElement('option'); option.textContent = text; packageSelect.append(option); });
+      packageRow.append(packageMarker, packageLabel, packageSelect);
+      reminderList.insertBefore(packageRow, reminderList.children[1]);
+      const progress = document.createElement('div');
+      progress.className = 'reminder-progress';
+      progress.textContent = `0 di ${reminderLabels.length} completati`;
+      reminderList.addEventListener('change', () => {
+        const completed = reminderList.querySelectorAll('input[type=checkbox]:checked').length;
+        progress.textContent = `${completed} di ${reminderLabels.length} completati`;
+      });
+      reminderMenu.append(reminderTitle, reminderList, progress);
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'delete-reservation';
+      deleteButton.type = 'button';
+      deleteButton.textContent = 'Elimina prenotazione';
+      deleteButton.addEventListener('click', () => {
+        item.remove();
+        if (!document.getElementById('reservationItems').children.length) {
+          document.getElementById('emptyReservations').classList.remove('hidden');
+          activeBooking = null;
+          renderTodayTasks(null);
+          setMetric('occupancyValue', 'occupancyDetail', 'Nessun ospite', 'Nessuna prenotazione in corso oggi');
+          setMetric('nextCheckInValue', 'nextCheckInDetail', 'Non programmato', '');
+          setMetric('nextCheckOutValue', 'nextCheckOutDetail', 'Non programmato', '');
+          document.getElementById('workflowEmpty').classList.remove('hidden');
+          document.getElementById('workflowSteps').classList.add('hidden');
+        }
+      });
+      item.append(details, source, reminderMenu, deleteButton);
+      document.getElementById('reservationItems').prepend(item);
+      document.getElementById('emptyReservations').classList.add('hidden');
+      const now = new Date();
+      const inDate = new Date(checkIn + 'T15:00:00');
+      const outDate = new Date(checkOut + 'T10:00:00');
+      const inCorso = now >= inDate && now < outDate;
+      setMetric('nextCheckInValue', 'nextCheckInDetail', guestName,
+        'Check-in ' + formatDate(checkIn) + ' · ' + arrivalTime + ' · ' + platform);
+      setMetric('nextCheckOutValue', 'nextCheckOutDetail', guestName,
+        'Check-out ' + formatDate(checkOut) + ' · 10:00');
+      setMetric('occupancyValue', 'occupancyDetail', inCorso ? guestName : 'Nessun ospite',
+        inCorso ? formatDate(checkIn) + ' → ' + formatDate(checkOut) + ' · ' + platform : 'Nessuna prenotazione in corso oggi');
+      activeBooking = { guestName, checkIn, checkOut };
+      renderTodayTasks(activeBooking);
+      document.getElementById('workflowEmpty').classList.add('hidden');
+      document.getElementById('workflowSteps').classList.remove('hidden');
+      event.target.reset();
+      document.getElementById('guestCount').value = '2';
+      document.getElementById('arrivalTime').value = '15:00';
+    });
+
+    const workflowSteps = [...document.querySelectorAll('.workflow-step')];
+    workflowSteps.forEach((step, index) => {
+      const toggle = step.querySelector('.step-toggle');
+      toggle.addEventListener('click', () => {
+        step.classList.add('done');
+        toggle.textContent = 'Fatto';
+        toggle.disabled = true;
+        if (index === 2 && activeBooking?.checkIn === todayKey) renderTodayTasks(activeBooking, true);
+        const next = workflowSteps[index + 1];
+        if (next) {
+          next.classList.remove('locked');
+          const nextToggle = next.querySelector('.step-toggle');
+          nextToggle.disabled = false;
+          nextToggle.textContent = 'Da fare';
+        }
+      });
+    });
+
+    document.getElementById('confirmCleaning').addEventListener('click', () => {
+      const usedWater = document.getElementById('cWater').checked ? Number(document.getElementById('qWater').value) : 0;
+      const usedWine = document.getElementById('cWine').checked ? Number(document.getElementById('qWine').value) : 0;
+      if (usedWater) changeQuantity('water', -usedWater);
+      if (usedWine) changeQuantity('wine', -usedWine);
+      if (usedWater || usedWine) saveQuantities(false);
+      const selected = document.querySelectorAll('#cleaningChecklist input[type=checkbox]:checked').length;
+      document.getElementById('cleaningResult').textContent = selected ? `Conferma registrata: ${selected} elementi selezionati. Acqua e vino sono stati aggiornati nell’inventario.` : 'Seleziona almeno un elemento prima della conferma.';
+      if (selected) {
+        document.querySelectorAll('#cleaningChecklist input[type=checkbox]').forEach((item) => { item.checked = false; });
+        codesState.nextEnabled = true;
+        renderCodes();
+        saveCodes('');
+        document.getElementById('nextCodeResult').textContent = 'Pulizia confermata: inserisci ora il nuovo codice.';
+      }
+    });
+
+    /* ================= codici cassetta: adesso restano salvati =================
+       Prima vivevano solo nel DOM: bastava cambiare sezione o ricaricare la
+       pagina per perderli. Ora hanno uno stato salvato sul servizio (cosi' li
+       vedi da ogni dispositivo) e ricopiato in locale come rete di sicurezza. */
+    const CODES_KEY = 'centroOperativoCodici';
+    let codesState = { current: '', next: '', nextEnabled: false, history: [] };
+    try {
+      const salvati = JSON.parse(localStorage.getItem(CODES_KEY) || 'null');
+      if (salvati && typeof salvati === 'object') codesState = { ...codesState, ...salvati };
+    } catch { /* modalita privata: si riparte da vuoto */ }
+    let codesSaveTimer;
+
+    const renderCodes = () => {
+      const currentCode = document.getElementById('currentCode');
+      const nextCode = document.getElementById('nextCode');
+      const activate = document.getElementById('activateNextCode');
+      if (document.activeElement !== currentCode) currentCode.value = codesState.current || '';
+      if (document.activeElement !== nextCode) nextCode.value = codesState.next || '';
+      nextCode.disabled = !codesState.nextEnabled;
+      activate.disabled = !codesState.nextEnabled;
+      nextCode.placeholder = codesState.nextEnabled ? 'Inserisci il nuovo codice' : 'Completa prima la pulizia';
+
+      const list = document.getElementById('codeHistory');
+      list.replaceChildren();
+      if (!codesState.history.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-tasks';
+        empty.textContent = 'Nessun cambio codice registrato.';
+        list.append(empty);
+        return;
+      }
+      codesState.history.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const date = document.createElement('span');
+        date.textContent = new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.at));
+        const masked = document.createElement('strong');
+        masked.textContent = '••••';
+        item.append(date, masked);
+        list.append(item);
+      });
+    };
+
+    const saveCodes = async (messaggio) => {
+      try { localStorage.setItem(CODES_KEY, JSON.stringify(codesState)); } catch { /* modalita privata */ }
+      const esito = document.getElementById('currentCodeResult');
+      try {
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ keyCodes: codesState }) });
+        lastVersion = data.version;
+        if (messaggio) esito.textContent = messaggio + ' Salvato su tutti i dispositivi.';
+      } catch (error) {
+        /* Il salvataggio locale e' comunque riuscito: il codice non si perde ricaricando. */
+        if (messaggio) esito.textContent = messaggio + ' Salvato su questo dispositivo (servizio non raggiungibile).';
+      }
+    };
+    // Ogni battitura viene salvata: era proprio questo a mancare.
+    const saveCodesSoon = () => { clearTimeout(codesSaveTimer); codesSaveTimer = setTimeout(() => saveCodes(''), 500); };
+
+    document.getElementById('currentCode').addEventListener('input', (event) => {
+      codesState.current = event.target.value;
+      saveCodesSoon();
+    });
+    document.getElementById('nextCode').addEventListener('input', (event) => {
+      codesState.next = event.target.value;
+      saveCodesSoon();
+    });
+
+    document.getElementById('toggleCode').addEventListener('click', () => {
+      const currentCode = document.getElementById('currentCode');
+      currentCode.type = currentCode.type === 'password' ? 'text' : 'password';
+    });
+
+    document.getElementById('saveCurrentCode').addEventListener('click', () => {
+      const currentCode = document.getElementById('currentCode');
+      const value = currentCode.value.trim();
+      if (!value) {
+        document.getElementById('currentCodeResult').textContent = 'Inserisci un codice prima di salvare.';
+        return;
+      }
+      codesState.current = value;
+      currentCode.value = value;
+      currentCode.type = 'password';
+      clearTimeout(codesSaveTimer);
+      saveCodes('Codice attuale salvato e mantenuto nascosto.');
+    });
+
+    document.getElementById('activateNextCode').addEventListener('click', () => {
+      const value = document.getElementById('nextCode').value.trim();
+      if (!value) {
+        document.getElementById('nextCodeResult').textContent = 'Inserisci il nuovo codice prima di attivarlo.';
+        return;
+      }
+      // Il codice che esce di scena finisce nello storico, sempre mascherato.
+      if (codesState.current.trim()) codesState.history = [{ at: new Date().toISOString() }, ...codesState.history].slice(0, 50);
+      codesState.current = value;
+      codesState.next = '';
+      codesState.nextEnabled = false;
+      document.getElementById('currentCode').type = 'password';
+      renderCodes();
+      document.getElementById('nextCodeResult').textContent = 'Nuovo codice attivato. In attesa della prossima pulizia.';
+      clearTimeout(codesSaveTimer);
+      saveCodes('Nuovo codice attivo e protetto.');
+    });
+
+    // Lo stato che arriva dal servizio (anche da un altro dispositivo) entra da qui.
+    applyKeyCodesPrefs = (remoti) => {
+      if (!remoti || typeof remoti !== 'object') return;
+      codesState = {
+        current: typeof remoti.current === 'string' ? remoti.current : codesState.current,
+        next: typeof remoti.next === 'string' ? remoti.next : codesState.next,
+        nextEnabled: Boolean(remoti.nextEnabled),
+        history: Array.isArray(remoti.history) ? remoti.history : codesState.history
+      };
+      renderCodes();
+    };
+
+    renderCodes();
+
+    const euro = (cents) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+    // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
+    const applyEarnings = (accounting) => {
+      // La lettura diretta e' quella che vede davvero gli importi: se c'e', vince.
+      const info = directAccounting || accounting || {};
+      const label = document.getElementById('monthlyLabel');
+      const note = document.getElementById('monthlyNote');
+      label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
+      updateEarningsChart(info.total || 0);
+      if (!info.configured) {
+        note.textContent = accountingConfig
+          ? 'Contabilità collegata: sto rileggendo il totale del mese…'
+          : 'Contabilità non ancora collegata: collegala da Collegamenti per il calcolo automatico.';
+        return;
+      }
+      if (info.error) {
+        note.textContent = info.error;
+        return;
+      }
+      const quando = info.readAt
+        ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt))
+        : '';
+      if (info === directAccounting) {
+        note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+          + (info.packagesCount ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti') : '')
+          + ' nel mese, dal software contabilità' + quando;
+        return;
+      }
+      note.textContent = (info.count || 0) + (info.count === 1 ? ' incasso' : ' incassi') + ' dal software contabilità' + quando;
+    };
+
+    // Calcolatore della sezione Contabilita: invariato, resta uno strumento di sola simulazione.
+    const calculateCompensation = (event) => {
+      if (event) event.preventDefault();
+      const gross = Math.round(Number(document.getElementById('grossAmount').value || 0) * 100);
+      const cleaning = Math.round(Number(document.getElementById('cleaningAmount').value || 0) * 100);
+      const packageRevenue = Math.round(Number(document.getElementById('packageAmount').value || 0) * 100);
+      if (cleaning > gross) {
+        document.getElementById('financeMessage').textContent = 'Controlla gli importi: le pulizie superano il totale ricevuto.';
+        return;
+      }
+      const net = gross - cleaning;
+      const owner = Math.round(net * .75);
+      const lorenzoNet = Math.round(net * .125);
+      const simonaNet = net - owner - lorenzoNet;
+      const lorenzoCleaning = Math.round(cleaning / 2);
+      const simonaCleaning = cleaning - lorenzoCleaning;
+      const lorenzoPackage = Math.round(packageRevenue / 2);
+      const simonaPackage = packageRevenue - lorenzoPackage;
+      const values = {
+        rOwnerFinal: owner,
+        rLFinal: lorenzoNet + lorenzoCleaning + lorenzoPackage,
+        rSFinal: simonaNet + simonaCleaning + simonaPackage
+      };
+      Object.entries(values).forEach(([id, value]) => { document.getElementById(id).textContent = euro(value); });
+      document.getElementById('financeMessage').textContent = 'Calcolo completato.';
+      // Il risultato del singolo calcolo non modifica lo storico mensile.
+    };
+    const financeForm = document.getElementById('financeForm');
+    financeForm.addEventListener('submit', calculateCompensation);
+    financeForm.addEventListener('input', calculateCompensation);
+    financeForm.addEventListener('change', calculateCompensation);
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+      changeQuantity(button.dataset.item, button.dataset.action === 'plus' ? 1 : -1);
+    });
+  </script>
+</body>
+</html>
