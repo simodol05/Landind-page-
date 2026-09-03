@@ -43,9 +43,22 @@ senza niente che lo segnali.
 
 Ora la pagina legge la stessa riga che legge il software contabilità, con lo
 stesso login, e somma come fa lui: `revenue` delle prenotazioni che iniziano nel
-mese in corso, più i pacchetti la cui data cade nel mese. Ogni voce entra nel
-totale in base alla **sua** data, quindi un pacchetto di agosto non finisce mai
-nel totale di settembre. Il valore del servizio resta come ripiego.
+mese in corso. **I pacchetti restano fuori dal totale**, esattamente come nel
+software contabilità, dove stanno in una scheda a parte e non entrano
+nell'incasso mensile: il numero in home deve corrispondere a quello che leggi
+là. I pacchetti del mese vengono comunque mostrati, sotto e separati. Il valore
+del servizio resta come ripiego.
+
+### Perché una somma fatta a mano può non tornare
+
+Il software contabilità salta le prenotazioni **senza data di inizio**
+(`if (!b.startDate) return;`): non appartengono a nessun mese e non entrano in
+nessun totale mensile. Sommandole a mano invece si contano, ed è lì che nasce
+quasi sempre la differenza fra il totale scritto a mano e quello automatico.
+
+Invece di farle sparire in silenzio, la pagina le conta e le elenca in giallo
+sotto il totale, con l'importo che rappresentano: basta aprire la prenotazione
+nel software contabilità e metterle la data perché rientri nel mese giusto.
 
 Il totale si aggiorna **in tempo reale**: oltre alla rilettura periodica, la
 pagina si mette in ascolto su Supabase Realtime, lo stesso canale che usa il
@@ -54,9 +67,16 @@ aggiunta o corretta. Il mese di riferimento si ricalcola a ogni lettura, così
 con la pagina aperta a cavallo di mezzanotte il primo del mese il totale cambia
 da solo.
 
-Sotto il grafico, **Vedi le voci contate** elenca riga per riga data, nome e
-importo di tutto ciò che è entrato nel totale: se un importo non torna si vede
-subito quale voce lo causa e a che data è registrata.
+Sotto il grafico, **Vedi le voci contate** elenca tutto in tre gruppi:
+
+| Gruppo | Nel totale | Perché |
+|---|---|---|
+| Nel totale | sì | prenotazioni con data nel mese in corso |
+| Prenotazioni senza data | no | il software contabilità non le assegna a nessun mese |
+| Pacchetti | no | contati a parte, come nel software contabilità |
+
+Ogni riga porta data, nome, piattaforma, stato e importo: se un totale non torna
+si vede subito quale voce lo causa.
 
 > **Servono anche e-mail e password del software contabilità**, in
 > *Collegamenti → Software contabilità*: senza login il database non mostra

@@ -301,6 +301,9 @@
     .earnings-breakdown { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
     .earnings-breakdown summary { color:var(--gold-soft); font-size:11px; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; }
     .breakdown-list { margin-top:11px; display:flex; flex-direction:column; gap:1px; }
+    .breakdown-group { padding:12px 0 5px; color:var(--gold); font-size:10px; font-weight:750; text-transform:uppercase; letter-spacing:.14em; }
+    .breakdown-group.attenzione { color:var(--amber); }
+    .breakdown-row.fuori { opacity:.62; }
     .breakdown-row { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid rgba(230,213,175,.07); font-size:12px; }
     .breakdown-row:last-child { border-bottom:0; }
     .breakdown-row time { color:var(--gold-soft); font-variant-numeric:tabular-nums; }
@@ -1322,27 +1325,51 @@
     const meseCorrente = (iso) => typeof iso === 'string' && iso.slice(0, 7) === meseChiave();
     const etichettaMese = () => new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
 
-    // Stesso calcolo del software contabilita: incasso = revenue delle
-    // prenotazioni che iniziano nel mese, piu' i pacchetti venduti nel mese.
+    /* Stessa regola del software contabilita': l'incasso del mese e' la somma
+       di "revenue" delle prenotazioni che INIZIANO nel mese. I pacchetti li
+       tiene fuori (nel software stanno in una scheda a parte e non entrano nel
+       totale mensile), quindi li teniamo fuori anche noi e li mostriamo a
+       parte: il numero in home deve corrispondere a quello che leggi la'.
+
+       Attenzione alle prenotazioni SENZA data: il software contabilita' le
+       salta (`if (!b.startDate) return;`), quindi non appartengono a nessun
+       mese. Sommandole a mano invece si contano, ed e' li' che nasce la
+       differenza fra il totale scritto a mano e quello automatico. Le
+       segnaliamo invece di farle sparire in silenzio. */
+    const importo = (valore) => Math.round((Number(valore) || 0) * 100);
+    const haData = (b) => typeof b.startDate === 'string' && b.startDate.trim() !== '';
+
     const totaleDelMese = (blob) => {
-      const prenotazioni = (Array.isArray(blob?.bookings) ? blob.bookings : []).filter(b => meseCorrente(b.startDate));
-      const pacchetti = (Array.isArray(blob?.packages) ? blob.packages : []).filter(p => meseCorrente(p.date));
+      const bookings = Array.isArray(blob?.bookings) ? blob.bookings : [];
+      const packages = Array.isArray(blob?.packages) ? blob.packages : [];
+      const prenotazioni = bookings.filter(b => meseCorrente(b.startDate));
+      const senzaData = bookings.filter(b => !haData(b));
+      const pacchetti = packages.filter(p => meseCorrente(p.date));
+
       const incassi = prenotazioni.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
       const extra = pacchetti.reduce((somma, p) => somma + (Number(p.amount) || 0), 0);
-      const voci = [
-        ...prenotazioni.map(b => ({ date: b.startDate, label: (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : ''), cents: Math.round((Number(b.revenue) || 0) * 100) })),
-        ...pacchetti.map(p => ({ date: p.date, label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''), cents: Math.round((Number(p.amount) || 0) * 100) }))
-      ].sort((a, b) => a.date.localeCompare(b.date));
+      const sospesi = senzaData.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
+
+      const nome = (b) => (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : '');
       return {
         configured: true,
         monthLabel: etichettaMese(),
-        total: Math.round((incassi + extra) * 100),
-        count: prenotazioni.length + pacchetti.length,
+        // Il totale in home e' la somma delle sole prenotazioni del mese.
+        total: Math.round(incassi * 100),
+        count: prenotazioni.length,
         bookingsTotal: Math.round(incassi * 100),
         bookingsCount: prenotazioni.length,
         packagesTotal: Math.round(extra * 100),
         packagesCount: pacchetti.length,
-        voci,
+        undatedTotal: Math.round(sospesi * 100),
+        undatedCount: senzaData.length,
+        voci: prenotazioni
+          .map(b => ({ date: b.startDate, label: nome(b), cents: importo(b.revenue), status: b.status || '' }))
+          .sort((a, b) => a.date.localeCompare(b.date)),
+        vociPacchetti: pacchetti
+          .map(p => ({ date: p.date, label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''), cents: importo(p.amount) }))
+          .sort((a, b) => a.date.localeCompare(b.date)),
+        vociSenzaData: senzaData.map(b => ({ date: '', label: nome(b), cents: importo(b.revenue), status: b.status || '' })),
         readAt: new Date().toISOString()
       };
     };
@@ -1395,11 +1422,10 @@
       const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
       return {
         ok: true,
-        message: euroDi(directAccounting.total) + ' nel mese · '
-          + directAccounting.bookingsCount + (directAccounting.bookingsCount === 1 ? ' prenotazione (' : ' prenotazioni (') + euroDi(directAccounting.bookingsTotal) + ')'
-          + (directAccounting.packagesCount
-              ? ' + ' + directAccounting.packagesCount + (directAccounting.packagesCount === 1 ? ' pacchetto (' : ' pacchetti (') + euroDi(directAccounting.packagesTotal) + ')'
-              : '')
+        message: euroDi(directAccounting.total) + ' nel mese, da '
+          + directAccounting.bookingsCount + (directAccounting.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+          + (directAccounting.undatedCount ? ' · attenzione: ' + directAccounting.undatedCount + ' senza data (' + euroDi(directAccounting.undatedTotal) + ') non entrano in nessun mese' : '')
+          + (directAccounting.packagesCount ? ' · ' + directAccounting.packagesCount + (directAccounting.packagesCount === 1 ? ' pacchetto a parte (' : ' pacchetti a parte (') + euroDi(directAccounting.packagesTotal) + ')' : '')
       };
     };
 
@@ -2156,27 +2182,56 @@
     /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
        cosa e' stato contato, con la data: se un importo non torna si vede
        subito quale voce lo causa e a che data e' registrata. */
-    const renderBreakdown = (voci) => {
+    const renderBreakdown = (info) => {
       const box = document.getElementById('earningsBreakdown');
       const lista = document.getElementById('earningsBreakdownList');
       if (!box || !lista) return;
-      if (!voci || !voci.length) { box.classList.add('hidden'); return; }
+      if (!info) { box.classList.add('hidden'); return; }
       box.classList.remove('hidden');
       lista.replaceChildren();
+
       const giorno = (iso) => new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short' }).format(new Date(iso + 'T12:00:00'));
-      voci.forEach((voce) => {
-        const riga = document.createElement('div');
-        riga.className = 'breakdown-row';
+      const riga = (voce, dentro) => {
+        const el = document.createElement('div');
+        el.className = 'breakdown-row' + (dentro ? '' : ' fuori');
         const quando = document.createElement('time');
-        quando.dateTime = voce.date;
-        quando.textContent = giorno(voce.date);
+        if (voce.date) { quando.dateTime = voce.date; quando.textContent = giorno(voce.date); }
+        else quando.textContent = '—';
         const nome = document.createElement('span');
-        nome.textContent = voce.label;
-        const importo = document.createElement('b');
-        importo.textContent = euro(voce.cents);
-        riga.append(quando, nome, importo);
-        lista.append(riga);
-      });
+        nome.textContent = voce.label + (voce.status ? ' · ' + voce.status : '');
+        const soldi = document.createElement('b');
+        soldi.textContent = euro(voce.cents);
+        el.append(quando, nome, soldi);
+        return el;
+      };
+      const gruppo = (titolo, classe) => {
+        const el = document.createElement('div');
+        el.className = 'breakdown-group ' + (classe || '');
+        el.textContent = titolo;
+        lista.append(el);
+      };
+
+      gruppo('Nel totale · ' + euro(info.bookingsTotal));
+      if (!info.voci.length) {
+        const vuoto = document.createElement('div');
+        vuoto.className = 'breakdown-row fuori';
+        vuoto.textContent = 'Nessuna prenotazione con data in questo mese.';
+        lista.append(vuoto);
+      }
+      info.voci.forEach((voce) => lista.append(riga(voce, true)));
+
+      /* Queste due categorie non entrano nel totale, ma nasconderle sarebbe
+         peggio: sono esattamente le voci che fanno sballare una somma a mano. */
+      if (info.undatedCount) {
+        gruppo(info.undatedCount + (info.undatedCount === 1 ? ' prenotazione senza data' : ' prenotazioni senza data')
+          + ' · ' + euro(info.undatedTotal) + ' — fuori da ogni mese, aggiungi la data nel software contabilità', 'attenzione');
+        info.vociSenzaData.forEach((voce) => lista.append(riga(voce, false)));
+      }
+      if (info.packagesCount) {
+        gruppo(info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti')
+          + ' · ' + euro(info.packagesTotal) + ' — contati a parte, come nel software contabilità');
+        info.vociPacchetti.forEach((voce) => lista.append(riga(voce, false)));
+      }
     };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
@@ -2201,11 +2256,13 @@
       const quando = info.readAt
         ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt))
         : '';
-      renderBreakdown(info === directAccounting ? info.voci : null);
+      renderBreakdown(info === directAccounting ? info : null);
       if (info === directAccounting) {
         note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
-          + (info.packagesCount ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti') : '')
-          + ' nel mese, dal software contabilità' + quando;
+          + ' nel mese, dal software contabilità'
+          + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
+          + (info.packagesCount ? ' · ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto a parte' : ' pacchetti a parte') : '')
+          + quando;
         return;
       }
       note.textContent = (info.count || 0) + (info.count === 1 ? ' incasso' : ' incassi') + ' dal software contabilità' + quando;
