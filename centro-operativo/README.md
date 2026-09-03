@@ -60,8 +60,10 @@ servizio resta come ripiego.
 - Le quantità ora si conservano davvero. Prima non venivano salvate da nessuna
   parte e ogni ridisegno dell'inventario le riportava ai valori di serie
   (12 e 6).
-- Tolta la **×** in fondo a ogni voce. Di conseguenza le voci non si eliminano
-  più dall'elenco: si possono ancora aggiungere.
+- Tolta la **×** in fondo a ogni voce: l'elenco a riposo è pulito.
+- L'eliminazione resta disponibile dietro **Modifica elenco**: si preme una
+  volta, compaiono i cestini, si toglie quel che serve e si chiude con *Fine
+  modifica*. Così non si cancella niente per sbaglio sfiorando lo schermo.
 - Lo scarico dalla sezione *Pulizie* passa dallo stesso stato e si salva da solo.
 
 ### 4. Codici cassetta
