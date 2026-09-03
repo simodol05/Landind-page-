@@ -324,9 +324,12 @@
     .inventory { padding: 8px 12px 13px; }
     .inventory-row { display: grid; grid-template-columns: 32px 1fr auto 30px; gap: 11px; align-items: center; min-height: 52px; padding: 8px 9px; border-bottom: 1px solid rgba(230,213,175,.08); }
     .remove-inventory { width:28px; height:28px; border:1px solid rgba(237,126,120,.28); border-radius:9px; color:var(--red); background:transparent; cursor:pointer; }
-    .inventory-save button.editing { color:#0a0a0a; background:var(--gold-soft); }
     .inventory-save { display:flex; align-items:center; gap:11px; flex-wrap:wrap; padding:13px 12px 0; }
-    .inventory-save button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .inventory-save button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; cursor:pointer; font-weight:700; }
+    .inventory-save #saveInventory { color:#0a0a0a; background:var(--gold-soft); }
+    /* L'interruttore della modifica resta defilato finche' non lo si apre. */
+    .inventory-save .outline-button { min-height:0; color:var(--gold-soft); background:rgba(201,168,106,.06); font-weight:500; }
+    .inventory-save .outline-button.editing { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
     .inventory-save button:disabled { opacity:.5; cursor:default; }
     .inventory-save-status { color:var(--muted); font-size:12px; }
     .inventory-save-status.ok { color:var(--gold-soft); }
