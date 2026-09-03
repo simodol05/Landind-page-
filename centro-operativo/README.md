@@ -43,9 +43,20 @@ senza niente che lo segnali.
 
 Ora la pagina legge la stessa riga che legge il software contabilità, con lo
 stesso login, e somma come fa lui: `revenue` delle prenotazioni che iniziano nel
-mese in corso, più i pacchetti venduti nel mese. Il riquadro in home mostra il
-totale e il dettaglio (quante prenotazioni, quanti pacchetti). Il valore del
-servizio resta come ripiego.
+mese in corso, più i pacchetti la cui data cade nel mese. Ogni voce entra nel
+totale in base alla **sua** data, quindi un pacchetto di agosto non finisce mai
+nel totale di settembre. Il valore del servizio resta come ripiego.
+
+Il totale si aggiorna **in tempo reale**: oltre alla rilettura periodica, la
+pagina si mette in ascolto su Supabase Realtime, lo stesso canale che usa il
+software contabilità, e ricalcola nell'istante in cui una prenotazione viene
+aggiunta o corretta. Il mese di riferimento si ricalcola a ogni lettura, così
+con la pagina aperta a cavallo di mezzanotte il primo del mese il totale cambia
+da solo.
+
+Sotto il grafico, **Vedi le voci contate** elenca riga per riga data, nome e
+importo di tutto ciò che è entrato nel totale: se un importo non torna si vede
+subito quale voce lo causa e a che data è registrata.
 
 > **Servono anche e-mail e password del software contabilità**, in
 > *Collegamenti → Software contabilità*: senza login il database non mostra
@@ -74,6 +85,16 @@ ogni modifica, anche mentre si digita.
 
 Lo storico continua a mostrare solo la data e `••••`, mai il codice.
 
+### 5. Attività aggiunte a mano nel promemoria
+
+Accanto al contatore di *Priorità di oggi* c'è un **+**: apre un campo per
+scrivere una voce tua, che compare nell'elenco con la sua casella da spuntare e
+una × per eliminarla.
+
+Le voci restano finché non le elimini; le **spunte si azzerano ogni giorno**,
+perché quel riquadro è la lista di oggi e non un archivio. Anche le spunte sulle
+attività di serie ora si conservano durante la giornata.
+
 ## Dove vengono salvati i dati
 
 Quantità e codici vengono inviati al servizio (`POST /api/prefs`), così si
@@ -82,4 +103,4 @@ sicurezza. Se il servizio non accetta i nuovi campi la copia locale regge
 comunque il salvataggio, e la pagina lo dice invece di fingere che sia andata.
 
 Per la sincronizzazione fra dispositivi il servizio deve conservare in `prefs`
-anche le chiavi `quantities` e `keyCodes`.
+anche le chiavi `quantities`, `keyCodes` e `tasks`.

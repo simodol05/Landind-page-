@@ -290,6 +290,22 @@
     .panel-head { padding: 20px 22px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); }
     .panel-title { display: flex; align-items: center; gap: 11px; }
     .panel-title h3 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .02em; }
+    .panel-head-actions { display:flex; align-items:center; gap:10px; }
+    .add-task { width:27px; height:27px; display:grid; place-items:center; padding:0; border:1px solid rgba(222,190,126,.35); border-radius:50%; color:var(--gold-soft); background:rgba(201,168,106,.06); font-size:17px; line-height:1; cursor:pointer; }
+    .add-task[aria-expanded="true"] { color:#0a0a0a; background:var(--gold-soft); }
+    .add-task-form { display:grid; grid-template-columns:1fr auto; gap:9px; padding:14px 22px 0; }
+    .add-task-form input { min-width:0; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); outline:none; }
+    .add-task-form button { padding:0 15px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .task-end { display:flex; align-items:center; gap:9px; }
+    .remove-task { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
+    .earnings-breakdown { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+    .earnings-breakdown summary { color:var(--gold-soft); font-size:11px; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; }
+    .breakdown-list { margin-top:11px; display:flex; flex-direction:column; gap:1px; }
+    .breakdown-row { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid rgba(230,213,175,.07); font-size:12px; }
+    .breakdown-row:last-child { border-bottom:0; }
+    .breakdown-row time { color:var(--gold-soft); font-variant-numeric:tabular-nums; }
+    .breakdown-row span { color:var(--muted); }
+    .breakdown-row b { font-weight:600; font-variant-numeric:tabular-nums; }
     .count { min-width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; color: #0a0a0a; background: var(--gold-soft); font-size: 11px; font-weight: 800; }
     .tasks { padding: 8px 12px 12px; }
     .day-label { padding: 18px 10px 8px; color: var(--gold); font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .18em; }
@@ -368,7 +384,7 @@
       .task-time { grid-column: 1; grid-row: 1; }
       .task-icon { grid-column: 1; grid-row: 2; }
       .task > div:nth-of-type(3) { grid-column: 2; grid-row: 1 / span 2; }
-      .status { grid-column: 2; justify-self: start; }
+      .task-end { grid-column: 2; justify-self: start; }
       .summary { gap: 8px; }
       .metric { padding: 13px 10px; }
       .metric strong { font-size: 20px; }
@@ -477,8 +493,15 @@
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title"><span>✨</span><h3>Priorità di oggi</h3></div>
-            <div id="taskCount" class="count">0</div>
+            <div class="panel-head-actions">
+              <button id="addTaskToggle" class="add-task" type="button" aria-label="Aggiungi un'attività" aria-expanded="false">+</button>
+              <div id="taskCount" class="count">0</div>
+            </div>
           </div>
+          <form id="addTaskForm" class="add-task-form hidden">
+            <input id="newTaskText" type="text" placeholder="Cosa devi fare oggi?" autocomplete="off" required>
+            <button type="submit">Aggiungi</button>
+          </form>
           <div id="todayTasks" class="tasks"><div class="empty-tasks">Nessuna prenotazione o attività operativa prevista per oggi.</div></div>
         </div>
 
@@ -529,6 +552,10 @@
           <path id="earningsLine" class="chart-line" d="M0 104 L180 104 L360 104 L540 104 L720 104 L900 104"/>
           <circle id="earningsDot" class="chart-dot" cx="900" cy="104" r="4"/>
         </svg>
+        <details id="earningsBreakdown" class="earnings-breakdown hidden">
+          <summary>Vedi le voci contate</summary>
+          <div id="earningsBreakdownList" class="breakdown-list"></div>
+        </details>
       </section>
 
       <div class="quote"><q>La cura dei dettagli trasforma un soggiorno in un ricordo.</q><span>Focus del giorno · Qualità prima di tutto</span></div>
@@ -784,6 +811,7 @@
 
     // I codici cassetta si definiscono a fondo pagina: qui lasciamo l'aggancio.
     let applyKeyCodesPrefs = () => {};
+    let applyTasksPrefs = () => {};
     const setInventoryStatus = (message, tone) => setNote(document.getElementById('inventorySaveStatus'), message, tone);
     const applyQuantities = () => {
       quantityIds.forEach((id) => {
@@ -903,6 +931,7 @@
         quantities = { ...quantities, ...prefs.quantities };
       }
       applyKeyCodesPrefs(prefs.keyCodes);
+      applyTasksPrefs(prefs.tasks);
       renderInventory();
     };
 
@@ -1287,7 +1316,10 @@
       if (salvata && salvata.url && salvata.key) accountingConfig = salvata;
     } catch { /* modalita privata */ }
 
-    const meseCorrente = (iso) => typeof iso === 'string' && iso.slice(0, 7) === todayKey.slice(0, 7);
+    /* Il mese si ricalcola a ogni lettura: con la pagina aperta a cavallo di
+       mezzanotte il primo del mese il totale deve cambiare da solo. */
+    const meseChiave = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+    const meseCorrente = (iso) => typeof iso === 'string' && iso.slice(0, 7) === meseChiave();
     const etichettaMese = () => new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
 
     // Stesso calcolo del software contabilita: incasso = revenue delle
@@ -1297,6 +1329,10 @@
       const pacchetti = (Array.isArray(blob?.packages) ? blob.packages : []).filter(p => meseCorrente(p.date));
       const incassi = prenotazioni.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
       const extra = pacchetti.reduce((somma, p) => somma + (Number(p.amount) || 0), 0);
+      const voci = [
+        ...prenotazioni.map(b => ({ date: b.startDate, label: (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : ''), cents: Math.round((Number(b.revenue) || 0) * 100) })),
+        ...pacchetti.map(p => ({ date: p.date, label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''), cents: Math.round((Number(p.amount) || 0) * 100) }))
+      ].sort((a, b) => a.date.localeCompare(b.date));
       return {
         configured: true,
         monthLabel: etichettaMese(),
@@ -1306,8 +1342,33 @@
         bookingsCount: prenotazioni.length,
         packagesTotal: Math.round(extra * 100),
         packagesCount: pacchetti.length,
+        voci,
         readAt: new Date().toISOString()
       };
+    };
+
+    /* Il software contabilita' pubblica le sue modifiche su Supabase Realtime:
+       ci mettiamo in ascolto, cosi' il totale in home cambia nell'istante in
+       cui aggiungi una prenotazione, senza aspettare il giro di rilettura. */
+    let accountingChannel = null;
+    const seguiContabilita = (userId, tabella) => {
+      if (!accountingClient || accountingChannel) return;
+      accountingChannel = accountingClient
+        .channel('contabilita-centro-operativo')
+        .on('postgres_changes',
+          { event:'*', schema:'public', table: tabella, ...(userId ? { filter: 'user_id=eq.' + userId } : {}) },
+          (payload) => {
+            const scheda = payload?.new?.data;
+            if (!scheda) return;
+            directAccounting = totaleDelMese(scheda);
+            applyEarnings(null);
+          })
+        .subscribe();
+    };
+    const smettiDiSeguire = () => {
+      if (!accountingChannel) return;
+      try { accountingClient?.removeChannel(accountingChannel); } catch { /* canale gia chiuso */ }
+      accountingChannel = null;
     };
 
     const buildAccountingClient = (config) => {
@@ -1330,6 +1391,7 @@
       if (!righe || !righe.length) return { ok:false, message:'Nessuna scheda trovata nella tabella ' + tabella + ' per questo login.' };
       directAccounting = totaleDelMese(righe[0].data);
       applyEarnings(null);
+      seguiContabilita(sessione.session?.user?.id, tabella);
       const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
       return {
         ok: true,
@@ -1434,6 +1496,7 @@
     document.getElementById('accountingRefresh').addEventListener('click', () => refreshAccounting(true));
 
     document.getElementById('accountingClear').addEventListener('click', async () => {
+      smettiDiSeguire();
       try { await accountingClient?.auth?.signOut(); } catch { /* sessione gia chiusa */ }
       try { localStorage.removeItem(ACCOUNTING_KEY); } catch { /* modalita privata */ }
       accountingConfig = null;
@@ -1697,7 +1760,41 @@
       }).filter(Boolean);
       return voci.length ? voci.join(', ') : 'vedi sezione Pulizie';
     };
+    /* ================= attivita aggiunte a mano =================
+       Il promemoria di oggi ora accetta voci scritte da te: si aggiungono
+       con il + accanto al contatore, si spuntano quando sono fatte e
+       restano al loro posto. Le spunte si azzerano ogni giorno, perche'
+       questo riquadro e' la lista di oggi, non un archivio. */
+    const TASKS_KEY = 'centroOperativoAttivita';
+    let taskState = { day: todayKey, custom: [], done: {} };
+    try {
+      const salvate = JSON.parse(localStorage.getItem(TASKS_KEY) || 'null');
+      if (salvate && typeof salvate === 'object') taskState = { ...taskState, ...salvate };
+    } catch { /* modalita privata */ }
+    // Giorno nuovo: le voci restano, le spunte ripartono da zero.
+    const resetTasksIfNewDay = () => {
+      if (taskState.day === todayKey) return;
+      taskState.day = todayKey;
+      taskState.done = {};
+    };
+    resetTasksIfNewDay();
+    if (!Array.isArray(taskState.custom)) taskState.custom = [];
+    if (!taskState.done || typeof taskState.done !== 'object') taskState.done = {};
+
+    const saveTasks = async () => {
+      try { localStorage.setItem(TASKS_KEY, JSON.stringify(taskState)); } catch { /* modalita privata */ }
+      try {
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ tasks: taskState }) });
+        lastVersion = data.version;
+      } catch { /* la copia locale regge comunque */ }
+    };
+    let lastBooking = null;
+    let lastCompliance = false;
+
     const renderTodayTasks = (booking, complianceReady = false) => {
+      lastBooking = booking;
+      lastCompliance = complianceReady;
+      resetTasksIfNewDay();
       const tasks = [
         ['', '', '1 storia Instagram', 'Contenuto giornaliero', 'Normale'],
         ['', '', '1 storia TikTok', 'Contenuto giornaliero', 'Normale'],
@@ -1717,25 +1814,81 @@
         tasks.push(['12:30', '⭐', 'Messaggio di richiesta recensione', 'Da inviare a ' + ospite + ' dopo la pulizia', 'Importante']);
         tasks.push(['12:45', '✍️', "Lasciare la recensione all'ospite", ospite + ' · obbligatoria prima del messaggio finale', 'Urgente']);
       }
+      // Ogni riga porta la sua chiave, cosi' la spunta sa a chi appartiene.
+      const righe = tasks.map((task) => [...task, 'std:' + task[2], false]);
+      taskState.custom.forEach((voce) => righe.push([voce.time || '', '📝', voce.text, 'Aggiunta da te', voce.priority || 'Normale', 'cst:' + voce.id, true]));
+
       const container = document.getElementById('todayTasks');
       container.replaceChildren();
-      if (tasks.length) {
+      if (righe.length) {
         const label = document.createElement('div');
         label.className = 'day-label';
         label.textContent = booking ? 'Oggi · attività operative e contenuti' : 'Oggi · contenuti giornalieri';
         container.append(label);
-        tasks.sort((a,b) => a[0].localeCompare(b[0])).forEach(([time, icon, title, note, priority]) => {
+        righe.sort((a,b) => a[0].localeCompare(b[0])).forEach(([time, icon, title, note, priority, chiave, custom]) => {
           const row = document.createElement('article');
           row.className = `task${time ? '' : ' no-time'}`;
-          row.innerHTML = `${time ? `<div class="task-time">${time}</div>` : ''}<label class="task-icon" aria-label="Completa attività"><input type="checkbox"></label><div><strong></strong><small></small></div><span class="status ${priority === 'Urgente' ? 'urgent' : priority === 'Normale' ? 'normal' : 'important'}">${priority}</span>`;
+          row.innerHTML = `${time ? `<div class="task-time">${time}</div>` : ''}<label class="task-icon" aria-label="Completa attività"><input type="checkbox"></label><div><strong></strong><small></small></div><div class="task-end"><span class="status ${priority === 'Urgente' ? 'urgent' : priority === 'Normale' ? 'normal' : 'important'}">${priority}</span></div>`;
           row.querySelector('strong').textContent = title;
           row.querySelector('small').textContent = note;
+          const spunta = row.querySelector('input');
+          spunta.checked = Boolean(taskState.done[chiave]);
+          spunta.addEventListener('change', () => {
+            if (spunta.checked) taskState.done[chiave] = true;
+            else delete taskState.done[chiave];
+            saveTasks();
+          });
+          if (custom) {
+            const elimina = document.createElement('button');
+            elimina.type = 'button';
+            elimina.className = 'remove-task';
+            elimina.setAttribute('aria-label', 'Elimina ' + title);
+            elimina.textContent = '×';
+            elimina.addEventListener('click', () => {
+              taskState.custom = taskState.custom.filter((voce) => 'cst:' + voce.id !== chiave);
+              delete taskState.done[chiave];
+              saveTasks();
+              renderTodayTasks(lastBooking, lastCompliance);
+            });
+            row.querySelector('.task-end').append(elimina);
+          }
           container.append(row);
         });
       }
-      document.getElementById('taskCount').textContent = String(tasks.length);
-      document.getElementById('alertCount').textContent = String(tasks.filter((task) => task[4] === 'Urgente').length).padStart(2, '0');
+      document.getElementById('taskCount').textContent = String(righe.length);
+      document.getElementById('alertCount').textContent = String(righe.filter((task) => task[4] === 'Urgente').length).padStart(2, '0');
     };
+
+    document.getElementById('addTaskToggle').addEventListener('click', () => {
+      const form = document.getElementById('addTaskForm');
+      const aperto = form.classList.toggle('hidden');
+      document.getElementById('addTaskToggle').setAttribute('aria-expanded', String(!aperto));
+      if (!aperto) document.getElementById('newTaskText').focus();
+    });
+
+    document.getElementById('addTaskForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('newTaskText');
+      const testo = input.value.trim();
+      if (!testo) return;
+      taskState.custom = [...taskState.custom, { id: String(Date.now()), text: testo, priority: 'Normale' }];
+      input.value = '';
+      saveTasks();
+      renderTodayTasks(lastBooking, lastCompliance);
+    });
+
+    // Le attivita arrivate dal servizio (anche da un altro dispositivo) entrano da qui.
+    applyTasksPrefs = (remote) => {
+      if (!remote || typeof remote !== 'object') return;
+      taskState = {
+        day: typeof remote.day === 'string' ? remote.day : taskState.day,
+        custom: Array.isArray(remote.custom) ? remote.custom : taskState.custom,
+        done: remote.done && typeof remote.done === 'object' ? remote.done : taskState.done
+      };
+      resetTasksIfNewDay();
+      renderTodayTasks(lastBooking, lastCompliance);
+    };
+
     renderTodayTasks(null);
     document.getElementById('reservationForm').addEventListener('submit', (event) => {
       event.preventDefault();
@@ -1999,6 +2152,32 @@
     renderCodes();
 
     const euro = (cents) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+
+    /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
+       cosa e' stato contato, con la data: se un importo non torna si vede
+       subito quale voce lo causa e a che data e' registrata. */
+    const renderBreakdown = (voci) => {
+      const box = document.getElementById('earningsBreakdown');
+      const lista = document.getElementById('earningsBreakdownList');
+      if (!box || !lista) return;
+      if (!voci || !voci.length) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+      lista.replaceChildren();
+      const giorno = (iso) => new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short' }).format(new Date(iso + 'T12:00:00'));
+      voci.forEach((voce) => {
+        const riga = document.createElement('div');
+        riga.className = 'breakdown-row';
+        const quando = document.createElement('time');
+        quando.dateTime = voce.date;
+        quando.textContent = giorno(voce.date);
+        const nome = document.createElement('span');
+        nome.textContent = voce.label;
+        const importo = document.createElement('b');
+        importo.textContent = euro(voce.cents);
+        riga.append(quando, nome, importo);
+        lista.append(riga);
+      });
+    };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
       // La lettura diretta e' quella che vede davvero gli importi: se c'e', vince.
@@ -2008,18 +2187,21 @@
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
       updateEarningsChart(info.total || 0);
       if (!info.configured) {
+        renderBreakdown(null);
         note.textContent = accountingConfig
           ? 'Contabilità collegata: sto rileggendo il totale del mese…'
           : 'Contabilità non ancora collegata: collegala da Collegamenti per il calcolo automatico.';
         return;
       }
       if (info.error) {
+        renderBreakdown(null);
         note.textContent = info.error;
         return;
       }
       const quando = info.readAt
         ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt))
         : '';
+      renderBreakdown(info === directAccounting ? info.voci : null);
       if (info === directAccounting) {
         note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
           + (info.packagesCount ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti') : '')
