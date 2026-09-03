@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rustico & Co. — Property Accounting</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ab6a30">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rustico & Co.">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAj0lEQVR4nO2XwQ2AIAxF4ceBnMMwiSM4gMt4Na6nF65EWn7twf4bCf3vpzQE8rHOd3IUPOERIDpA6UDZL78hLBU+EgKj8NbaNEBpwDQhwIJrQ4AJ1wgWcMlesA2lNbCAS2phBe/1gCW8xyv3PEi0Yc5ted0zMY0/uYjYAt0xAgiF5Cz8PkCOn1GKIXSW+xE8czkrrMjgiiEAAAAASUVORK5CYII=">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAADbUlEQVR4nO3awW1jRxRFQclwQIrD6EgUggNwMtoaTm+8H2AwovRJ9jtdlYD633fAlV4/3t9+vEDEH89+AFxJ0KQImhRBkyJoUgRNiqBJETQpgiZF0KQImhRBkyJoUgRNiqBJETQpgiZF0KQImhRBkyJoUgRNiqBJETQpgiZF0KQImhRBP8j6579H/amjCfqBMYv6/gR9Zz9HLOr7EvQd/SpeUd+PoO/kd9GK+j4EfQefjVXU1xP0xW6NVNTXEvSFvhqnqK8j6It8N0pRX0PQF7gqRlF/n6A3i1DU3yPoDeMT9dcJetPoRP01gt44NlHfTtCbRybq2wh6QFyi/jxBD4nq2X9/CkEPimmXd+xM0MMi2u09uxH0wHh2fdcOBD00mt3f9yyCHhzLlHc+kqCHRzLtvfcm6EAcU999D4KORDH9/VcRdCiGFfmO7zg+6FoEK/Y9tzo66OrxV/S7PuPYoOtHX/Hv+5Ujgz7l2OuQ7zw66NOOvA773qOCPu24J373MUGfdNSTv/+IoE855u+csEM+6BOOeIsV3yMddP14X7XCu2SDLh/tCiu6TzLo6rGutoI75YIuHumeVmyvVNC14zzKCu2WCbp0lGdYkf0SQVeO8WwrsOP4oAtH2MkavufooKePv6s1eNexQU8efYI1dN+RQU8de5o1cOdxQU8cebI1bO9RQU8bt2IN2n1M0JNGLVpD9h8R9JQx69aAO2wf9IQRT7I2v8fWQe8+3qnWxnfZNuidR+Nl2/tsGfSuY7H/nbYLeseRmHOv14/3tx8vMbuNvKt///7rpWa7X2j4DkGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE3Kn89+wDSP/oce/2h1G7/QpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoEkRNCmCJkXQpAiaFEGTImhSBE2KoHkp+R+3xrUcKP7voQAAAABJRU5ErkJggg==">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg: #f7f5f1; --surface: #ffffff; --surface-hover: #f4f0e8;
+  --text-primary: #1d1a15; --text-secondary: #5a5347; --text-tertiary: #8d8474; --text-quaternary: #c9c0ac;
+  --border: #e8e1d3; --border-hover: #d6cab0;
+  --positive: #2f8f52; --danger: #c23b2b; --warning: #b9781c;
+  --accent: #ab6a30; --accent-hover: #8f5726; --accent-soft: rgba(171,106,48,0.11); --accent-soft-2: rgba(171,106,48,0.22);
+  --chart-1: #ab6a30; --chart-2: #5c7a52;
+  --stripe: rgba(29,26,21,0.02);
+  --shadow-sm: 0 1px 2px rgba(30,22,10,0.05);
+  --shadow-md: 0 6px 20px rgba(30,22,10,0.08), 0 1px 3px rgba(30,22,10,0.06);
+  --radius: 12px; --radius-sm: 8px;
+  --font-sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15130f; --surface: #201c16; --surface-hover: #2a251d;
+    --text-primary: #f3ede2; --text-secondary: #bcb2a0; --text-tertiary: #8b8172; --text-quaternary: #58503f;
+    --border: #332c21; --border-hover: #493f2d;
+    --positive: #5cbb7a; --danger: #e8756a; --warning: #e0a655;
+    --accent: #dd9a5c; --accent-hover: #eaad76; --accent-soft: rgba(221,154,92,0.14); --accent-soft-2: rgba(221,154,92,0.28);
+    --chart-1: #dd9a5c; --chart-2: #8fac7f;
+    --stripe: rgba(255,255,255,0.025);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
+  }
+}
+* { scrollbar-width: thin; scrollbar-color: var(--border-hover) transparent; }
+::-webkit-scrollbar { width: 10px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-quaternary); }
+
+body { margin:0; background: var(--bg); font-family: var(--font-sans); color: var(--text-primary); line-height:1.45; }
+.r-app { max-width: 1100px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(60px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px)); }
+[style*="overflow-x:auto"] { -webkit-overflow-scrolling: touch; }
+button, .tab, .act button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.r-app * { box-sizing: border-box; }
+.r-app button, .r-app input, .r-app select, .r-app textarea { font: inherit; color: inherit; }
+.r-app svg { display: block; }
+
+.hdr { position: relative; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.hdr::after { content:''; position:absolute; left:0; bottom:-1px; height:2px; width:120px; background: linear-gradient(90deg, var(--accent), transparent); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-ic { width: 40px; height: 40px; border-radius: 11px; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: 0 0 auto; }
+.brand-ic svg { width: 22px; height: 22px; }
+.brand div { font-size: 18px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.brand span { font-size: 12px; color: var(--text-tertiary); font-weight: 400; letter-spacing: 0.01em; }
+
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab { display: flex; align-items: center; gap: 7px; padding: 8px 13px; border: 1px solid transparent; border-radius: 9px; background: transparent; color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+.tab:hover { background: var(--surface-hover); color: var(--text-primary); }
+.tab.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent-soft-2); }
+.tab.active svg { color: var(--accent); }
+.tab svg { width: 14px; height: 14px; transition: color .15s ease; }
+.tab .ts { display: none; }
+
+.kpi { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kpi-c { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.kpi-c::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--accent), var(--accent-soft)); }
+.kpi-c:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.kpi-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.kpi-ic { width: 15px; height: 15px; color: var(--accent); flex: 0 0 auto; opacity: 0.9; }
+.kpi-ic svg { width: 100%; height: 100%; }
+.kpi-l { font-size: 11px; color: var(--text-tertiary); text-transform: lowercase; letter-spacing: 0.01em; }
+.kpi-v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; letter-spacing: -0.01em; }
+.kpi-s { font-size: 11px; margin-top: 5px; font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
+.kpi-s.p { color: var(--positive); } .kpi-s.n { color: var(--danger); } .kpi-s.w { color: var(--warning); }
+
+.pan { border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; background: var(--surface); box-shadow: var(--shadow-sm); transition: box-shadow .15s ease; }
+.pan-t { font-size: 15px; font-weight: 650; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
+.pan-t svg { width: 16px; height: 16px; color: var(--accent); }
+
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; padding: 10px 12px; font-weight: 600; font-size: 10.5px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-tertiary); background: var(--surface-hover); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); white-space: nowrap; }
+.tbl th:first-child { border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
+.tbl th:last-child { border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
+.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-variant-numeric: tabular-nums; transition: box-shadow .12s ease; }
+.tbl tbody tr:nth-child(even) td { background: var(--stripe); }
+.tbl tbody tr:hover td { background: var(--surface-hover); color: var(--text-primary); }
+.tbl tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.tbl tr:last-child td { border-bottom: none; }
+
+.tag { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.tg-s { background: rgba(47,143,82,0.13); color: var(--positive); }
+.tg-w { background: rgba(185,120,28,0.13); color: var(--warning); }
+.tg-n { background: rgba(141,132,116,0.13); color: var(--text-tertiary); }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); font-size: 13px; cursor: pointer; transition: all .15s ease; }
+.btn:hover { background: var(--surface-hover); border-color: var(--border-hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+.btn svg { width: 14px; height: 14px; flex: 0 0 auto; }
+.btn-p { background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: #fff; border-color: transparent; box-shadow: 0 1px 2px rgba(20,14,6,0.18), 0 3px 8px rgba(171,106,48,0.25); }
+.btn-p:hover { filter: brightness(1.05); box-shadow: 0 2px 4px rgba(20,14,6,0.2), 0 5px 14px rgba(171,106,48,0.32); }
+.btn-d { color: var(--danger); border-color: rgba(194,59,43,0.35); background: rgba(194,59,43,0.06); }
+.btn-d:hover { background: rgba(194,59,43,0.13); border-color: var(--danger); }
+
+.own { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.own-c { position: relative; overflow: hidden; border: 1px solid var(--border); border-top: 3px solid var(--card-color, var(--accent)); border-radius: var(--radius); padding: 16px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .15s ease, box-shadow .15s ease; }
+.own-c:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.own-n { font-size: 15px; font-weight: 650; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.01em; }
+.own-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; flex: 0 0 auto; background: var(--card-color, var(--accent)); }
+.own-r { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.own-r:last-child { border: none; }
+.own-r .l { color: var(--text-tertiary); } .own-r .v { font-variant-numeric: tabular-nums; font-weight: 600; }
+.own-r .v.pos { color: var(--positive); } .own-r .v.neg { color: var(--danger); }
+
+.st-t { width: 100%; border-collapse: collapse; font-size: 13px; }
+.st-t td { padding: 12px; border-bottom: 1px solid var(--border); }
+.st-t tr:last-child td { border: none; }
+.st-t .l { color: var(--text-tertiary); width: 45%; } .st-t .v { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.inp { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 10px; font-size: 16px; background: var(--surface); color: var(--text-primary); transition: border-color .15s ease, box-shadow .15s ease; }
+.inp:hover { border-color: var(--border-hover); }
+.inp:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.inp-calc { background: var(--surface-hover); }
+.inp-manual { background: #fff6dd; border-color: #e0ac2e; }
+@media (prefers-color-scheme: dark) { .inp-manual { background: #3d3200; border-color: #a68b00; } }
+
+.form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+.form-row .inp, .form-row select { width: auto; flex: 1; min-width: 110px; }
+.form-row .btn { flex: 0 0 auto; }
+.form-row label.btn { position: relative; overflow: hidden; }
+
+.act { display: flex; gap: 4px; }
+.act button { padding: 5px 9px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text-secondary); transition: all .15s ease; }
+.act button:hover { background: var(--surface-hover); color: var(--text-primary); border-color: var(--border-hover); }
+
+.empty { text-align: center; padding: 52px 20px; color: var(--text-tertiary); }
+.empty-ic { width: 42px; height: 42px; margin: 0 auto 14px; color: var(--text-quaternary); }
+.empty-t { font-size: 14px; font-weight: 650; color: var(--text-secondary); margin-bottom: 4px; }
+.empty-s { font-size: 12px; max-width: 320px; margin: 0 auto; line-height: 1.5; }
+
+@keyframes tabFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+#body.tab-fade { animation: tabFadeIn .28s ease; }
+
+.hid { display: none !important; }
+.tr { text-align: right; }
+.mt3 { margin-top: 12px; }
+.flex { display: flex; align-items: center; gap: 8px; }
+.wrp { flex-wrap: wrap; }
+.jb { justify-content: space-between; }
+.fs11 { font-size: 11px; } .fs12 { font-size: 12px; }
+.cl-ter { color: var(--text-tertiary); } .cl-sec { color: var(--text-secondary); }
+
+/* labelled field: essential on mobile, where placeholders are not enough */
+.fld { display: flex; flex-direction: column; gap: 4px; flex: 1 1 150px; min-width: 130px; max-width: 480px; }
+.fld > span { font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.02em; }
+.fld .inp { width: 100%; }
+
+/* auto-save indicator */
+.save-ind { position: fixed; z-index: 90; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-md); color: var(--text-tertiary); opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+.save-ind.on { opacity: 1; transform: translateY(0); }
+.save-ind.ok { color: var(--positive); border-color: rgba(47,143,82,0.35); }
+.save-ind.ko { color: var(--danger); border-color: rgba(194,59,43,0.4); }
+
+/* warning shown when the browser cannot store data permanently */
+.warn-bar { display: none; align-items: flex-start; gap: 10px; padding: 12px 14px; margin-bottom: 16px; border-radius: var(--radius); font-size: 12.5px; line-height: 1.5; background: rgba(185,120,28,0.12); border: 1px solid rgba(185,120,28,0.4); color: var(--text-primary); }
+.warn-bar.on { display: flex; }
+.warn-bar b { color: var(--warning); }
+
+/* welcome note, shown only once */
+.hint-bar { display: none; align-items: flex-start; gap: 10px; padding: 13px 15px; margin-bottom: 16px; border-radius: var(--radius); font-size: 12.5px; line-height: 1.55; background: var(--accent-soft); border: 1px solid var(--accent-soft-2); }
+.hint-bar.on { display: flex; }
+.hint-bar b { color: var(--accent); }
+.hint-bar button { flex: 0 0 auto; align-self: center; margin-left: auto; padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); font-size: 12px; cursor: pointer; }
+
+/* sign-in screen: shown until you are authenticated with Supabase */
+.auth-gate { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.auth-card { width: 100%; max-width: 340px; border: 1px solid var(--border); border-radius: var(--radius); padding: 30px 26px; background: var(--surface); box-shadow: var(--shadow-md); }
+.auth-card .brand-ic { margin: 0 auto 16px; }
+.auth-t { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.auth-s { text-align: center; font-size: 12px; color: var(--text-tertiary); margin-bottom: 22px; line-height: 1.5; }
+.auth-msg { margin-top: 12px; text-align: center; font-size: 11.5px; min-height: 16px; line-height: 1.5; }
+.auth-msg.err { color: var(--danger); }
+.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-hover); margin-bottom: 12px; font-size: 12.5px; }
+
+@media (max-width: 760px) {
+  .kpi { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-v { font-size: 19px; }
+  .hdr { flex-direction: column; align-items: flex-start; gap: 0; padding-bottom: 14px; margin-bottom: 16px; }
+  .pan { padding: 14px; }
+
+  /* tab bar pinned to the bottom: within thumb reach */
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 80; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -2px 12px rgba(30,22,10,0.08); }
+  .tab { flex-direction: column; gap: 3px; padding: 7px 1px; font-size: 10px; line-height: 1.15; text-align: center; border-radius: 8px; min-width: 0; overflow: hidden; }
+  .tab svg { width: 19px; height: 19px; }
+  .tab .tl { display: none; }
+  .tab .ts { display: block; }
+  .r-app { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .save-ind { bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+
+  /* tables -> stacked cards: no horizontal scrolling, every field stays tappable */
+  .tbl { display: block; }
+  .tbl thead { display: none; }
+  .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+  .tbl tbody tr { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin-bottom: 10px; padding: 2px 12px; }
+  .tbl tbody tr:nth-child(even) td, .tbl tbody tr:hover td { background: transparent; }
+  .tbl tbody tr:hover td:first-child { box-shadow: none; }
+  .tbl td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; text-align: left; border-bottom: 1px solid var(--border); }
+  .tbl tr td:last-child { border-bottom: none; }
+  .tbl td.tr { text-align: right; }
+  .tbl td::before { content: attr(data-l); flex: 0 0 auto; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-tertiary); font-weight: 600; }
+  .tbl td:not([data-l])::before { content: none; }
+  .tbl td .inp { flex: 0 1 150px; max-width: 58%; text-align: right; }
+  .tbl td .act { flex: 1 1 auto; justify-content: flex-end; }
+  .tbl td .act button { flex: 1 1 auto; padding: 9px 10px; }
+
+  /* forms: one field per row, no squashed inputs */
+  .form-row { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 10px; }
+  .form-row > .inp, .form-row > select, .form-row > .fld, .form-row > .btn, .form-row > label.btn { width: 100%; flex: 1 1 auto; min-width: 0; justify-content: center; }
+  .form-row > label.fs12 { min-width: 0 !important; }
+}
+@media (pointer: coarse) {
+  .tab { padding: 10px 14px; }
+  .btn { padding: 11px 15px; }
+  .act button { padding: 8px 12px; font-size: 12px; }
+  .inp { padding: 11px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="r-app">
+
+<div id="authGate" class="auth-gate" style="display:none">
+  <div class="auth-card">
+    <div class="brand-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.53 20.789 21.039 20.414 21.414C20.039 21.789 19.53 22 19 22H5C4.47 22 3.961 21.789 3.586 21.414C3.211 21.039 3 20.53 3 20V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="auth-t">Rustico & Co.</div>
+    <div class="auth-s">Sign in with your email to see your data, synced automatically across all your devices.</div>
+    <label class="fld"><span>Email</span><input class="inp" type="email" id="authEmail" autocomplete="username" inputmode="email"></label>
+    <label class="fld" style="margin-top:10px"><span>Password</span><input class="inp" type="password" id="authPassword" autocomplete="current-password"></label>
+    <div class="form-row" style="margin-top:16px">
+      <button class="btn btn-p" style="flex:1" onclick="doSignIn()">Sign in</button>
+      <button class="btn" style="flex:1" onclick="doSignUp()">Sign up</button>
+    </div>
+    <div id="authMsg" class="auth-msg"></div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none">
+<div class="hdr">
+  <div class="brand">
+    <div class="brand-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.53 20.789 21.039 20.414 21.414C20.039 21.789 19.53 22 19 22H5C4.47 22 3.961 21.789 3.586 21.414C3.211 21.039 3 20.53 3 20V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div>Rustico & Co.<br><span>property accounting</span></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="dash"><svg viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Dashboard</span><span class="ts">Home</span></button>
+    <button class="tab" data-tab="book"><svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6C5.47 2 4.96 2.211 4.586 2.586C4.211 2.961 4 3.47 4 4V20C4 20.53 4.211 21.039 4.586 21.414C4.961 21.789 5.47 22 6 22H18C18.53 22 19.039 21.789 19.414 21.414C19.789 21.039 20 20.53 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Bookings</span><span class="ts">Book.</span></button>
+    <button class="tab" data-tab="pack"><svg viewBox="0 0 24 24" fill="none"><path d="M20 8.6V19C20 20.1 19.1 21 18 21H6C4.9 21 4 20.1 4 19V8.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="2.2" y="4.4" width="19.6" height="4.2" rx="1.2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 4.4V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4.4H9.2C8 4.4 7 3.7 7 2.7C7 1.8 7.7 1.3 8.6 1.5C10.2 1.9 12 4.4 12 4.4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 4.4H14.8C16 4.4 17 3.7 17 2.7C17 1.8 16.3 1.3 15.4 1.5C13.8 1.9 12 4.4 12 4.4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="tl">Packages</span><span class="ts">Pack.</span></button>
+    <button class="tab" data-tab="expe"><svg viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41L13.42 20.58C13.013 20.987 12.422 21.165 12.005 21.166C11.588 21.166 11.026 20.987 10.59 20.58L2 12V2H12L20.59 10.59C21.37 11.37 21.37 12.63 20.59 13.41Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 7H7.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Expenses</span><span class="ts">Exp.</span></button>
+    <button class="tab" data-tab="summ"><svg viewBox="0 0 24 24" fill="none"><path d="M3 3H21V21H3V3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Summary</span><span class="ts">Summ.</span></button>
+    <button class="tab" data-tab="owne"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21V19C17 17.939 16.579 16.922 15.828 16.172C15.078 15.422 14.061 15 13 15H5C3.939 15 2.922 15.422 2.172 16.172C1.422 16.922 1 17.939 1 19V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.209 11 13 9.209 13 7C13 4.791 11.209 3 9 3C6.791 3 5 4.791 5 7C5 9.209 6.791 11 9 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.999 18.114 22.704 17.253 22.161 16.552C21.618 15.852 20.858 15.352 20 15.13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.86 3.35 17.623 3.851 18.168 4.552C18.712 5.254 19.008 6.117 19.008 7.005C19.008 7.893 18.712 8.756 18.168 9.458C17.623 10.159 16.86 10.66 16 10.88" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Owners</span><span class="ts">Owners</span></button>
+    <button class="tab" data-tab="sett"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15C13.657 15 15 13.657 15 12C15 10.343 13.657 9 12 9C10.343 9 9 10.343 9 12C9 13.657 10.343 15 12 15Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15C19.267 15.302 19.227 15.636 19.286 15.961C19.345 16.285 19.5 16.584 19.73 16.82L19.79 16.88C20.162 17.253 20.377 17.763 20.377 18.295C20.377 18.827 20.162 19.337 19.79 19.71C19.417 20.083 18.907 20.297 18.375 20.297C17.843 20.297 17.333 20.083 16.96 19.71L16.9 19.65C16.664 19.42 16.365 19.265 16.041 19.206C15.716 19.147 15.382 19.187 15.08 19.32C14.784 19.447 14.532 19.657 14.354 19.926C14.177 20.194 14.081 20.508 14.08 20.83V21C14.08 21.53 13.869 22.039 13.494 22.414C13.119 22.789 12.61 23 12.08 23C11.55 23 11.041 22.789 10.666 22.414C10.291 22.039 10.08 21.53 10.08 21V20.91C10.072 20.579 9.965 20.258 9.773 19.989C9.58 19.719 9.311 19.514 9 19.4C8.698 19.267 8.364 19.227 8.039 19.286C7.715 19.345 7.416 19.5 7.18 19.73L7.12 19.79C6.934 19.976 6.714 20.124 6.471 20.224C6.228 20.325 5.968 20.377 5.705 20.377C5.442 20.377 5.182 20.325 4.939 20.224C4.696 20.124 4.476 19.976 4.29 19.79C4.104 19.604 3.957 19.384 3.856 19.141C3.755 18.898 3.703 18.638 3.703 18.375C3.703 18.112 3.755 17.852 3.856 17.609C3.957 17.366 4.104 17.146 4.29 16.96L4.35 16.9C4.581 16.664 4.735 16.365 4.794 16.041C4.853 15.716 4.813 15.382 4.68 15.08C4.553 14.784 4.343 14.532 4.074 14.354C3.806 14.177 3.492 14.081 3.17 14.08H3C2.47 14.08 1.961 13.869 1.586 13.494C1.211 13.119 1 12.61 1 12.08C1 11.55 1.211 11.041 1.586 10.666C1.961 10.291 2.47 10.08 3 10.08H3.09C3.421 10.072 3.742 9.965 4.011 9.773C4.281 9.58 4.486 9.311 4.6 9C4.733 8.698 4.773 8.364 4.714 8.039C4.655 7.715 4.501 7.416 4.27 7.18L4.21 7.12C4.024 6.934 3.877 6.714 3.776 6.471C3.675 6.228 3.623 5.968 3.623 5.705C3.623 5.442 3.675 5.182 3.776 4.939C3.877 4.696 4.024 4.476 4.21 4.29C4.396 4.104 4.616 3.957 4.859 3.856C5.102 3.755 5.362 3.703 5.625 3.703C5.888 3.703 6.148 3.755 6.391 3.856C6.634 3.957 6.854 4.104 7.04 4.29L7.1 4.35C7.336 4.581 7.635 4.735 7.959 4.794C8.284 4.853 8.618 4.813 8.92 4.68H9C9.296 4.553 9.548 4.343 9.726 4.074C9.904 3.806 9.999 3.492 10 3.17V3C10 2.47 10.211 1.961 10.586 1.586C10.961 1.211 11.47 1 12 1C12.53 1 13.039 1.211 13.414 1.586C13.789 1.961 14 2.47 14 3V3.09C14.001 3.412 14.097 3.726 14.274 3.994C14.452 4.263 14.704 4.473 15 4.6C15.302 4.733 15.636 4.773 15.961 4.714C16.285 4.655 16.584 4.5 16.82 4.27L16.88 4.21C17.066 4.024 17.287 3.877 17.529 3.776C17.772 3.675 18.032 3.623 18.295 3.623C18.558 3.623 18.818 3.675 19.061 3.776C19.304 3.877 19.524 4.024 19.71 4.21C19.896 4.396 20.044 4.616 20.144 4.859C20.245 5.102 20.297 5.362 20.297 5.625C20.297 5.888 20.245 6.148 20.144 6.391C20.044 6.634 19.896 6.854 19.71 7.04L19.65 7.1C19.42 7.336 19.265 7.635 19.206 7.959C19.147 8.284 19.187 8.618 19.32 8.92V9C19.447 9.296 19.657 9.548 19.926 9.726C20.194 9.904 20.508 9.999 20.83 10H21C21.53 10 22.039 10.211 22.414 10.586C22.789 10.961 23 11.47 23 12C23 12.53 22.789 13.039 22.414 13.414C22.039 13.789 21.53 14 21 14H20.91C20.588 14.001 20.274 14.097 20.006 14.274C19.737 14.452 19.527 14.704 19.4 15Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tl">Settings</span><span class="ts">Settings</span></button>
+  </div>
+</div>
+
+<div class="warn-bar" id="warnBar"></div>
+<div class="hint-bar" id="hintBar"></div>
+<div id="body"></div>
+<div class="save-ind" id="saveInd"></div>
+</div>
+
+<script>
+
+(function(){
+const fmt = n => (n === undefined || n === null || isNaN(n)) ? '—' : n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt1 = n => (n === undefined || n === null || isNaN(n)) ? '—' : n.toLocaleString('en-GB',{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmt0 = n => (n === undefined || n === null || isNaN(n)) ? '—' : n.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fd = d => { if(!d) return '—'; const [y,m,day] = d.split('-'); return day+'/'+m+'/'+y; };
+/* keeps user values safe inside HTML attributes built as strings */
+const esc = s => String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* labelled field: on mobile every input stays readable and tappable */
+const fld = (label, html) => '<label class="fld"><span>'+label+'</span>'+html+'</label>';
+/* 0.03*100 in JS gives 3.0000000000000004: cleans up the value shown in the fields */
+const pct = v => +( (v||0) * 100 ).toFixed(4);
+/* The database keeps the original codes ('Ricevuto', 'Manutenzione', 'Lug 2026'...):
+   only the label shown on screen is translated, so this English build reads and
+   writes exactly the same records as the original app. */
+const ST_LABEL = {'Ricevuto':'Received','Da ricevere':'To receive','Pagato':'Paid','Da pagare':'To pay','In attesa':'Pending','Annullato':'Cancelled'};
+const CAT_LABEL = {'Manutenzione':'Maintenance','Bollette':'Utilities','Tasse/IMU':'Taxes/IMU','Ristrutturazione':'Renovation','Marketing':'Marketing','Altro':'Other'};
+const PLAT_LABEL = {'Altro':'Other'};
+const MONTH_LABEL = {Gen:'Jan',Feb:'Feb',Mar:'Mar',Apr:'Apr',Mag:'May',Giu:'Jun',Lug:'Jul',Ago:'Aug',Set:'Sep',Ott:'Oct',Nov:'Nov',Dic:'Dec'};
+const stl = s => ST_LABEL[s] || s;
+const catl = c => CAT_LABEL[c] || c;
+const platl = p => PLAT_LABEL[p] || p;
+const ml = s => String(s===undefined||s===null?'':s).replace(/^[A-Za-z]{3}/, function(m){ return MONTH_LABEL[m] || m; });
+/* builds an <option> that stores the original value and shows the English label */
+const opt = (val, sel, label) => '<option value="'+esc(val)+'"'+(sel===val?' selected':'')+'>'+esc(label)+'</option>';
+
+const tg = s => {
+  if(s==='Ricevuto'||s==='Pagato') return '<span class="tag tg-s">'+stl(s)+'</span>';
+  if(s==='Da ricevere'||s==='Da pagare') return '<span class="tag tg-w">'+stl(s)+'</span>';
+  return '<span class="tag tg-n">'+stl(s)+'</span>';
+};
+
+const ICO = {
+  euro: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M15 8.3c-.85-.55-1.8-.9-2.85-.9-2.3 0-4.15 1.95-4.15 4.6s1.85 4.6 4.15 4.6c1.05 0 2-.35 2.85-.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M6.3 10.3H12M6.3 13.4H11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  wallet: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 7.8C3 6.25 4.25 5 5.8 5H17a2 2 0 0 1 2 2v1.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="3" y="7.8" width="18" height="11.5" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M15.3 13.5a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8Z" fill="currentColor"/></svg>',
+  receipt: '<svg viewBox="0 0 24 24" fill="none"><path d="M5.5 3h13v17.2l-2.3-1.4-2.2 1.4-2.3-1.4-2.2 1.4-2.3-1.4-1.7 1.4V3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.2 8h7.6M8.2 11.6h7.6M8.2 15.2h4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  trend: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 16.5l5.5-6 4 4 6.5-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 6.5H20v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  percent: '<svg viewBox="0 0 24 24" fill="none"><circle cx="7.2" cy="7.2" r="2.4" stroke="currentColor" stroke-width="1.6"/><circle cx="16.8" cy="16.8" r="2.4" stroke="currentColor" stroke-width="1.6"/><path d="M18 6 6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.3" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>',
+  pie: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 3v9l7.6 4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2.2" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 9.6h17M8 3v3.6M16 3v3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  tag: '<svg viewBox="0 0 24 24" fill="none"><path d="M11.3 3.5H5.6a2.1 2.1 0 0 0-2.1 2.1v5.7l9.5 9.5a2.1 2.1 0 0 0 2.97 0l5.63-5.63a2.1 2.1 0 0 0 0-2.97l-9.7-8.7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="8.3" cy="8.3" r="1.3" fill="currentColor"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  box: '<svg viewBox="0 0 24 24" fill="none"><path d="M20 8.6V19a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 19V8.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="2.6" y="4.6" width="18.8" height="4" rx="1.1" stroke="currentColor" stroke-width="1.6"/><path d="M12 4.6v16.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+};
+const OWNER_COLORS = ['#ab6a30','#5c7a52','#4c6f8f','#8a5b8f'];
+
+function parseCSV(text){
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').replace(/^﻿/,'');
+  const firstLine = text.split('\n').find(l=>l.trim().length>0) || '';
+  const commaCount = (firstLine.match(/,/g)||[]).length;
+  const semiCount = (firstLine.match(/;/g)||[]).length;
+  const delim = semiCount > commaCount ? ';' : ',';
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i=0;i<text.length;i++){
+    const c = text[i];
+    if (inQuotes){
+      if (c==='"'){ if (text[i+1]==='"'){ field+='"'; i++; } else inQuotes=false; }
+      else field += c;
+    } else {
+      if (c==='"') inQuotes = true;
+      else if (c===delim){ row.push(field); field=''; }
+      else if (c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  while (rows.length && rows[rows.length-1].every(f=>f.trim()==='')) rows.pop();
+  if (!rows.length) return {headers:[], rows:[]};
+  const headers = rows[0].map(h=>h.trim());
+  const dataRows = rows.slice(1).filter(r=>r.some(f=>f.trim()!==''));
+  return {headers, rows: dataRows};
+}
+
+const IMPORT_ALIASES = {
+  startDate: ['start date','data di inizio','arrival date','check-in','checkin','data di arrivo','arrivo','checkin date','data arrivo'],
+  endDate: ['end date','data di fine','departure date','check-out','checkout','data di partenza','partenza','checkout date','data partenza'],
+  nights: ['nights','notti','# nights','number of nights','n. notti'],
+  guest: ['guest name','ospite','nome ospite','guest','nome cliente','cliente'],
+  revenue: ['earnings','amount','guadagno','guadagni','incasso','total price','prezzo totale','payout','host payout','importo','guadagni lordi','amount paid'],
+  cleaning: ['cleaning fee','pulizie','costo pulizie','cleaning fees'],
+  extra: ['extra','altri costi','other fees','extra guest fee']
+};
+
+function guessColumn(headers, aliases){
+  const norm = h => h.toLowerCase().trim();
+  let idx = headers.findIndex(h => aliases.includes(norm(h)));
+  if (idx>-1) return headers[idx];
+  idx = headers.findIndex(h => aliases.some(a => norm(h).includes(a)));
+  return idx>-1 ? headers[idx] : '';
+}
+
+function parseDateFlexible(str){
+  if(!str) return '';
+  str = String(str).trim();
+  let m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return m[1]+'-'+m[2]+'-'+m[3];
+  m = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if(m){
+    const d=m[1].padStart(2,'0'), mo=m[2].padStart(2,'0'), y=m[3];
+    return y+'-'+mo+'-'+d;
+  }
+  const d2 = new Date(str);
+  if(!isNaN(d2.getTime())) return d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+  return '';
+}
+
+function parseAmountFlexible(val){
+  if(val===undefined||val===null) return 0;
+  let str = String(val).trim().replace(/[€$\s]/g,'');
+  if(!str) return 0;
+  const neg = /^-/.test(str) || /^\(.*\)$/.test(str);
+  str = str.replace(/[()\-]/g,'');
+  const lastComma = str.lastIndexOf(','), lastDot = str.lastIndexOf('.');
+  if(lastComma>-1 && lastDot>-1){
+    if(lastComma>lastDot) str = str.replace(/\./g,'').replace(',','.');
+    else str = str.replace(/,/g,'');
+  } else if(lastComma>-1){
+    const after = str.length-lastComma-1;
+    if(after===2) str = str.replace(',','.'); else str = str.replace(/,/g,'');
+  }
+  const n = parseFloat(str);
+  return isNaN(n) ? 0 : (neg ? -n : n);
+}
+
+const defaultData = {
+  settings: {
+    propertyValue: 150000,
+    mortgageRemaining: 80000,
+    mortgageRate: 0.03,
+    fixedExpenses: 2000,
+    availableDays: 365,
+    equity: '',
+    owners: [
+      {name:'Gian', share:0.75, cleaningShare:0, packageShare:0},
+      {name:'Simona', share:0.125, cleaningShare:0.5, packageShare:0.5},
+      {name:'Lorenzo', share:0.125, cleaningShare:0.5, packageShare:0.5}
+    ],
+    property: {
+      name:'Rustico Principale', address:'Via delle Vigne 15', city:'Montalcino (SI)', type:'Farmhouse / Holiday home',
+      purchaseValue: 120000, renovationCost: 30000, mortgage: 80000, sqm: 85, rooms: 2, bathrooms: 1, platforms: 'Airbnb, Booking'
+    }
+  },
+  bookings: [
+    {id:1, startDate:'2026-07-18', endDate:'2026-07-19', nights:1, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:60.27, cleaning:40, extra:0, status:'Ricevuto', note:''},
+    {id:2, startDate:'2026-07-19', endDate:'2026-07-20', nights:1, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:60.27, cleaning:40, extra:0, status:'Ricevuto', note:''},
+    {id:3, startDate:'2026-07-24', endDate:'2026-07-25', nights:1, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:78.25, cleaning:40, extra:0, status:'Ricevuto', note:''},
+    {id:4, startDate:'2026-07-24', endDate:'2026-07-26', nights:2, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:156.91, cleaning:40, extra:0, status:'Ricevuto', note:''},
+    {id:5, startDate:'', endDate:'', nights:0, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:75.26, cleaning:40, extra:0, status:'Da ricevere', note:''},
+    {id:6, startDate:'', endDate:'', nights:0, guest:'', property:'Rustico Principale', platform:'Airbnb', revenue:297.11, cleaning:40, extra:0, status:'Da ricevere', note:''}
+  ],
+  expenses: [
+    {id:1, date:'2026-07-15', property:'Rustico Principale', category:'Manutenzione', description:'Kitchen tap repair', amount:85, paidBy:'Gian', status:'Pagato', note:''},
+    {id:2, date:'2026-07-20', property:'Rustico Principale', category:'Bollette', description:'Electricity, July', amount:45, paidBy:'Simona', status:'Pagato', note:''}
+  ],
+  packages: [],
+  monthly: [
+    {month:'Lug 2026', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Ago 2026', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Set 2026', days:30, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Ott 2026', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Nov 2026', days:30, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Dic 2026', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Gen 2027', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Feb 2027', days:28, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Mar 2027', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Apr 2027', days:30, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Mag 2027', days:31, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}},
+    {month:'Giu 2027', days:30, pren:0, notti:0, incasso:0, pulizie:0, spese:0, netto:0, margine:0, occupazione:0, adr:0, manual:{}}
+  ]
+};
+
+/* ---------------------------------------------------------------
+   Storage: the data lives in Supabase (table app_data, one row per
+   authenticated user), no longer in the browser. Every device that
+   signs in with the same email/password always sees the same data,
+   updated in real time through Supabase Realtime.
+---------------------------------------------------------------- */
+const SUPABASE_URL = 'https://qgeqksuplsagwzkyiqhx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_wBFze86klZBbpWTwCUFrHQ_svb-V97T';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let storageMode = 'cloud'; /* 'cloud' = saving fine, 'error' = offline/failure */
+let currentUserId = null;
+let currentUserEmail = '';
+let realtimeChannel = null;
+let data = null;
+
+function ensureDefaults(d){
+  if (!d.settings.property) d.settings.property = JSON.parse(JSON.stringify(defaultData.settings.property));
+  d.settings.owners.forEach(o => { if (o.cleaningShare === undefined) o.cleaningShare = 0; });
+  /* packages are split in half between Simona and Lorenzo: whoever already has
+     50% on cleaning starts with the same share on packages too */
+  d.settings.owners.forEach(o => { if (o.packageShare === undefined) o.packageShare = (o.cleaningShare || 0); });
+  if (!Array.isArray(d.packages)) d.packages = [];
+  return d;
+}
+
+let saveTimer = null, pending = false, indTimer = null;
+
+function showSaveInd(ok){
+  const el = document.getElementById('saveInd');
+  if (!el) return;
+  el.className = 'save-ind on ' + (ok ? 'ok' : 'ko');
+  el.textContent = ok ? '✓ Saved' : '⚠ Save failed';
+  if (indTimer) clearTimeout(indTimer);
+  indTimer = setTimeout(function(){ el.className = 'save-ind ' + (ok ? 'ok' : 'ko'); }, ok ? 1600 : 5000);
+}
+
+function updateWarnBar(){
+  const el = document.getElementById('warnBar');
+  if (!el) return;
+  if (storageMode === 'cloud') { el.className = 'warn-bar'; el.innerHTML = ''; return; }
+  el.className = 'warn-bar on';
+  el.innerHTML = '<div><b>Heads up:</b> the data cannot be saved or read online right now (check your internet connection). Changes made now may not reach your other devices until the connection is back.</div>';
+}
+
+/* saves on every change, batching keystrokes that come close together */
+function saveData(immediate){
+  pending = true;
+  if (saveTimer) clearTimeout(saveTimer);
+  if (immediate) { flushSave(); return; }
+  saveTimer = setTimeout(flushSave, 350);
+}
+
+let booted = false;
+
+async function flushSave(){
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  if (!pending || !currentUserId) return;
+  pending = false;
+  const { error } = await sb.from('app_data').upsert({ user_id: currentUserId, data: data, updated_at: new Date().toISOString() });
+  storageMode = error ? 'error' : 'cloud';
+  if (booted) showSaveInd(!error);
+  updateWarnBar();
+}
+
+/* safety net: on mobile the tab is suspended without warning */
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'hidden') flushSave();
+});
+window.addEventListener('pagehide', flushSave);
+window.addEventListener('blur', flushSave);
+
+async function loadRemoteData(userId){
+  const { data: row, error } = await sb.from('app_data').select('data').eq('user_id', userId).maybeSingle();
+  if (error) throw error;
+  if (row && row.data) return ensureDefaults(row.data);
+  const fresh = ensureDefaults(JSON.parse(JSON.stringify(defaultData)));
+  const { error: insErr } = await sb.from('app_data').insert({ user_id: userId, data: fresh });
+  if (insErr) throw insErr;
+  return fresh;
+}
+
+function subscribeRealtime(userId){
+  if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+  realtimeChannel = sb
+    .channel('app_data_' + userId)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_data', filter: 'user_id=eq.' + userId }, function(payload){
+      /* if you are typing in an open form right now, do not overwrite it: it will refresh on the next navigation */
+      const formOpen = bookingFormOpen || expenseFormOpen || packageFormOpen || importPanelOpen;
+      data = ensureDefaults(payload.new.data);
+      if (!formOpen) show(currentTab);
+    })
+    .subscribe();
+}
+
+function showApp(){
+  const gate = document.getElementById('authGate'), root = document.getElementById('appRoot');
+  if (gate) gate.style.display = 'none';
+  if (root) root.style.display = '';
+}
+function showAuthGate(msg, isErr){
+  const gate = document.getElementById('authGate'), root = document.getElementById('appRoot');
+  if (root) root.style.display = 'none';
+  if (gate) gate.style.display = 'flex';
+  const m = document.getElementById('authMsg');
+  if (m) { m.textContent = msg || ''; m.className = 'auth-msg' + (isErr ? ' err' : ''); }
+}
+
+async function bootApp(user){
+  currentUserId = user.id;
+  currentUserEmail = user.email || '';
+  try {
+    data = await loadRemoteData(currentUserId);
+    storageMode = 'cloud';
+  } catch (e) {
+    data = ensureDefaults(JSON.parse(JSON.stringify(defaultData)));
+    storageMode = 'error';
+  }
+  subscribeRealtime(currentUserId);
+  syncMonthly();
+  showApp();
+  show('dash');
+  updateWarnBar();
+  renderHint();
+  booted = true;
+}
+
+async function doSignIn(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { showAuthGate('Enter your email and password.', true); return; }
+  showAuthGate('Signing in...');
+  const { data: res, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showAuthGate('Error: ' + error.message, true); return; }
+  bootApp(res.user);
+}
+async function doSignUp(){
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { showAuthGate('Enter your email and password.', true); return; }
+  showAuthGate('Creating your account...');
+  const { data: res, error } = await sb.auth.signUp({ email, password });
+  if (error) { showAuthGate('Error: ' + error.message, true); return; }
+  if (!res.session) { showAuthGate('Check your email and click the confirmation link, then come back here and press Sign in.'); return; }
+  bootApp(res.user);
+}
+async function doSignOut(){
+  await flushSave();
+  if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+  await sb.auth.signOut();
+  currentUserId = null; currentUserEmail = ''; data = null; booted = false;
+  showAuthGate('');
+}
+window.doSignIn = doSignIn;
+window.doSignUp = doSignUp;
+window.doSignOut = doSignOut;
+
+(async function initAuth(){
+  const { data: sessData } = await sb.auth.getSession();
+  if (sessData.session) bootApp(sessData.session.user);
+  else showAuthGate('');
+})();
+
+function getMonthIndex(d) {
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  if (y === 2026 && m >= 7) return m - 7;
+  if (y === 2027 && m <= 6) return m + 5;
+  return -1;
+}
+
+function recalcMonthly(i) {
+  const m = data.monthly[i];
+  if (!m.manual.netto) m.netto = m.incasso - m.pulizie - m.spese;
+  if (!m.manual.margine) m.margine = m.incasso > 0 ? (m.netto / m.incasso * 100) : 0;
+  if (!m.manual.occupazione) m.occupazione = m.days > 0 ? (m.notti / m.days * 100) : 0;
+  if (!m.manual.adr) m.adr = m.notti > 0 ? (m.incasso / m.notti) : 0;
+}
+
+function syncMonthly() {
+  data.monthly.forEach(m => {
+    m.pren = 0; m.notti = 0; m.incasso = 0; m.pulizie = 0; m.spese = 0; m.manual = {};
+  });
+  data.bookings.forEach(b => {
+    if (!b.startDate) return;
+    const d = new Date(b.startDate + 'T00:00:00');
+    const idx = getMonthIndex(d);
+    if (idx >= 0 && idx < 12) {
+      const m = data.monthly[idx];
+      m.pren += 1;
+      m.notti += (b.nights || 0);
+      m.incasso += (b.revenue || 0);
+      m.pulizie += (b.cleaning || 0);
+    }
+  });
+  data.expenses.forEach(e => {
+    if (!e.date) return;
+    const d = new Date(e.date + 'T00:00:00');
+    const idx = getMonthIndex(d);
+    if (idx >= 0 && idx < 12) {
+      data.monthly[idx].spese += (e.amount || 0);
+    }
+  });
+  data.monthly.forEach((m, i) => recalcMonthly(i));
+  saveData();
+}
+
+function compute() {
+  const tr = data.bookings.reduce((s,b)=>s+(b.revenue||0),0);
+  const tc = data.bookings.reduce((s,b)=>s+(b.cleaning||0),0);
+  const te = data.bookings.reduce((s,b)=>s+(b.extra||0),0);
+  const tn = tr - tc - te;
+  const tx = data.expenses.reduce((s,e)=>s+(e.amount||0),0);
+  const cf = tn - tx;
+  const eq = parseFloat(data.settings.equity) || 0;
+  const interest = (data.settings.mortgageRemaining || 0) * (data.settings.mortgageRate || 0);
+  let roi = 0, roe = null, am = 0;
+  if (data.settings.propertyValue > 0) roi = ((tn - tx) / data.settings.propertyValue) * 100;
+  if (eq > 0) roe = ((tn - tx - interest) / eq) * 100;
+  if (tr > 0) am = (tn / tr) * 100;
+  const bwd = data.bookings.filter(b=>b.startDate && b.nights>0);
+  const ngt = bwd.reduce((s,b)=>s+(b.nights||0),0);
+  const occ = data.settings.availableDays > 0 ? (ngt / data.settings.availableDays) * 100 : 0;
+  const adrT = bwd.reduce((s,b)=>s+(b.revenue||0),0);
+  const adr = ngt > 0 ? adrT / ngt : 0;
+  const rc = data.bookings.filter(b=>b.status==='Ricevuto').length;
+  const pc = data.bookings.filter(b=>b.status==='Da ricevere').length;
+  const rr = data.bookings.filter(b=>b.status==='Ricevuto').reduce((s,b)=>s+(b.revenue||0),0);
+  const pr = data.bookings.filter(b=>b.status==='Da ricevere').reduce((s,b)=>s+(b.revenue||0),0);
+  return {tr, tc, te, tn, tx, cf, roi, roe, am, ngt, occ, adr, rc, pc, rr, pr, interest, eq};
+}
+
+function computeOwners() {
+  const netBaseReceived = data.bookings
+    .filter(b => b.status === 'Ricevuto')
+    .reduce((s, b) => s + ((b.revenue||0) - (b.cleaning||0) - (b.extra||0)), 0);
+  const netBasePending = data.bookings
+    .filter(b => b.status === 'Da ricevere')
+    .reduce((s, b) => s + ((b.revenue||0) - (b.cleaning||0) - (b.extra||0)), 0);
+  const cleaningReceived = data.bookings
+    .filter(b => b.status === 'Ricevuto')
+    .reduce((s, b) => s + (b.cleaning||0), 0);
+  const cleaningPending = data.bookings
+    .filter(b => b.status === 'Da ricevere')
+    .reduce((s, b) => s + (b.cleaning||0), 0);
+
+  /* i pacchetti sono un ricavo a se': non passano dal netto dell'immobile e
+     si dividono solo fra chi ha una quota pacchetti (Simona e Lorenzo, 50/50) */
+  const packs = data.packages || [];
+  const packReceived = packs
+    .filter(p => p.status === 'Ricevuto')
+    .reduce((s, p) => s + (p.amount||0), 0);
+  const packPending = packs
+    .filter(p => p.status !== 'Ricevuto')
+    .reduce((s, p) => s + (p.amount||0), 0);
+
+  return data.settings.owners.map(o => {
+    const cleaningRec = cleaningReceived * (o.cleaningShare||0);
+    const cleaningPen = cleaningPending * (o.cleaningShare||0);
+    const packRec = packReceived * (o.packageShare||0);
+    const packPen = packPending * (o.packageShare||0);
+    const received = netBaseReceived * (o.share||0) + cleaningRec + packRec;
+    const pending = netBasePending * (o.share||0) + cleaningPen + packPen;
+    const total = received + pending;
+    const expenses = data.expenses.reduce((s, e) => s + ((e.paidBy === o.name) ? (e.amount||0) : 0), 0);
+    const balance = total - expenses;
+    return { name: o.name, share: o.share, cleaningShare: o.cleaningShare, packageShare: o.packageShare, received, pending, total, expenses, balance, cleaningRec, cleaningPen, packRec, packPen };
+  });
+}
+
+let currentTab = 'dash';
+let bookingFormOpen = false;
+let editingBookingId = null;
+let importPanelOpen = false;
+let importState = null;
+let expenseFormOpen = false;
+let editingExpenseId = null;
+let packageFormOpen = false;
+let editingPackageId = null;
+
+function renderDash() {
+  const m = compute();
+  /* packages stay outside the property's profit and loss: they are revenue
+     that goes entirely to whoever holds the package share */
+  const tpk = (data.packages||[]).reduce((a,p)=>a+(p.amount||0),0);
+  const packOwn = data.settings.owners.filter(o=>(o.packageShare||0)>0);
+  const packLbl = packOwn.length
+    ? packOwn.map(o=>o.name+' '+((o.packageShare||0)*100).toFixed(0)+'%').join(' · ')
+    : 'no package share set yet';
+  const revs = data.bookings.map(b=>b.revenue||0);
+  const maxR = Math.max(...revs, 1);
+  const bwd = data.bookings.filter(b=>b.startDate && b.nights>0);
+  const adrs = bwd.map(b=> (b.nights>0 ? (b.revenue||0)/b.nights : 0));
+
+  let bars=''; const bw=22, bg=10, cw=revs.length*(bw+bg)+bg, ch=120;
+  revs.forEach((r,i)=>{
+    const h = (r/maxR)*(ch-22);
+    const x = bg + i*(bw+bg);
+    const y = ch - h - 18;
+    const c = data.bookings[i].status==='Ricevuto' ? 'var(--positive)' : 'var(--warning)';
+    bars += '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="3" fill="'+c+'" opacity="0.85"/><text x="'+(x+bw/2)+'" y="'+(ch-4)+'" text-anchor="middle" font-size="9" fill="var(--text-tertiary)">B'+(i+1)+'</text>';
+  });
+
+  const tot = m.rr + m.pr;
+  const ra = tot > 0 ? (m.rr / tot) * 360 : 0;
+  const cx=60, cy=60, R=44;
+  function po(cx,cy,R,a){ const r=(a-90)*Math.PI/180; return [cx+R*Math.cos(r), cy+R*Math.sin(r)]; }
+  const [sx,sy]=po(cx,cy,R,0); const [ex1,ey1]=po(cx,cy,R,ra); const l1=ra>180?1:0;
+  const [ex2,ey2]=po(cx,cy,R,360); const l2=(360-ra)>180?1:0;
+  const p1='M '+cx+' '+cy+' L '+sx+' '+sy+' A '+R+' '+R+' 0 '+l1+' 1 '+ex1+' '+ey1+' Z';
+  const p2='M '+cx+' '+cy+' L '+ex1+' '+ey1+' A '+R+' '+R+' 0 '+l2+' 1 '+ex2+' '+ey2+' Z';
+
+  const lw=260, lh=110, pl=28, pb=20;
+  const mx = Math.max(...adrs, 1); const mn = Math.min(...adrs); const rg = mx-mn || 1;
+  const pts = adrs.map((v,i)=>{
+    const x = pl + (i/(adrs.length-1||1))*(lw-pl-8);
+    const y = lh - pb - ((v-mn)/rg)*(lh-pb-18);
+    return [x,y];
+  });
+  const pd = pts.map((p,i)=>(i===0?'M':'L')+' '+p[0]+' '+p[1]).join('');
+  let ds='';
+  pts.forEach((p,i)=>{
+    ds+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5" fill="var(--chart-1)"/><text x="'+p[0]+'" y="'+(p[1]-7)+'" text-anchor="middle" font-size="9" fill="var(--text-secondary)">€'+fmt(adrs[i])+'</text>';
+  });
+
+  const kc = (icon,label,val,sub,subCls) => '<div class="kpi-c"><div class="kpi-top"><div class="kpi-ic">'+icon+'</div><div class="kpi-l">'+label+'</div></div><div class="kpi-v">'+val+'</div><div class="kpi-s'+(subCls?' '+subCls:'')+'">'+sub+'</div></div>';
+
+  return '<div class="kpi">'+
+    kc(ICO.euro,'total revenue','€'+fmt(m.tr), m.rc+' received · '+m.pc+' to receive')+
+    kc(ICO.wallet,'total net','€'+fmt(m.tn), 'after cleaning and extras')+
+    kc(ICO.receipt,'total expenses','€'+fmt(m.tx), data.expenses.length+' entries')+
+    kc(ICO.trend,'cash flow','€'+fmt(m.cf), (m.cf>=0?'+':'')+'€'+fmt(m.cf)+' net', (m.cf>=0?'p':'n'))+
+    kc(ICO.percent,'ROI', fmt1(m.roi)+'%', 'on property value')+
+    kc(ICO.target,'ROE', (m.roe!==null ? fmt1(m.roe)+'%' : '—'), (m.roe!==null ? 'equity €'+fmt0(m.eq) : 'enter equity in settings'), (m.roe!==null ? (m.roe>=0?'p':'n') : ''))+
+    kc(ICO.pie,'average margin', fmt1(m.am)+'%', 'net / revenue')+
+    kc(ICO.calendar,'occupancy', fmt1(m.occ)+'%', m.ngt+' nights / '+data.settings.availableDays+' days')+
+    kc(ICO.tag,'average ADR','€'+fmt(m.adr), 'average nightly rate')+
+    kc(ICO.sparkle,'total cleaning','€'+fmt(m.tc), 'revenue for Simona and Lorenzo')+
+    kc(ICO.box,'total packages','€'+fmt(tpk), packLbl)+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px;">'+
+    '<div class="pan"><div class="pan-t"><svg viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>revenue per booking</div><svg style="width:100%;max-height:140px" viewBox="0 0 '+cw+' '+ch+'">'+bars+'</svg><div style="display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--text-tertiary)"><span class="flex"><span style="width:8px;height:8px;border-radius:2px;background:var(--positive);display:inline-block"></span> received</span><span class="flex"><span style="width:8px;height:8px;border-radius:2px;background:var(--warning);display:inline-block"></span> to receive</span></div></div>'+
+    '<div class="pan"><div class="pan-t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>payment status</div><div class="flex" style="gap:16px"><svg width="120" height="120" viewBox="0 0 120 120"><path d="'+p1+'" fill="var(--positive)" opacity="0.9"/><path d="'+p2+'" fill="var(--warning)" opacity="0.9"/><circle cx="'+cx+'" cy="'+cy+'" r="24" fill="var(--surface)"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-size="11" font-weight="500" fill="var(--text-primary)">€'+fmt0(tot)+'</text></svg><div style="font-size:12px"><div class="flex mt3"><span style="width:9px;height:9px;border-radius:50%;background:var(--positive);display:inline-block"></span> Received €'+fmt(m.rr)+'</div><div class="flex mt3"><span style="width:9px;height:9px;border-radius:50%;background:var(--warning);display:inline-block"></span> To receive €'+fmt(m.pr)+'</div></div></div></div>'+
+    '<div class="pan"><div class="pan-t"><svg viewBox="0 0 24 24" fill="none"><path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>trend ADR</div><svg style="width:100%;max-height:120px" viewBox="0 0 '+lw+' '+lh+'"><line x1="'+pl+'" y1="'+(lh-pb)+'" x2="'+(lw-8)+'" y2="'+(lh-pb)+'" stroke="var(--border)" stroke-width="1"/><line x1="'+pl+'" y1="'+(lh-pb)+'" x2="'+pl+'" y2="10" stroke="var(--border)" stroke-width="1"/><path d="'+pd+'" fill="none" stroke="var(--chart-1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+ds+'</svg><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px">ADR = revenue / nights</div></div>'+
+  '</div>';
+}
+
+function buildImportRows(){
+  if(!importState) return [];
+  const {headers, rows, map} = importState;
+  const idx = key => map[key] ? headers.indexOf(map[key]) : -1;
+  const iStart = idx('startDate'), iEnd = idx('endDate'), iNights = idx('nights'), iGuest = idx('guest'), iRev = idx('revenue'), iClean = idx('cleaning'), iExtra = idx('extra');
+  return rows.map(r=>{
+    const startDate = iStart>-1 ? parseDateFlexible(r[iStart]) : '';
+    const endDate = iEnd>-1 ? parseDateFlexible(r[iEnd]) : '';
+    let nights = iNights>-1 ? (parseFloat(String(r[iNights]).replace(',','.'))||0) : 0;
+    if(!nights && startDate && endDate){
+      const d1=new Date(startDate+'T00:00:00'), d2=new Date(endDate+'T00:00:00');
+      const diff = Math.round((d2-d1)/86400000);
+      if(diff>0) nights = diff;
+    }
+    const guest = iGuest>-1 ? String(r[iGuest]).trim() : '';
+    const revenue = iRev>-1 ? parseAmountFlexible(r[iRev]) : 0;
+    const cleaning = iClean>-1 ? parseAmountFlexible(r[iClean]) : 0;
+    const extra = iExtra>-1 ? parseAmountFlexible(r[iExtra]) : 0;
+    return { startDate, endDate, nights, guest, revenue, cleaning, extra };
+  });
+}
+
+function renderImportPanel(){
+  if(!importState){
+    return '<div class="pan" id="importPanel">'+
+      '<div class="pan-t">Import from Airbnb / Booking</div>'+
+      '<div class="fs12 cl-sec" style="margin-bottom:12px;line-height:1.6">Upload the CSV file downloaded from your host dashboard: on <b>Airbnb</b> go to Earnings &rarr; Export CSV (or Reservations &rarr; All &rarr; Export), on <b>Booking.com</b> use the Extranet under Reservations &rarr; Export. You can run the import as many times as you like: bookings that are already there are never duplicated.</div>'+
+      '<div class="form-row">'+
+        '<label class="btn btn-p" style="cursor:pointer">Choose CSV file<input type="file" accept=".csv,text/csv" style="display:none" onchange="handleImportFile(this)"></label>'+
+        '<button class="btn" onclick="cancelImport()">Cancel</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  const {headers, platform, status, fileName, map} = importState;
+  const fieldDefs = [
+    {key:'startDate', label:'Start date', required:true},
+    {key:'endDate', label:'End date', required:false},
+    {key:'nights', label:'Nights', required:false},
+    {key:'guest', label:'Guest', required:false},
+    {key:'revenue', label:'Revenue €', required:true},
+    {key:'cleaning', label:'Cleaning €', required:false},
+    {key:'extra', label:'Extras €', required:false}
+  ];
+  const mapRows = fieldDefs.map(f=>{
+    let opts = '<option value="">— none —</option>';
+    headers.forEach(h=>{ opts += '<option '+(map[f.key]===h?'selected':'')+'>'+esc(h)+'</option>'; });
+    return '<div class="form-row">'+fld(f.label+(f.required?' *':''),'<select class="inp" onchange="updateImportMap(\''+f.key+'\',this.value)">'+opts+'</select>')+'</div>';
+  }).join('');
+
+  const built = buildImportRows();
+  const missingRequired = !map.startDate || !map.revenue;
+  const existingKey = b => (b.startDate||'')+'|'+(b.endDate||'')+'|'+Math.round((b.revenue||0)*100);
+  const existingSet = new Set(data.bookings.map(existingKey));
+  const invalidCount = built.filter(b=>!b.startDate).length;
+  const dupCount = built.filter(b => b.startDate && existingSet.has(existingKey(b))).length;
+  const importableCount = built.length - invalidCount - dupCount;
+
+  const previewRows = built.slice(0,5).map(b=>'<tr>'+
+      '<td data-l="date">'+(b.startDate?fd(b.startDate):'<span class="cl-ter">date not recognised</span>')+(b.endDate&&b.endDate!==b.startDate?' → '+fd(b.endDate):'')+'</td>'+
+      '<td data-l="nights">'+(b.nights||'—')+'</td>'+
+      '<td data-l="guest">'+esc(b.guest||'—')+'</td>'+
+      '<td class="tr" data-l="revenue">€'+fmt(b.revenue)+'</td>'+
+      '<td class="tr" data-l="cleaning">€'+fmt(b.cleaning)+'</td>'+
+    '</tr>').join('');
+
+  const platOpts = ['Airbnb','Booking','Direct','Altro'].map(p=>opt(p, platform, platl(p))).join('');
+  const statOpts = ['Ricevuto','Da ricevere'].map(s=>opt(s, status, stl(s))).join('');
+
+  return '<div class="pan" id="importPanel">'+
+    '<div class="pan-t">Import from CSV — '+esc(fileName)+'</div>'+
+    '<div class="fs11 cl-ter" style="margin-bottom:10px">Match your file columns to the app fields. Fields marked * are required.</div>'+
+    mapRows +
+    '<div class="form-row" style="margin-top:6px">'+
+      fld('Platform','<select class="inp" onchange="updateImportMeta(\'platform\',this.value)">'+platOpts+'</select>')+
+      fld('Mark all as','<select class="inp" onchange="updateImportMeta(\'status\',this.value)">'+statOpts+'</select>')+
+    '</div>'+
+    (missingRequired ? '<div class="fs11" style="color:var(--danger);margin:8px 0">Map at least Start date and Revenue to continue.</div>' : '')+
+    '<div class="mt3" style="overflow-x:auto"><table class="tbl"><thead><tr><th>date</th><th>nights</th><th>guest</th><th class="tr">revenue</th><th class="tr">cleaning</th></tr></thead><tbody>'+previewRows+'</tbody></table></div>'+
+    '<div class="fs11 cl-ter mt3">Preview of the first '+Math.min(5,built.length)+' rows out of '+built.length+' in total'+(dupCount?(' · '+dupCount+' already present (skipped)'):'')+(invalidCount?(' · '+invalidCount+' with an unrecognised date (skipped)'):'')+'.</div>'+
+    '<div class="form-row mt3">'+
+      '<button class="btn btn-p" onclick="confirmImport()"'+(missingRequired?' disabled':'')+'>Import '+Math.max(importableCount,0)+' bookings</button>'+
+      '<button class="btn" onclick="cancelImport()">Cancel</button>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderBook() {
+  const formDisplay = bookingFormOpen ? 'block' : 'none';
+  const formTitle = editingBookingId ? 'Edit booking' : 'New booking';
+  const b = editingBookingId ? (data.bookings.find(x=>x.id===editingBookingId) || {}) : {};
+
+  let platOpts = '';
+  ['Airbnb','Booking','Direct','Altro'].forEach(p=>{
+    platOpts += opt(p, b.platform, platl(p));
+  });
+  let statOpts = '';
+  ['Ricevuto','Da ricevere','In attesa','Annullato'].forEach(s=>{
+    statOpts += opt(s, b.status, stl(s));
+  });
+
+  const form = '<div class="pan" id="bookingFormPanel" style="display:'+formDisplay+'">'+
+    '<div class="pan-t" id="bookingFormTitle">'+formTitle+'</div>'+
+    '<div class="form-row">'+
+      fld('Check-in','<input class="inp" type="date" id="bStart" value="'+(b.startDate||'')+'">')+
+      fld('Check-out','<input class="inp" type="date" id="bEnd" value="'+(b.endDate||'')+'">')+
+      fld('Nights','<input class="inp" type="number" inputmode="numeric" id="bNights" placeholder="0" value="'+(b.nights!==undefined?b.nights:'')+'">')+
+      fld('Guest','<input class="inp" type="text" id="bGuest" placeholder="Guest name" value="'+esc(b.guest||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      fld('Property','<select class="inp" id="bProp"><option>'+data.settings.property.name+'</option></select>')+
+      fld('Platform','<select class="inp" id="bPlat">'+platOpts+'</select>')+
+      fld('Revenue €','<input class="inp" type="number" inputmode="decimal" step="0.01" id="bRev" placeholder="0.00" value="'+(b.revenue!==undefined?b.revenue:'')+'">')+
+      fld('Cleaning €','<input class="inp" type="number" inputmode="decimal" step="0.01" id="bClean" placeholder="0.00" value="'+(b.cleaning!==undefined?b.cleaning:'')+'">')+
+      fld('Extras €','<input class="inp" type="number" inputmode="decimal" step="0.01" id="bExtra" placeholder="0.00" value="'+(b.extra!==undefined?b.extra:'')+'">')+
+      fld('Status','<select class="inp" id="bStatus">'+statOpts+'</select>')+
+    '</div>'+
+    '<div class="form-row">'+
+      fld('Notes','<input class="inp" type="text" id="bNote" placeholder="Free notes" value="'+esc(b.note||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      '<button class="btn btn-p" onclick="saveBooking()">Save</button>'+
+      '<button class="btn" onclick="cancelBooking()">Cancel</button>'+
+    '</div>'+
+  '</div>';
+
+  let rows = '';
+  data.bookings.forEach(b=>{
+    const net = (b.revenue||0)-(b.cleaning||0)-(b.extra||0);
+    const mar = b.revenue>0 ? (net/b.revenue*100) : 0;
+    const adr = b.nights>0 ? (b.revenue||0)/b.nights : 0;
+    rows += '<tr>'+
+      '<td data-l="date">'+fd(b.startDate)+(b.endDate&&b.endDate!==b.startDate?' → '+fd(b.endDate):'')+'</td>'+
+      '<td data-l="nights">'+(b.nights||'—')+'</td>'+
+      '<td data-l="property">'+esc(b.property)+'</td>'+
+      '<td data-l="platform">'+esc(platl(b.platform))+'</td>'+
+      '<td class="tr" data-l="revenue">€'+fmt(b.revenue||0)+'</td>'+
+      '<td class="tr" data-l="cleaning">€'+fmt(b.cleaning||0)+'</td>'+
+      '<td class="tr" data-l="extras">€'+fmt(b.extra||0)+'</td>'+
+      '<td class="tr" data-l="net" style="font-weight:600;color:var(--text-primary)">€'+fmt(net)+'</td>'+
+      '<td class="tr" data-l="margin">'+fmt1(mar)+'%</td>'+
+      '<td class="tr" data-l="ADR">€'+fmt(adr)+'</td>'+
+      '<td data-l="status">'+tg(b.status)+'</td>'+
+      '<td><div class="act"><button onclick="editBooking('+b.id+')">Edit</button><button class="btn-d" onclick="deleteBooking('+b.id+')">Delete</button></div></td>'+
+    '</tr>';
+  });
+
+  const tableOrEmpty = data.bookings.length
+    ? '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>date</th><th>nights</th><th>property</th><th>platform</th><th class="tr">revenue</th><th class="tr">cleaning</th><th class="tr">extras</th><th class="tr">net</th><th class="tr">margin</th><th class="tr">ADR</th><th>status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    : '<div class="empty"><div class="empty-ic">'+ICO.calendar+'</div><div class="empty-t">No bookings yet</div><div class="empty-s">Add your first booking to start tracking revenue and occupancy.</div></div>';
+
+  const importPanel = importPanelOpen ? renderImportPanel() : '';
+
+  return importPanel + form +
+  '<div class="flex jb wrp" style="margin-bottom:12px">'+
+    '<div class="pan-t" style="margin:0">Bookings</div>'+
+    '<div class="flex" style="gap:8px">'+
+      '<button class="btn" onclick="openImportPanel()">'+ICO.trend+' Import CSV</button>'+
+      '<button class="btn btn-p" onclick="newBooking()">+ New</button>'+
+    '</div>'+
+  '</div>'+
+  tableOrEmpty;
+}
+
+function renderPack() {
+  const formDisplay = packageFormOpen ? 'block' : 'none';
+  const formTitle = editingPackageId ? 'Edit package' : 'New package';
+  const list = data.packages || [];
+  const p = editingPackageId ? (list.find(x=>x.id===editingPackageId) || {}) : {};
+
+  /* who collects the packages: by default Simona and Lorenzo at 50% each */
+  const packOwners = data.settings.owners.filter(o=>(o.packageShare||0)>0);
+  const splitTxt = packOwners.length
+    ? packOwners.map(o=>esc(o.name)+' <b>'+((o.packageShare||0)*100).toFixed(0)+'%</b>').join(' &middot; ')
+    : 'no owner has a package share yet: set it in Settings &rarr; Owner split';
+
+  let statOpts = '';
+  ['Ricevuto','Da ricevere'].forEach(st=>{
+    statOpts += opt(st, p.status, stl(st));
+  });
+
+  const form = '<div class="pan" id="packageFormPanel" style="display:'+formDisplay+'">'+
+    '<div class="pan-t" id="packageFormTitle">'+formTitle+'</div>'+
+    '<div class="form-row">'+
+      fld('Date','<input class="inp" type="date" id="pDate" value="'+(p.date||'')+'">')+
+      fld('Package','<input class="inp" type="text" id="pName" placeholder="e.g. breakfast basket" value="'+esc(p.name||'')+'">')+
+      fld('Customer / booking','<input class="inp" type="text" id="pGuest" placeholder="optional" value="'+esc(p.guest||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      fld('Amount €','<input class="inp" type="number" inputmode="decimal" step="0.01" id="pAmount" placeholder="0.00" value="'+(p.amount!==undefined?p.amount:'')+'">')+
+      fld('Status','<select class="inp" id="pStatus">'+statOpts+'</select>')+
+      fld('Notes','<input class="inp" type="text" id="pNote" placeholder="Free notes" value="'+esc(p.note||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      '<button class="btn btn-p" onclick="savePackage()">Save</button>'+
+      '<button class="btn" onclick="cancelPackage()">Cancel</button>'+
+    '</div>'+
+  '</div>';
+
+  let ownHeads = '';
+  packOwners.forEach(o=>{
+    ownHeads += '<th class="tr">'+esc(o.name)+' '+((o.packageShare||0)*100).toFixed(0)+'%</th>';
+  });
+
+  let rows = '';
+  list.forEach(pk=>{
+    let ownCells = '';
+    packOwners.forEach(o=>{
+      ownCells += '<td class="tr" data-l="'+esc(o.name)+'">€'+fmt((pk.amount||0)*(o.packageShare||0))+'</td>';
+    });
+    rows += '<tr>'+
+      '<td data-l="date">'+fd(pk.date)+'</td>'+
+      '<td data-l="package">'+esc(pk.name)+'</td>'+
+      '<td data-l="customer">'+esc(pk.guest||'')+'</td>'+
+      '<td class="tr" data-l="amount">€'+fmt(pk.amount||0)+'</td>'+
+      ownCells+
+      '<td data-l="status">'+tg(pk.status)+'</td>'+
+      '<td><div class="act"><button onclick="editPackage('+pk.id+')">Edit</button><button class="btn-d" onclick="deletePackage('+pk.id+')">Delete</button></div></td>'+
+    '</tr>';
+  });
+
+  const totAmount = list.reduce((a,x)=>a+(x.amount||0),0);
+  let ownTotCells = '';
+  packOwners.forEach(o=>{
+    ownTotCells += '<td class="tr" data-l="'+esc(o.name)+'">€'+fmt(totAmount*(o.packageShare||0))+'</td>';
+  });
+  const totRow = '<tr style="font-weight:600; background:var(--surface-hover)">'+
+    '<td colspan="3">TOTAL</td>'+
+    '<td class="tr" data-l="amount">€'+fmt(totAmount)+'</td>'+ownTotCells+'</tr>';
+
+  const tableOrEmpty = list.length
+    ? '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>date</th><th>package</th><th>customer</th><th class="tr">amount</th>'+ownHeads+'<th>status</th><th></th></tr></thead><tbody>'+rows+totRow+'</tbody></table></div>'
+    : '<div class="empty"><div class="empty-ic">'+ICO.box+'</div><div class="empty-t">No packages yet</div><div class="empty-s">Add hampers, breakfasts, tastings and every extra sold separately: the revenue stays out of the property net and goes entirely to whoever holds the package share.</div></div>';
+
+  return form +
+  '<div class="flex jb" style="margin-bottom:12px">'+
+    '<div class="pan-t" style="margin:0">Packages</div>'+
+    '<button class="btn btn-p" onclick="newPackage()">+ New</button>'+
+  '</div>'+
+  '<div class="pan" style="margin-bottom:12px"><div class="fs12 cl-sec" style="line-height:1.6">What you add here does not touch the property net nor Gian\'s share: package revenue is split between '+splitTxt+' and shows up on their card under <b>Owners</b>.</div></div>'+
+  tableOrEmpty;
+}
+
+function renderExpe() {
+  const formDisplay = expenseFormOpen ? 'block' : 'none';
+  const formTitle = editingExpenseId ? 'Edit expense' : 'New expense';
+  const e = editingExpenseId ? (data.expenses.find(x=>x.id===editingExpenseId) || {}) : {};
+
+  let catOpts = '';
+  ['Manutenzione','Bollette','Tasse/IMU','Ristrutturazione','Marketing','Altro'].forEach(c=>{
+    catOpts += opt(c, e.category, catl(c));
+  });
+  let paidOpts = '';
+  data.settings.owners.map(o=>o.name).forEach(p=>{
+    paidOpts += opt(p, e.paidBy, p);
+  });
+  let statOpts = '';
+  ['Pagato','Da pagare'].forEach(s=>{
+    statOpts += opt(s, e.status, stl(s));
+  });
+
+  const form = '<div class="pan" id="expenseFormPanel" style="display:'+formDisplay+'">'+
+    '<div class="pan-t" id="expenseFormTitle">'+formTitle+'</div>'+
+    '<div class="form-row">'+
+      fld('Date','<input class="inp" type="date" id="eDate" value="'+(e.date||'')+'">')+
+      fld('Property','<select class="inp" id="eProp"><option>'+data.settings.property.name+'</option></select>')+
+      fld('Category','<select class="inp" id="eCat">'+catOpts+'</select>')+
+      fld('Description','<input class="inp" type="text" id="eDesc" placeholder="e.g. boiler" value="'+esc(e.description||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      fld('Amount €','<input class="inp" type="number" inputmode="decimal" step="0.01" id="eAmount" placeholder="0.00" value="'+(e.amount!==undefined?e.amount:'')+'">')+
+      fld('Paid by','<select class="inp" id="ePaidBy">'+paidOpts+'</select>')+
+      fld('Status','<select class="inp" id="eStatus">'+statOpts+'</select>')+
+      fld('Notes','<input class="inp" type="text" id="eNote" placeholder="Free notes" value="'+esc(e.note||'')+'">')+
+    '</div>'+
+    '<div class="form-row">'+
+      '<button class="btn btn-p" onclick="saveExpense()">Save</button>'+
+      '<button class="btn" onclick="cancelExpense()">Cancel</button>'+
+    '</div>'+
+  '</div>';
+
+  let rows = '';
+  data.expenses.forEach(e=>{
+    rows += '<tr>'+
+      '<td data-l="date">'+fd(e.date)+'</td>'+
+      '<td data-l="property">'+esc(e.property)+'</td>'+
+      '<td data-l="category">'+esc(catl(e.category))+'</td>'+
+      '<td data-l="description">'+esc(e.description)+'</td>'+
+      '<td class="tr" data-l="amount">€'+fmt(e.amount||0)+'</td>'+
+      '<td data-l="paid by">'+esc(e.paidBy)+'</td>'+
+      '<td data-l="status">'+tg(e.status)+'</td>'+
+      '<td><div class="act"><button onclick="editExpense('+e.id+')">Edit</button><button class="btn-d" onclick="deleteExpense('+e.id+')">Delete</button></div></td>'+
+    '</tr>';
+  });
+
+  const tableOrEmpty = data.expenses.length
+    ? '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>date</th><th>property</th><th>category</th><th>description</th><th class="tr">amount</th><th>paid by</th><th>status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    : '<div class="empty"><div class="empty-ic">'+ICO.receipt+'</div><div class="empty-t">No expenses yet</div><div class="empty-s">Record maintenance, utilities and other costs to keep the net under control.</div></div>';
+
+  return form +
+  '<div class="flex jb" style="margin-bottom:12px">'+
+    '<div class="pan-t" style="margin:0">Expenses</div>'+
+    '<button class="btn btn-p" onclick="newExpense()">+ New</button>'+
+  '</div>'+
+  tableOrEmpty;
+}
+
+function renderSumm() {
+  let rows = '';
+  data.monthly.forEach((m,i)=>{
+    rows += '<tr>'+
+      '<td data-l="period" style="font-weight:600;color:var(--text-primary)">'+ml(m.month)+'</td>'+
+      '<td data-l="bookings"><input class="inp tr" id="sm-pren-'+i+'" type="number" inputmode="numeric" value="'+m.pren+'" oninput="updateMonthly('+i+',\'pren\',this.value)"></td>'+
+      '<td data-l="nights"><input class="inp tr" id="sm-notti-'+i+'" type="number" inputmode="numeric" value="'+m.notti+'" oninput="updateMonthly('+i+',\'notti\',this.value)"></td>'+
+      '<td data-l="revenue €"><input class="inp tr" id="sm-incasso-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.incasso.toFixed(2)+'" oninput="updateMonthly('+i+',\'incasso\',this.value)"></td>'+
+      '<td data-l="cleaning €"><input class="inp tr" id="sm-pulizie-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.pulizie.toFixed(2)+'" oninput="updateMonthly('+i+',\'pulizie\',this.value)"></td>'+
+      '<td data-l="expenses €"><input class="inp tr" id="sm-spese-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.spese.toFixed(2)+'" oninput="updateMonthly('+i+',\'spese\',this.value)"></td>'+
+      '<td data-l="net €"><input class="inp tr '+(m.manual.netto?'inp-manual':'inp-calc')+'" id="sm-netto-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.netto.toFixed(2)+'" oninput="updateMonthlyCalc('+i+',\'netto\',this.value)"></td>'+
+      '<td data-l="margin %"><input class="inp tr '+(m.manual.margine?'inp-manual':'inp-calc')+'" id="sm-margine-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.margine.toFixed(2)+'" oninput="updateMonthlyCalc('+i+',\'margine\',this.value)"></td>'+
+      '<td data-l="occup. %"><input class="inp tr '+(m.manual.occupazione?'inp-manual':'inp-calc')+'" id="sm-occupazione-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.occupazione.toFixed(2)+'" oninput="updateMonthlyCalc('+i+',\'occupazione\',this.value)"></td>'+
+      '<td data-l="ADR €"><input class="inp tr '+(m.manual.adr?'inp-manual':'inp-calc')+'" id="sm-adr-'+i+'" type="number" inputmode="decimal" step="0.01" value="'+m.adr.toFixed(2)+'" oninput="updateMonthlyCalc('+i+',\'adr\',this.value)"></td>'+
+    '</tr>';
+  });
+
+  const t = summTotals();
+
+  return '<div class="flex jb wrp" style="margin-bottom:12px; align-items:center; gap:8px">'+
+    '<div class="pan-t" style="margin:0">Monthly summary</div>'+
+    '<button class="btn" onclick="syncMonthly(); show(\'summ\');">&#x21bb; Sync from bookings</button>'+
+  '</div>'+
+  '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Period</th><th>Bookings</th><th>Nights</th><th class="tr">Revenue</th><th class="tr">Cleaning</th><th class="tr">Expenses</th><th class="tr">Net</th><th class="tr">Margin %</th><th class="tr">Occup. %</th><th class="tr">ADR €</th></tr></thead><tbody>'+rows+
+  '<tr style="font-weight:600; background:var(--surface-hover)"><td data-l="period">TOTAL</td><td data-l="bookings" class="tr" id="smt-pren">'+t.pren+'</td><td data-l="nights" class="tr" id="smt-notti">'+t.notti+'</td><td class="tr" data-l="revenue €" id="smt-incasso">€'+fmt(t.incasso)+'</td><td class="tr" data-l="cleaning €" id="smt-pulizie">€'+fmt(t.pulizie)+'</td><td class="tr" data-l="expenses €" id="smt-spese">€'+fmt(t.spese)+'</td><td class="tr" data-l="net €" id="smt-netto">€'+fmt(t.netto)+'</td><td class="tr" data-l="margin %" id="smt-margine">'+fmt1(t.mar)+'%</td><td class="tr" data-l="occup. %" id="smt-occupazione">'+fmt1(t.occ)+'%</td><td class="tr" data-l="ADR €" id="smt-adr">€'+fmt(t.adr)+'</td></tr>'+
+  '</tbody></table></div>'+
+  '<div class="fs11 cl-ter mt3">Every change is saved on its own: there is nothing to press. The yellow fields were entered by hand and are no longer recalculated; press "Sync from bookings" to bring them back to the values calculated from the bookings.</div>';
+}
+
+function summTotals(){
+  const tot = data.monthly.reduce((a,m)=>({
+    pren:a.pren+m.pren, notti:a.notti+m.notti, incasso:a.incasso+m.incasso,
+    pulizie:a.pulizie+m.pulizie, spese:a.spese+m.spese, netto:a.netto+m.netto
+  }),{pren:0,notti:0,incasso:0,pulizie:0,spese:0,netto:0});
+  tot.mar = tot.incasso>0 ? (tot.netto/tot.incasso*100) : 0;
+  tot.occ = data.settings.availableDays>0 ? (tot.notti/data.settings.availableDays*100) : 0;
+  tot.adr = tot.notti>0 ? (tot.incasso/tot.notti) : 0;
+  return tot;
+}
+
+/* Updates only the derived cells, without redrawing the table:
+   redrawing it would lose focus and close the phone keyboard. */
+function refreshSummRow(i){
+  const m = data.monthly[i];
+  ['netto','margine','occupazione','adr'].forEach(function(k){
+    const el = document.getElementById('sm-'+k+'-'+i);
+    if (!el) return;
+    el.className = 'inp tr ' + (m.manual[k] ? 'inp-manual' : 'inp-calc');
+    if (el !== document.activeElement) el.value = m[k].toFixed(2);
+  });
+  const t = summTotals();
+  const put = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  put('smt-pren', t.pren); put('smt-notti', t.notti);
+  put('smt-incasso', '€'+fmt(t.incasso)); put('smt-pulizie', '€'+fmt(t.pulizie));
+  put('smt-spese', '€'+fmt(t.spese)); put('smt-netto', '€'+fmt(t.netto));
+  put('smt-margine', fmt1(t.mar)+'%'); put('smt-occupazione', fmt1(t.occ)+'%');
+  put('smt-adr', '€'+fmt(t.adr));
+}
+
+function renderOwn() {
+  const own = computeOwners();
+  let html = '<div class="own">';
+  own.forEach((o,i) => {
+    const hasCleaning = (o.cleaningShare || 0) > 0;
+    const hasPack = (o.packageShare || 0) > 0;
+    const cleanPct = ((o.cleaningShare||0)*100).toFixed(0)+'% cleaning';
+    const packPct = ((o.packageShare||0)*100).toFixed(0)+'% packages';
+    let shareLabel = (o.share*100).toFixed(1).replace('.0','')+'%';
+    if (hasCleaning) shareLabel += ' + '+cleanPct;
+    if (hasPack) shareLabel += ' + '+packPct;
+    const color = OWNER_COLORS[i % OWNER_COLORS.length];
+    const initial = (o.name||'?').trim().charAt(0).toUpperCase();
+    html += '<div class="own-c" style="--card-color:'+color+'">'+
+      '<div class="own-n"><span class="own-avatar">'+initial+'</span>'+o.name+'</div>'+
+      '<div class="own-r"><span class="l">share</span><span class="v">'+shareLabel+'</span></div>'+
+      '<div class="own-r"><span class="l">net received</span><span class="v">€'+fmt(o.received)+'</span></div>'+
+      '<div class="own-r"><span class="l">net to receive</span><span class="v">€'+fmt(o.pending)+'</span></div>';
+    if (hasCleaning) {
+      html += '<div class="own-r"><span class="l">&nbsp;&nbsp;of which '+cleanPct+' received</span><span class="v">€'+fmt(o.cleaningRec)+'</span></div>'+
+              '<div class="own-r"><span class="l">&nbsp;&nbsp;of which '+cleanPct+' to receive</span><span class="v">€'+fmt(o.cleaningPen)+'</span></div>';
+    }
+    if (hasPack) {
+      html += '<div class="own-r"><span class="l">&nbsp;&nbsp;of which '+packPct+' received</span><span class="v">€'+fmt(o.packRec)+'</span></div>'+
+              '<div class="own-r"><span class="l">&nbsp;&nbsp;of which '+packPct+' to receive</span><span class="v">€'+fmt(o.packPen)+'</span></div>';
+    }
+    html += '<div class="own-r"><span class="l">total net</span><span class="v" style="font-weight:700">€'+fmt(o.total)+'</span></div>'+
+      '<div class="own-r"><span class="l">expenses paid</span><span class="v">€'+fmt(o.expenses)+'</span></div>'+
+      '<div class="own-r"><span class="l">balance</span><span class="v '+(o.balance>=0?'pos':'neg')+'">€'+fmt(o.balance)+'</span></div>'+
+    '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderSett() {
+  const p = data.settings.property;
+
+  let ownerRows = '';
+  data.settings.owners.forEach((o,i)=>{
+    ownerRows += '<tr>'+
+      '<td data-l="name"><input class="inp" type="text" value="'+esc(o.name)+'" oninput="updateOwner('+i+',\'name\',this.value)"></td>'+
+      '<td data-l="net share %"><input class="inp tr" type="number" inputmode="decimal" step="0.1" value="'+pct(o.share)+'" oninput="updateOwner('+i+',\'share\',this.value)"></td>'+
+      '<td data-l="cleaning share %"><input class="inp tr" type="number" inputmode="decimal" step="0.1" value="'+pct(o.cleaningShare)+'" oninput="updateOwner('+i+',\'cleaningShare\',this.value)"></td>'+
+      '<td data-l="package share %"><input class="inp tr" type="number" inputmode="decimal" step="0.1" value="'+pct(o.packageShare)+'" oninput="updateOwner('+i+',\'packageShare\',this.value)"></td>'+
+    '</tr>';
+  });
+  const totShare = data.settings.owners.reduce((s,o)=>s+(o.share||0),0)*100;
+
+  const num = (label, val, key, step) => '<div class="form-row">'+fld(label,'<input class="inp" type="number" inputmode="decimal"'+(step?' step="'+step+'"':'')+' value="'+esc(val)+'" oninput="updateSetting(\''+key+'\',this.value)">')+'</div>';
+  const txtP = (label, val, key) => '<div class="form-row">'+fld(label,'<input class="inp" type="text" value="'+esc(val)+'" oninput="updateProperty(\''+key+'\',this.value)">')+'</div>';
+  const numP = (label, val, key) => '<div class="form-row">'+fld(label,'<input class="inp" type="number" inputmode="decimal" value="'+esc(val)+'" oninput="updateProperty(\''+key+'\',this.value)">')+'</div>';
+
+  return '<div class="pan"><div class="pan-t">Global parameters</div>'+
+    num('Property value €', data.settings.propertyValue, 'propertyValue')+
+    num('Outstanding mortgage €', data.settings.mortgageRemaining, 'mortgageRemaining')+
+    '<div class="form-row">'+fld('Equity € (leave empty if you do not use it)','<input class="inp" type="number" inputmode="decimal" value="'+esc(data.settings.equity||'')+'" placeholder="leave empty" oninput="updateSetting(\'equity\',this.value)">')+'</div>'+
+    '<div class="form-row">'+fld('Interest rate %','<input class="inp" type="number" inputmode="decimal" step="0.01" value="'+esc(pct(data.settings.mortgageRate))+'" oninput="updateSetting(\'mortgageRate\',this.value/100)">')+'</div>'+
+    num('Fixed annual expenses €', data.settings.fixedExpenses, 'fixedExpenses')+
+    num('Available days/year', data.settings.availableDays, 'availableDays')+
+  '</div>'+
+  '<div class="pan"><div class="pan-t">Owner split</div>'+
+    '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Name</th><th class="tr">Net share %</th><th class="tr">Cleaning share %</th><th class="tr">Package share %</th></tr></thead><tbody>'+ownerRows+'</tbody></table></div>'+
+    '<div class="fs11 cl-ter mt3">Total net shares: <b id="ownTotShare" style="color:'+(Math.abs(totShare-100)<0.05?'var(--positive)':'var(--danger)')+'">'+totShare.toFixed(1)+'</b>% (must be 100%). The cleaning share applies only to the cleaning amount of the bookings; the package share only to the revenue on the <b>Packages</b> tab (50% Simona and 50% Lorenzo by default).</div>'+
+  '</div>'+
+  '<div class="pan"><div class="pan-t">Property details</div>'+
+    txtP('Name', p.name, 'name')+
+    txtP('Address', p.address, 'address')+
+    txtP('City', p.city, 'city')+
+    txtP('Type', p.type, 'type')+
+    numP('Purchase value €', p.purchaseValue, 'purchaseValue')+
+    numP('Renovation cost €', p.renovationCost, 'renovationCost')+
+    numP('Mortgage €', p.mortgage, 'mortgage')+
+    numP('Square metres', p.sqm, 'sqm')+
+    numP('No. of bedrooms', p.rooms, 'rooms')+
+    numP('No. of bathrooms', p.bathrooms, 'bathrooms')+
+    txtP('Platforms', p.platforms, 'platforms')+
+  '</div>'+
+  '<div class="pan"><div class="pan-t">Account</div>'+
+    '<div class="acct-row"><span>Signed in as <b>'+esc(currentUserEmail)+'</b></span><button class="btn" onclick="doSignOut()">Sign out</button></div>'+
+    '<div class="fs11 cl-ter">Your data is synced automatically to every device where you sign in with this email.</div>'+
+  '</div>'+
+  '<div class="pan"><div class="pan-t">Data backup</div>'+
+    '<div class="form-row">'+
+      '<button class="btn btn-p" onclick="exportJSON()">&#x2b07; Export JSON</button>'+
+      '<label class="btn" style="cursor:pointer">&#x2b06; Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="importJSON(this)"></label>'+
+    '</div>'+
+    '<div class="fs11 cl-ter mt3">Your data saves itself and syncs to every device connected to the same account. <b>Export JSON</b> still creates a file with all of your data (bookings, expenses, settings, summary): handy as a separate backup. <b>Import JSON</b> completely replaces the current data with the contents of the file (and syncs it to the other devices straight away).</div>'+
+  '</div>';
+}
+
+function show(tab){
+  currentTab = tab;
+  document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  const body = document.getElementById('body');
+  if (tab==='dash') body.innerHTML = renderDash();
+  else if (tab==='book') body.innerHTML = renderBook();
+  else if (tab==='pack') body.innerHTML = renderPack();
+  else if (tab==='expe') body.innerHTML = renderExpe();
+  else if (tab==='summ') body.innerHTML = renderSumm();
+  else if (tab==='owne') body.innerHTML = renderOwn();
+  else if (tab==='sett') body.innerHTML = renderSett();
+  body.classList.remove('tab-fade');
+  void body.offsetWidth;
+  body.classList.add('tab-fade');
+}
+
+function newBooking(){ editingBookingId = null; bookingFormOpen = true; importPanelOpen = false; importState = null; show('book'); }
+function editBooking(id){ editingBookingId = id; bookingFormOpen = true; importPanelOpen = false; importState = null; show('book'); }
+function cancelBooking(){ bookingFormOpen = false; editingBookingId = null; show('book'); }
+
+function openImportPanel(){ importPanelOpen = true; importState = null; bookingFormOpen = false; editingBookingId = null; show('book'); }
+function cancelImport(){ importPanelOpen = false; importState = null; show('book'); }
+function handleImportFile(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const { headers, rows } = parseCSV(e.target.result);
+    if (!headers.length){ alert('The file looks empty or unreadable.'); return; }
+    const map = {
+      startDate: guessColumn(headers, IMPORT_ALIASES.startDate),
+      endDate: guessColumn(headers, IMPORT_ALIASES.endDate),
+      nights: guessColumn(headers, IMPORT_ALIASES.nights),
+      guest: guessColumn(headers, IMPORT_ALIASES.guest),
+      revenue: guessColumn(headers, IMPORT_ALIASES.revenue),
+      cleaning: guessColumn(headers, IMPORT_ALIASES.cleaning),
+      extra: guessColumn(headers, IMPORT_ALIASES.extra)
+    };
+    const lowerName = file.name.toLowerCase();
+    const platform = lowerName.includes('booking') ? 'Booking' : 'Airbnb';
+    importState = { fileName: file.name, headers, rows, map, platform, status: 'Ricevuto' };
+    show('book');
+  };
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
+}
+function updateImportMap(key, value){
+  if (!importState) return;
+  importState.map[key] = value;
+  show('book');
+}
+function updateImportMeta(key, value){
+  if (!importState) return;
+  importState[key] = value;
+  show('book');
+}
+function confirmImport(){
+  if (!importState) return;
+  const built = buildImportRows();
+  const existingKey = b => (b.startDate||'')+'|'+(b.endDate||'')+'|'+Math.round((b.revenue||0)*100);
+  const existingSet = new Set(data.bookings.map(existingKey));
+  let nextId = data.bookings.length ? Math.max(...data.bookings.map(x=>x.id))+1 : 1;
+  let added = 0, skippedDup = 0, skippedInvalid = 0;
+  built.forEach(b=>{
+    if (!b.startDate){ skippedInvalid++; return; }
+    const key = existingKey(b);
+    if (existingSet.has(key)){ skippedDup++; return; }
+    existingSet.add(key);
+    data.bookings.push({
+      id: nextId++, startDate: b.startDate, endDate: b.endDate || b.startDate, nights: b.nights,
+      guest: b.guest, property: data.settings.property.name, platform: importState.platform,
+      revenue: b.revenue, cleaning: b.cleaning, extra: b.extra, status: importState.status, note: 'Imported from CSV'
+    });
+    added++;
+  });
+  syncMonthly();
+  importPanelOpen = false; importState = null;
+  show('book');
+  let msg = 'Import complete: '+added+' bookings added.';
+  if (skippedDup) msg += '\n'+skippedDup+' already present, skipped.';
+  if (skippedInvalid) msg += '\n'+skippedInvalid+' with an unrecognised date, skipped.';
+  alert(msg);
+}
+function saveBooking(){
+  const startDate = document.getElementById('bStart').value;
+  const endDate = document.getElementById('bEnd').value;
+  const nights = parseFloat(document.getElementById('bNights').value) || 0;
+  const guest = document.getElementById('bGuest').value;
+  const property = document.getElementById('bProp').value;
+  const platform = document.getElementById('bPlat').value;
+  const revenue = parseFloat(document.getElementById('bRev').value) || 0;
+  const cleaning = parseFloat(document.getElementById('bClean').value) || 0;
+  const extra = parseFloat(document.getElementById('bExtra').value) || 0;
+  const status = document.getElementById('bStatus').value;
+  const note = document.getElementById('bNote').value;
+  if (editingBookingId) {
+    const b = data.bookings.find(x=>x.id===editingBookingId);
+    if (b) Object.assign(b, {startDate,endDate,nights,guest,property,platform,revenue,cleaning,extra,status,note});
+  } else {
+    const newId = data.bookings.length ? Math.max(...data.bookings.map(x=>x.id))+1 : 1;
+    data.bookings.push({id:newId,startDate,endDate,nights,guest,property,platform,revenue,cleaning,extra,status,note});
+  }
+  bookingFormOpen = false; editingBookingId = null;
+  syncMonthly();
+  show('book');
+}
+function deleteBooking(id){
+  if(!confirm('Delete this booking?')) return;
+  data.bookings = data.bookings.filter(b=>b.id!==id);
+  syncMonthly();
+  show('book');
+}
+
+function newExpense(){ editingExpenseId = null; expenseFormOpen = true; show('expe'); }
+function editExpense(id){ editingExpenseId = id; expenseFormOpen = true; show('expe'); }
+function cancelExpense(){ expenseFormOpen = false; editingExpenseId = null; show('expe'); }
+function saveExpense(){
+  const date = document.getElementById('eDate').value;
+  const property = document.getElementById('eProp').value;
+  const category = document.getElementById('eCat').value;
+  const description = document.getElementById('eDesc').value;
+  const amount = parseFloat(document.getElementById('eAmount').value) || 0;
+  const paidBy = document.getElementById('ePaidBy').value;
+  const status = document.getElementById('eStatus').value;
+  const note = document.getElementById('eNote').value;
+  if (editingExpenseId) {
+    const e = data.expenses.find(x=>x.id===editingExpenseId);
+    if (e) Object.assign(e, {date,property,category,description,amount,paidBy,status,note});
+  } else {
+    const newId = data.expenses.length ? Math.max(...data.expenses.map(x=>x.id))+1 : 1;
+    data.expenses.push({id:newId,date,property,category,description,amount,paidBy,status,note});
+  }
+  expenseFormOpen = false; editingExpenseId = null;
+  syncMonthly();
+  show('expe');
+}
+function deleteExpense(id){
+  if(!confirm('Delete this expense?')) return;
+  data.expenses = data.expenses.filter(e=>e.id!==id);
+  syncMonthly();
+  show('expe');
+}
+
+function newPackage(){ editingPackageId = null; packageFormOpen = true; show('pack'); }
+function editPackage(id){ editingPackageId = id; packageFormOpen = true; show('pack'); }
+function cancelPackage(){ packageFormOpen = false; editingPackageId = null; show('pack'); }
+function savePackage(){
+  const date = document.getElementById('pDate').value;
+  const name = document.getElementById('pName').value;
+  const guest = document.getElementById('pGuest').value;
+  const amount = parseFloat(document.getElementById('pAmount').value) || 0;
+  const status = document.getElementById('pStatus').value;
+  const note = document.getElementById('pNote').value;
+  if (!Array.isArray(data.packages)) data.packages = [];
+  if (editingPackageId) {
+    const p = data.packages.find(x=>x.id===editingPackageId);
+    if (p) Object.assign(p, {date,name,guest,amount,status,note});
+  } else {
+    const newId = data.packages.length ? Math.max(...data.packages.map(x=>x.id))+1 : 1;
+    data.packages.push({id:newId,date,name,guest,amount,status,note});
+  }
+  packageFormOpen = false; editingPackageId = null;
+  saveData();
+  show('pack');
+}
+function deletePackage(id){
+  if(!confirm('Delete this package?')) return;
+  data.packages = (data.packages||[]).filter(p=>p.id!==id);
+  saveData();
+  show('pack');
+}
+
+function updateMonthly(i, key, val){
+  data.monthly[i][key] = parseFloat(val) || 0;
+  recalcMonthly(i);
+  refreshSummRow(i);
+  saveData();
+}
+function updateMonthlyCalc(i, key, val){
+  data.monthly[i][key] = parseFloat(val) || 0;
+  data.monthly[i].manual[key] = true;
+  refreshSummRow(i);
+  saveData();
+}
+
+function updateSetting(key, val){
+  if (key === 'equity') data.settings.equity = val;
+  else data.settings[key] = parseFloat(val) || 0;
+  saveData();
+}
+function updateOwner(i, key, val){
+  if (key === 'name') data.settings.owners[i].name = val;
+  else data.settings.owners[i][key] = (parseFloat(val) || 0) / 100;
+  const el = document.getElementById('ownTotShare');
+  if (el) {
+    const totShare = data.settings.owners.reduce((s,o)=>s+(o.share||0),0)*100;
+    el.textContent = totShare.toFixed(1);
+    el.style.color = Math.abs(totShare-100) < 0.05 ? 'var(--positive)' : 'var(--danger)';
+  }
+  saveData();
+}
+function updateProperty(key, val){
+  const numKeys = ['purchaseValue','renovationCost','mortgage','sqm','rooms','bathrooms'];
+  data.settings.property[key] = numKeys.includes(key) ? (parseFloat(val) || 0) : val;
+  saveData();
+}
+
+function exportJSON(){
+  flushSave();
+  const str = JSON.stringify(data, null, 2);
+  const d = new Date();
+  const name = 'rustico_backup_'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  /* on a phone downloading a file is not always possible: when the system
+     share sheet is there we use it, so the backup can be emailed or saved
+     to Files with a single tap */
+  try {
+    if (navigator.share && navigator.canShare) {
+      const f = new File([str], name, {type:'application/json'});
+      if (navigator.canShare({files:[f]})) {
+        navigator.share({files:[f], title:'Backup Rustico & Co.'}).catch(function(){});
+        return;
+      }
+    }
+  } catch(e) {}
+  const blob = new Blob([str], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+}
+function importJSON(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.settings || !imported.bookings || !imported.expenses || !imported.monthly) {
+        throw new Error('invalid file structure');
+      }
+      data = ensureDefaults(imported);
+      saveData();
+      syncMonthly();
+      show(currentTab);
+      alert('Data imported successfully!');
+    } catch(err){
+      alert('Error in the JSON file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  show(btn.dataset.tab);
+});
+
+window.saveBooking = saveBooking;
+window.cancelBooking = cancelBooking;
+window.newBooking = newBooking;
+window.editBooking = editBooking;
+window.deleteBooking = deleteBooking;
+window.saveExpense = saveExpense;
+window.cancelExpense = cancelExpense;
+window.newExpense = newExpense;
+window.editExpense = editExpense;
+window.deleteExpense = deleteExpense;
+window.savePackage = savePackage;
+window.cancelPackage = cancelPackage;
+window.newPackage = newPackage;
+window.editPackage = editPackage;
+window.deletePackage = deletePackage;
+window.updateMonthly = updateMonthly;
+window.updateMonthlyCalc = updateMonthlyCalc;
+window.syncMonthly = syncMonthly;
+window.show = show;
+window.updateSetting = updateSetting;
+window.updateOwner = updateOwner;
+window.updateProperty = updateProperty;
+window.exportJSON = exportJSON;
+window.importJSON = importJSON;
+window.openImportPanel = openImportPanel;
+window.cancelImport = cancelImport;
+window.handleImportFile = handleImportFile;
+window.updateImportMap = updateImportMap;
+window.updateImportMeta = updateImportMeta;
+window.confirmImport = confirmImport;
+
+function renderHint(){
+  const el = document.getElementById('hintBar');
+  if (!el) return;
+  if (data.settings.hintSeen) { el.className = 'hint-bar'; el.innerHTML = ''; return; }
+  el.className = 'hint-bar on';
+  el.innerHTML = '<div>Changes save <b>by themselves</b> as you type: there is no "save" button.<br>'+
+    'Your data is <b>synced automatically</b> to every device where you sign in with the same email. '+
+    '<b>Export JSON</b> is still handy for a separate backup.</div>'+
+    '<button onclick="dismissHint()">Got it</button>';
+}
+function dismissHint(){
+  data.settings.hintSeen = true;
+  saveData(true);
+  renderHint();
+}
+window.dismissHint = dismissHint;
+})();
+
+</script>
+</div>
+</body>
+</html>
