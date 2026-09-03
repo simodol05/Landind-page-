@@ -298,6 +298,10 @@
     .add-task-form button { padding:0 15px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .task-end { display:flex; align-items:center; gap:9px; }
     .remove-task { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
+    .earnings-mode { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 14px; }
+    .earnings-mode button { padding:7px 14px; border:1px solid rgba(222,190,126,.3); border-radius:999px; color:var(--gold-soft); background:transparent; cursor:pointer; font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+    .earnings-mode button[aria-pressed="true"] { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
+    #earningsModeNote { color:var(--muted); font-size:12px; }
     .earnings-breakdown { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
     .earnings-breakdown summary { color:var(--gold-soft); font-size:11px; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; }
     .breakdown-list { margin-top:11px; display:flex; flex-direction:column; gap:1px; }
@@ -548,6 +552,11 @@
 
       <section class="panel earnings-panel">
         <div class="earnings-head"><div><h3>Guadagno del mese</h3><p id="monthlyNote">In attesa dei dati dalla Contabilità…</p></div><div class="earnings-value"><strong id="monthlyEarnings">€0,00</strong><span id="monthlyLabel">—</span></div></div>
+        <div class="earnings-mode" role="group" aria-label="Cosa conta come guadagno">
+          <button type="button" data-mode="incasso" aria-pressed="true">Incasso</button>
+          <button type="button" data-mode="netto" aria-pressed="false">Netto</button>
+          <span id="earningsModeNote"></span>
+        </div>
         <svg class="earnings-chart" viewBox="0 0 900 120" preserveAspectRatio="none" aria-label="Andamento animato del guadagno mensile">
           <defs><linearGradient id="goldLine" x1="0" x2="1"><stop stop-color="#8f672f"/><stop offset=".5" stop-color="#f0d59e"/><stop offset="1" stop-color="#c0954d"/></linearGradient><linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dcb56a" stop-opacity=".45"/><stop offset="1" stop-color="#dcb56a" stop-opacity="0"/></linearGradient></defs>
           <path d="M0 104 L900 104" stroke="rgba(230,213,175,.12)"/>
@@ -935,6 +944,10 @@
       }
       applyKeyCodesPrefs(prefs.keyCodes);
       applyTasksPrefs(prefs.tasks);
+      if (prefs.earningsMode === 'netto' || prefs.earningsMode === 'incasso') {
+        earningsMode = prefs.earningsMode;
+        renderEarningsMode();
+      }
       renderInventory();
     };
 
@@ -1349,6 +1362,12 @@
       const incassi = prenotazioni.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
       const extra = pacchetti.reduce((somma, p) => somma + (Number(p.amount) || 0), 0);
       const sospesi = senzaData.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
+      /* Nella tabella del software contabilita' ogni prenotazione mostra due
+         importi: "incasso" (revenue) e "netto" (incasso - pulizie - extra).
+         Sono due numeri diversi e a colpo d'occhio si sommano entrambi, quindi
+         li calcoliamo tutti e due e lasciamo scegliere quale e' il guadagno. */
+      const netto = (b) => (Number(b.revenue) || 0) - (Number(b.cleaning) || 0) - (Number(b.extra) || 0);
+      const netti = prenotazioni.reduce((somma, b) => somma + netto(b), 0);
 
       const nome = (b) => (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : '');
       return {
@@ -1358,13 +1377,14 @@
         total: Math.round(incassi * 100),
         count: prenotazioni.length,
         bookingsTotal: Math.round(incassi * 100),
+        bookingsNetTotal: Math.round(netti * 100),
         bookingsCount: prenotazioni.length,
         packagesTotal: Math.round(extra * 100),
         packagesCount: pacchetti.length,
         undatedTotal: Math.round(sospesi * 100),
         undatedCount: senzaData.length,
         voci: prenotazioni
-          .map(b => ({ date: b.startDate, label: nome(b), cents: importo(b.revenue), status: b.status || '' }))
+          .map(b => ({ date: b.startDate, label: nome(b), cents: importo(b.revenue), netCents: Math.round(netto(b) * 100), status: b.status || '' }))
           .sort((a, b) => a.date.localeCompare(b.date)),
         vociPacchetti: pacchetti
           .map(p => ({ date: p.date, label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''), cents: importo(p.amount) }))
@@ -2179,6 +2199,32 @@
 
     const euro = (cents) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 
+    /* "Guadagno" puo' voler dire due cose, e nel software contabilita' sono due
+       colonne diverse della stessa riga: incasso, e netto (incasso meno pulizie
+       ed extra). Invece di sceglierne una al posto tuo, le mostriamo entrambe e
+       la scelta resta salvata. */
+    const EARNINGS_MODE_KEY = 'centroOperativoGuadagno';
+    let earningsMode = 'incasso';
+    try {
+      const salvata = localStorage.getItem(EARNINGS_MODE_KEY);
+      if (salvata === 'netto' || salvata === 'incasso') earningsMode = salvata;
+    } catch { /* modalita privata */ }
+
+    const renderEarningsMode = () => {
+      document.querySelectorAll('.earnings-mode button').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === earningsMode));
+      });
+    };
+    renderEarningsMode();
+
+    document.querySelectorAll('.earnings-mode button').forEach((button) => button.addEventListener('click', () => {
+      earningsMode = button.dataset.mode;
+      try { localStorage.setItem(EARNINGS_MODE_KEY, earningsMode); } catch { /* modalita privata */ }
+      renderEarningsMode();
+      applyEarnings(null);
+      savePrefs({ earningsMode });
+    }));
+
     /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
        cosa e' stato contato, con la data: se un importo non torna si vede
        subito quale voce lo causa e a che data e' registrata. */
@@ -2200,7 +2246,7 @@
         const nome = document.createElement('span');
         nome.textContent = voce.label + (voce.status ? ' · ' + voce.status : '');
         const soldi = document.createElement('b');
-        soldi.textContent = euro(voce.cents);
+        soldi.textContent = euro(earningsMode === 'netto' && typeof voce.netCents === 'number' ? voce.netCents : voce.cents);
         el.append(quando, nome, soldi);
         return el;
       };
@@ -2211,7 +2257,7 @@
         lista.append(el);
       };
 
-      gruppo('Nel totale · ' + euro(info.bookingsTotal));
+      gruppo('Nel totale · ' + euro(earningsMode === 'netto' ? info.bookingsNetTotal : info.bookingsTotal));
       if (!info.voci.length) {
         const vuoto = document.createElement('div');
         vuoto.className = 'breakdown-row fuori';
@@ -2240,7 +2286,18 @@
       const label = document.getElementById('monthlyLabel');
       const note = document.getElementById('monthlyNote');
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
-      updateEarningsChart(info.total || 0);
+      // Con la lettura diretta abbiamo tutte e due le colonne: mostriamo quella scelta.
+      const netto = typeof info.bookingsNetTotal === 'number';
+      const mostrato = netto && earningsMode === 'netto' ? info.bookingsNetTotal : (info.total || 0);
+      updateEarningsChart(mostrato);
+      const altra = document.getElementById('earningsModeNote');
+      if (altra) {
+        altra.textContent = netto
+          ? (earningsMode === 'netto'
+              ? 'incasso ' + euro(info.total || 0) + ' meno pulizie ed extra'
+              : 'netto ' + euro(info.bookingsNetTotal) + ' togliendo pulizie ed extra')
+          : '';
+      }
       if (!info.configured) {
         renderBreakdown(null);
         note.textContent = accountingConfig

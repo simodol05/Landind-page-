@@ -49,6 +49,17 @@ nell'incasso mensile: il numero in home deve corrispondere a quello che leggi
 là. I pacchetti del mese vengono comunque mostrati, sotto e separati. Il valore
 del servizio resta come ripiego.
 
+### Incasso o netto: lo scegli tu
+
+Nella tabella del software contabilità ogni prenotazione mostra **due** importi
+diversi: `incasso` (quanto arriva) e `netto` (incasso meno pulizie ed extra, ed
+è la colonna in grassetto). Sommando a occhio si può prendere l'una o l'altra, e
+«guadagno» può legittimamente voler dire entrambe.
+
+Invece di sceglierne una, il riquadro ha un interruttore **Incasso / Netto**:
+il totale grande segue la scelta, accanto compare sempre l'altro valore, e anche
+il dettaglio riga per riga cambia colonna. La scelta resta salvata.
+
 ### Perché una somma fatta a mano può non tornare
 
 Il software contabilità salta le prenotazioni **senza data di inizio**
@@ -123,4 +134,4 @@ sicurezza. Se il servizio non accetta i nuovi campi la copia locale regge
 comunque il salvataggio, e la pagina lo dice invece di fingere che sia andata.
 
 Per la sincronizzazione fra dispositivi il servizio deve conservare in `prefs`
-anche le chiavi `quantities`, `keyCodes` e `tasks`.
+anche le chiavi `quantities`, `keyCodes`, `tasks` e `earningsMode`.
