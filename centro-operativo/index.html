@@ -164,6 +164,17 @@
     .module-note { padding: 20px; }
     .module-note h3 { margin: 0 0 10px; font: 500 23px Georgia, serif; }
     .module-note p { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .workflow-guest { margin:0 0 14px; padding:13px 15px; border:1px solid rgba(222,190,126,.28); border-radius:14px; background:rgba(201,168,106,.06); }
+    .workflow-guest strong { display:block; font:500 18px Georgia,serif; color:var(--gold-soft); }
+    .workflow-guest small { color:var(--muted); font-size:12px; }
+    .cleaning-schedule { margin:4px 0 18px; }
+    .cleaning-schedule h3 { margin:0 0 4px; font:500 17px Georgia,serif; }
+    .cleaning-row { display:grid; grid-template-columns:auto 1fr auto; gap:13px; align-items:baseline; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
+    .cleaning-row:last-child { border-bottom:0; }
+    .cleaning-row time { color:var(--gold-soft); font:600 12px Georgia,serif; white-space:nowrap; }
+    .cleaning-row span { color:var(--muted); font-size:12px; }
+    .cleaning-row b { font-size:13px; font-weight:600; }
+    .cleaning-row.oggi { background:rgba(201,168,106,.07); border-radius:10px; padding-left:9px; padding-right:9px; }
     .cleaning-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
     .meta-box { padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.02); }
     .meta-box span { display:block; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; }
@@ -330,6 +341,43 @@
     .urgent { color: var(--red); } .important { color: var(--amber); } .normal { color: var(--green); }
     .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
     .goals { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+    .business-top { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .profile-list { display:grid; gap:12px; margin-top:8px; }
+    .profile-card { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; text-align:left; padding:20px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.025); color:inherit; cursor:pointer; font:inherit; }
+    .profile-card:hover { border-color:rgba(222,190,126,.4); background:rgba(201,168,106,.06); }
+    .profile-card h3 { margin:0; font:500 22px Georgia,serif; }
+    .profile-card small { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+    .fl-section { margin-top:14px; padding:20px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.025); }
+    .fl-section h3 { margin:0 0 3px; font:500 19px Georgia,serif; }
+    .fl-section > p { margin:0 0 12px; color:var(--muted); font-size:12px; }
+    .fl-section textarea { width:100%; box-sizing:border-box; min-height:110px; resize:vertical; padding:12px 13px; color:var(--ink); border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-section textarea:focus, .fl-section input[type=text]:focus, .fl-section input[type=number]:focus { border-color:rgba(222,190,126,.45); }
+    .fl-field { display:grid; gap:6px; margin-bottom:12px; }
+    .fl-field label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+    .fl-field input { width:100%; box-sizing:border-box; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-actions { display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-top:12px; }
+    .fl-actions button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .fl-add { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:12px; }
+    .fl-add input { min-width:0; box-sizing:border-box; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-add button { padding:0 16px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .fl-item { display:grid; grid-template-columns:auto 1fr auto; gap:11px; align-items:start; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
+    .fl-item:last-child { border-bottom:0; }
+    .fl-item input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--gold); cursor:pointer; }
+    .fl-item.done .fl-item-text { text-decoration:line-through; opacity:.5; }
+    .fl-item-text strong { display:block; font-size:14px; }
+    .fl-item-text span { color:var(--muted); font-size:12px; white-space:pre-wrap; }
+    .fl-remove { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
+    .goal-card input { width:100%; min-width:0; box-sizing:border-box; border:1px solid transparent; border-radius:9px; background:transparent; color:inherit; font:inherit; padding:4px 7px; }
+    .goal-card input:hover, .goal-card input:focus { border-color:rgba(222,190,126,.35); background:rgba(255,255,255,.04); outline:none; }
+    .goal-label { color:var(--muted); font-size:11px !important; text-transform:uppercase; letter-spacing:.1em; }
+    .goal-value { font:500 24px Georgia, serif !important; margin:4px 0 9px; }
+    .goal-edit { margin-top:9px; color:var(--muted); font-size:11px; }
+    .goal-edit input { width:64px; display:inline-block; text-align:right; }
+    .goals-save { grid-column:1/-1; display:flex; align-items:center; gap:11px; flex-wrap:wrap; }
+    .goals-save button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    .sync-status { color:var(--muted); font-size:12px; }
+    .sync-status.ok { color:var(--gold-soft); }
+    .sync-status.ko { color:var(--amber); }
     .goal-card { padding:18px; border:1px solid rgba(222,190,126,.22); border-radius:17px; background:linear-gradient(135deg,rgba(201,168,106,.08),rgba(255,255,255,.02)); }
     .goal-card span { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.11em; }
     .goal-card strong { display:block; margin:7px 0 10px; color:var(--gold-soft); font:500 22px Georgia,serif; }
@@ -449,11 +497,22 @@
           <div><small>Business 01 · Ospitalità</small><h3>Il Rustico Romantic<br>Suite &amp; Sauna</h3><p>Prenotazioni, ospiti, pulizie, promemoria e inventario in un unico centro operativo.</p></div>
           <span class="open-label">Apri business</span>
         </button>
-        <div class="business-card future">
-          <div><small>Espansione futura</small><h3>Nuovo business</h3><p>Lo spazio è già predisposto per le prossime attività.</p></div>
-          <span class="open-label">Prossimamente</span>
-        </div>
+        <button class="business-card" type="button" data-freelance="workana">
+          <div><small>Business 02 · Freelance</small><h3>Workana</h3><p>Profili Lorenzo e Simona: richieste mandate, lavori in corso, note, piano e investimento.</p></div>
+          <span class="open-label">Apri business</span>
+        </button>
+        <button class="business-card" type="button" data-freelance="upwork">
+          <div><small>Business 03 · Freelance</small><h3>Upwork</h3><p>Profilo Lorenzo: richieste, lavori in corso, note, crediti acquistati e investimento.</p></div>
+          <span class="open-label">Apri business</span>
+        </button>
       </div>
+    </div>
+  </section>
+
+  <section id="freelanceScreen" class="screen business-screen hidden">
+    <div class="business-shell">
+      <div class="business-top"><strong id="freelanceName">Workana</strong><button id="freelanceBack" class="outline-button" type="button">Torna ai business</button></div>
+      <div id="freelanceBody"></div>
     </div>
   </section>
 
@@ -519,8 +578,22 @@
           <div class="metric"><span>Alert reali</span><strong id="alertCount">00</strong></div>
         </div>
         <div class="goals">
-          <div class="goal-card"><span>Prossimo goal mensile</span><strong>€2.500</strong><div class="goal-track" aria-label="66,6% dell’obiettivo"><i style="width:66.6%"></i></div></div>
-          <div class="goal-card"><span>Prossimo goal TikTok</span><strong>1.000 follower</strong><div class="goal-track" aria-label="Obiettivo TikTok da aggiornare"><i style="width:8%"></i></div></div>
+          <div class="goal-card">
+            <input class="goal-label" id="goalMonthlyLabel" type="text" aria-label="Nome del primo obiettivo">
+            <input class="goal-value" id="goalMonthlyValue" type="text" aria-label="Valore del primo obiettivo">
+            <div class="goal-track"><i id="goalMonthlyBar"></i></div>
+            <div class="goal-edit"><label>Avanzamento <input id="goalMonthlyPercent" type="number" min="0" max="100" aria-label="Percentuale del primo obiettivo">%</label></div>
+          </div>
+          <div class="goal-card">
+            <input class="goal-label" id="goalTiktokLabel" type="text" aria-label="Nome del secondo obiettivo">
+            <input class="goal-value" id="goalTiktokValue" type="text" aria-label="Valore del secondo obiettivo">
+            <div class="goal-track"><i id="goalTiktokBar"></i></div>
+            <div class="goal-edit"><label>Avanzamento <input id="goalTiktokPercent" type="number" min="0" max="100" aria-label="Percentuale del secondo obiettivo">%</label></div>
+          </div>
+          <div class="goals-save">
+            <button id="saveGoals" type="button">Salva obiettivi</button>
+            <span data-sync-status class="sync-status"></span>
+          </div>
         </div>
       </section>
 
@@ -634,6 +707,9 @@
       </div>
       <div class="panel sync-panel"><div class="sync-toolbar"><div><h3>Sincronizzazione prenotazioni</h3><p id="syncStatus">Collega almeno un calendario per iniziare.</p></div><button id="syncCalendars" class="primary-button" type="button">Sincronizza ora</button></div><div id="syncResults" class="reservation-list"><div class="empty-tasks">Nessuna prenotazione importata.</div></div></div>
       <div class="panel sync-panel" style="margin-top:16px">
+        <div class="sync-toolbar"><div><h3>Sincronizzazione fra dispositivi</h3><p id="deviceSyncStatus">Controllo in corso…</p></div><button id="deviceSyncCheck" class="outline-button" type="button">Ricontrolla</button></div>
+      </div>
+      <div class="panel sync-panel" style="margin-top:16px">
         <div class="sync-toolbar"><div><h3>Software contabilità</h3><p id="accountingStatus">Non collegato.</p></div><button id="accountingRefresh" class="primary-button" type="button">Aggiorna ora</button></div>
         <p class="accounting-note">Collegamento in <strong>sola lettura</strong>: leggiamo la stessa scheda che apre il tuo software contabilità e sommiamo il guadagno del mese in corso per il riquadro in home. Il software contabilità non viene mai modificato. Indirizzo e tabella sono gia compilati: servono la chiave <strong>anon public</strong> (app.supabase.com &gt; il tuo progetto &gt; Settings &gt; API) e le <strong>stesse e-mail e password con cui entri nel software contabilità</strong>: senza login il database non mostra nulla e il totale resta a zero. La password serve solo per accedere e non viene salvata da nessuna parte.</p>
         <div class="api-card" style="margin-top:14px">
@@ -689,7 +765,8 @@
       <div class="section-heading"><div><h2>Workflow ospite</h2><p>Passaggi operativi in sequenza. Ogni invio rimane manuale.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
       <div class="module-grid">
         <div class="panel module-body">
-          <div id="workflowEmpty" class="empty-tasks">Nessun workflow attivo: inserisci prima una prenotazione.</div>
+          <div id="workflowEmpty" class="empty-tasks">Nessun workflow attivo: nessuna prenotazione presente o futura nei calendari.</div>
+          <div id="workflowGuest" class="workflow-guest hidden"></div>
           <div id="workflowSteps" class="hidden">
           <div class="workflow-step"><span class="step-number">01</span><div><strong>Messaggio di benvenuto</strong><small>Subito dopo la nuova prenotazione</small></div><button class="step-toggle" type="button">Da fare</button></div>
           <div class="workflow-step locked"><span class="step-number">02</span><div><strong>Richiesta documenti</strong><small>Si sblocca dopo il benvenuto</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
@@ -710,7 +787,12 @@
       <div class="section-heading"><div><h2>Pulizie</h2><p>Attività condivisa da Simona e Lorenzo dopo ogni check-out.</p></div><button class="outline-button back-home" type="button">Torna al centro operativo</button></div>
       <div class="module-grid">
         <div class="panel module-body">
-          <div class="cleaning-meta"><div class="meta-box"><span>Assegnatari</span><strong>Simona e Lorenzo</strong></div><div class="meta-box"><span>Orario</span><strong>Dalle 11:00</strong></div><div class="meta-box"><span>Stato</span><strong>Da programmare</strong></div></div>
+          <div class="cleaning-meta"><div class="meta-box"><span>Assegnatari</span><strong>Simona e Lorenzo</strong></div><div class="meta-box"><span>Orario</span><strong>Dalle 11:00</strong></div><div class="meta-box"><span>Programmate</span><strong id="cleaningCount">0</strong></div></div>
+          <div class="cleaning-schedule">
+            <h3>Pulizie programmate</h3>
+            <p class="foot-note" style="padding:0 0 10px">Una per ogni check-out dei calendari collegati, alle 11:00.</p>
+            <div id="cleaningSchedule"><div class="empty-tasks">Nessun check-out in programma.</div></div>
+          </div>
           <div id="cleaningChecklist">
             <div class="check-row"><input id="cWater" type="checkbox"><label for="cWater">Acqua</label><input id="qWater" type="number" min="0" value="1" aria-label="Quantità acqua"></div>
             <div class="check-row"><input id="cWine" type="checkbox"><label for="cWine">Vino</label><input id="qWine" type="number" min="0" value="1" aria-label="Quantità vino"></div>
@@ -824,6 +906,37 @@
     // I codici cassetta si definiscono a fondo pagina: qui lasciamo l'aggancio.
     let applyKeyCodesPrefs = () => {};
     let applyTasksPrefs = () => {};
+
+    /* ================= stato condiviso =================
+       Tutti i dati nuovi (obiettivi, Workana, Upwork) stanno qui dentro.
+       Vengono mandati al servizio in prefs, cosi' si ritrovano su ogni
+       dispositivo che apre il link, e ricopiati in locale come rete di
+       sicurezza. Dopo il salvataggio controlliamo che il servizio li abbia
+       davvero conservati: se li scarta, la pagina lo dice invece di far
+       credere che sia tutto sincronizzato. */
+    const SHARED_KEY = 'centroOperativoStato';
+    const statoDiSerie = () => ({
+      goals: {
+        monthly: { label: 'Prossimo goal mensile', value: '€2.500', percent: 66 },
+        tiktok:  { label: 'Prossimo goal TikTok',  value: '1.000 follower', percent: 8 }
+      },
+      freelance: {},
+      quantities: null,     // acqua e vino
+      keyCodes: null,       // codici cassetta
+      tasks: null,          // promemoria di oggi
+      earningsMode: null,   // incasso o netto
+      accounting: null      // indirizzo, tabella, chiave ed e-mail della contabilita
+    });
+    let sharedState = statoDiSerie();
+    try {
+      const salvato = JSON.parse(localStorage.getItem(SHARED_KEY) || 'null');
+      if (salvato && typeof salvato === 'object') sharedState = { ...sharedState, ...salvato };
+    } catch { /* modalita privata */ }
+    let syncVerificata = null; // null = non ancora provato, true/false = esito
+
+    let applySharedPrefs = () => {};
+    let saveShared = async () => {};
+
     const setInventoryStatus = (message, tone) => setNote(document.getElementById('inventorySaveStatus'), message, tone);
     const applyQuantities = () => {
       quantityIds.forEach((id) => {
@@ -843,15 +956,14 @@
     };
     const saveQuantities = async (silenzioso) => {
       try { localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities)); } catch { /* modalita privata */ }
-      try {
-        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ quantities }) });
-        lastVersion = data.version;
-        quantitiesDirty = false;
-        if (!silenzioso) setInventoryStatus('Quantità salvate su tutti i dispositivi', 'ok');
-      } catch (error) {
-        /* Il salvataggio locale e' comunque andato: il numero non si perde ricaricando. */
-        quantitiesDirty = false;
-        if (!silenzioso) setInventoryStatus('Salvate su questo dispositivo: ' + (error.message || 'servizio non raggiungibile'), 'ko');
+      sharedState.quantities = { ...quantities };
+      quantitiesDirty = false;
+      if (!silenzioso) setInventoryStatus('Salvataggio…');
+      await saveShared('Quantità salvate');
+      if (!silenzioso) {
+        setInventoryStatus(syncVerificata === false
+          ? 'Quantità salvate su questo dispositivo (il servizio non le conserva)'
+          : 'Quantità salvate su tutti i dispositivi', syncVerificata === false ? 'ko' : 'ok');
       }
       applyQuantities();
     };
@@ -944,6 +1056,7 @@
       }
       applyKeyCodesPrefs(prefs.keyCodes);
       applyTasksPrefs(prefs.tasks);
+      applySharedPrefs(prefs.shared);
       if (prefs.earningsMode === 'netto' || prefs.earningsMode === 'incasso') {
         earningsMode = prefs.earningsMode;
         renderEarningsMode();
@@ -1031,7 +1144,7 @@
     const showReservations = () => showView(reservationsView);
     document.getElementById('dashboardLink').addEventListener('click', () => { setMenu(false); showDashboard(); });
     document.getElementById('reservationsLink').addEventListener('click', () => { setMenu(false); showReservations(); });
-    document.getElementById('connectionsLink').addEventListener('click', () => { setMenu(false); showView(connectionsView); pullState(); checkServiceHealth(); });
+    document.getElementById('connectionsLink').addEventListener('click', () => { setMenu(false); showView(connectionsView); pullState(); checkServiceHealth(); controllaSync(); });
     document.getElementById('workflowLink').addEventListener('click', () => { setMenu(false); showView(workflowView); });
     document.getElementById('cleaningLink').addEventListener('click', () => { setMenu(false); showView(cleaningView); });
     document.getElementById('codesLink').addEventListener('click', () => { setMenu(false); showView(codesView); });
@@ -1102,6 +1215,35 @@
         if ('notes' in patch) noteSaveStatus.textContent = 'Salvato su tutti i dispositivi';
       } catch (error) {
         if ('notes' in patch) noteSaveStatus.textContent = 'Non salvato: ' + (error.message || 'servizio non raggiungibile');
+      }
+    };
+
+    /* Salva lo stato condiviso e verifica che il servizio lo abbia davvero
+       conservato: rileggiamo lo stato e controlliamo che il dato sia tornato
+       indietro. Se il servizio scarta la chiave, lo diciamo. */
+    saveShared = async (etichetta) => {
+      try { localStorage.setItem(SHARED_KEY, JSON.stringify(sharedState)); } catch { /* modalita privata */ }
+      const esiti = document.querySelectorAll('[data-sync-status]');
+      esiti.forEach(el => { el.textContent = 'Salvataggio…'; el.className = el.className.replace(/\b(ok|ko)\b/g, ''); });
+      try {
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ shared: sharedState }) });
+        lastVersion = data.version;
+        // Controllo vero: il servizio ha conservato la chiave?
+        if (syncVerificata === null) {
+          try {
+            const stato = await api('/api/state');
+            syncVerificata = Boolean(stato?.prefs?.shared);
+          } catch { syncVerificata = null; }
+        }
+        const messaggio = syncVerificata === false
+          ? (etichetta || 'Salvato') + ' su questo dispositivo (il servizio non conserva ancora questi dati)'
+          : (etichetta || 'Salvato') + ' su tutti i dispositivi';
+        esiti.forEach(el => { el.textContent = messaggio; el.classList.add(syncVerificata === false ? 'ko' : 'ok'); });
+      } catch (error) {
+        esiti.forEach(el => {
+          el.textContent = (etichetta || 'Salvato') + ' su questo dispositivo: ' + (error.message || 'servizio non raggiungibile');
+          el.classList.add('ko');
+        });
       }
     };
 
@@ -1524,6 +1666,10 @@
         if (esito.ok) {
           // La password non viene salvata: resta solo la sessione gestita da Supabase.
           try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
+          // Indirizzo, tabella, chiave ed e-mail viaggiano con lo stato condiviso:
+          // sugli altri dispositivi restera' da inserire solo la password.
+          sharedState.accounting = accountingConfig;
+          saveShared('Contabilità collegata');
           renderAccountingStatus();
         }
         document.getElementById('accountingKey').value = '';
@@ -1639,6 +1785,10 @@
       /* Se il portale non ha dato un nome lo lasciamo vuoto: le attivita usano un testo neutro. */
       if (activeBooking && !activeBooking.guestName) activeBooking.guestName = '';
       renderTodayTasks(activeBooking);
+      /* Il workflow non deve aspettare il giorno del check-in: si prepara gia'
+         ora sull'ospite in casa o, se non c'e' nessuno, sul prossimo arrivo. */
+      renderWorkflow(present || nextIn || null);
+      renderCleaningSchedule(inOrder);
     };
 
     const buildReservationCard = (event, editable) => {
@@ -1718,12 +1868,14 @@
     const renderReservationMirror = () => {
       const list = document.getElementById('reservationItems');
       list.querySelectorAll('.imported-reservation').forEach(item => item.remove());
-      importedEvents.forEach((event) => {
+      // I periodi bloccati non sono prenotazioni: restano fuori da questo elenco.
+      const prenotazioni = importedEvents.filter(event => !event.blocked);
+      prenotazioni.forEach((event) => {
         const card = buildReservationCard(event, false);
         card.classList.add('imported-reservation');
         list.append(card);
       });
-      if (importedEvents.length) document.getElementById('emptyReservations').style.display = 'none';
+      if (prenotazioni.length) document.getElementById('emptyReservations').style.display = 'none';
     };
 
     const renderImportedEvents = (events) => {
@@ -1829,10 +1981,8 @@
 
     const saveTasks = async () => {
       try { localStorage.setItem(TASKS_KEY, JSON.stringify(taskState)); } catch { /* modalita privata */ }
-      try {
-        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ tasks: taskState }) });
-        lastVersion = data.version;
-      } catch { /* la copia locale regge comunque */ }
+      sharedState.tasks = taskState;
+      await saveShared('Attività salvate');
     };
     let lastBooking = null;
     let lastCompliance = false;
@@ -2124,14 +2274,13 @@
 
     const saveCodes = async (messaggio) => {
       try { localStorage.setItem(CODES_KEY, JSON.stringify(codesState)); } catch { /* modalita privata */ }
+      sharedState.keyCodes = codesState;
+      await saveShared('Codice salvato');
       const esito = document.getElementById('currentCodeResult');
-      try {
-        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ keyCodes: codesState }) });
-        lastVersion = data.version;
-        if (messaggio) esito.textContent = messaggio + ' Salvato su tutti i dispositivi.';
-      } catch (error) {
-        /* Il salvataggio locale e' comunque riuscito: il codice non si perde ricaricando. */
-        if (messaggio) esito.textContent = messaggio + ' Salvato su questo dispositivo (servizio non raggiungibile).';
+      if (messaggio && esito) {
+        esito.textContent = messaggio + (syncVerificata === false
+          ? ' Salvato su questo dispositivo (il servizio non lo conserva).'
+          : ' Salvato su tutti i dispositivi.');
       }
     };
     // Ogni battitura viene salvata: era proprio questo a mancare.
@@ -2222,7 +2371,8 @@
       try { localStorage.setItem(EARNINGS_MODE_KEY, earningsMode); } catch { /* modalita privata */ }
       renderEarningsMode();
       applyEarnings(null);
-      savePrefs({ earningsMode });
+      sharedState.earningsMode = earningsMode;
+      saveShared('Scelta salvata');
     }));
 
     /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
@@ -2324,6 +2474,403 @@
       }
       note.textContent = (info.count || 0) + (info.count === 1 ? ' incasso' : ' incassi') + ' dal software contabilità' + quando;
     };
+
+    /* Verifica onesta della sincronizzazione: scriviamo un valore di prova e
+       controlliamo se il servizio ce lo restituisce. Se non lo fa, i dati
+       restano solo su questo dispositivo e va detto chiaramente. */
+    const controllaSync = async () => {
+      const riga = document.getElementById('deviceSyncStatus');
+      if (!riga) return;
+      riga.textContent = 'Controllo in corso…';
+      riga.classList.remove('ok', 'ko');
+      try {
+        await api('/api/prefs', { method:'POST', body: JSON.stringify({ shared: sharedState }) });
+        const stato = await api('/api/state');
+        syncVerificata = Boolean(stato?.prefs?.shared);
+        if (syncVerificata) {
+          riga.textContent = 'Attiva: codici, quantità, obiettivi, promemoria e i business freelance si ritrovano su ogni dispositivo che apre il link.';
+          riga.classList.add('ok');
+        } else {
+          riga.textContent = 'Non attiva: il servizio accetta il salvataggio ma non conserva questi dati, quindi restano solo su questo dispositivo. Va aggiornato il servizio perché tenga anche la voce "shared".';
+          riga.classList.add('ko');
+        }
+      } catch (error) {
+        riga.textContent = 'Non verificabile ora: ' + (error.message || 'servizio non raggiungibile');
+        riga.classList.add('ko');
+      }
+    };
+    document.getElementById('deviceSyncCheck')?.addEventListener('click', controllaSync);
+
+    /* ================= business freelance: Workana e Upwork =================
+       Stessa struttura per ogni profilo, cosi' aggiungerne uno costa una riga.
+       Upwork ha in piu' la voce "Crediti acquistati". */
+    const businessFreelance = {
+      workana: { nome:'Workana', profili:['Lorenzo','Simona'], crediti:false },
+      upwork:  { nome:'Upwork',  profili:['Lorenzo'],          crediti:true  }
+    };
+    const chiaveProfilo = (nome) => nome.toLowerCase();
+
+    const profiloDiSerie = () => ({ sent:'', accepted:'', notes:[], plan:'', credits:'', investment:'', prompts:[] });
+    const leggiProfilo = (business, profilo) => {
+      sharedState.freelance = sharedState.freelance || {};
+      sharedState.freelance[business] = sharedState.freelance[business] || {};
+      const chiave = chiaveProfilo(profilo);
+      sharedState.freelance[business][chiave] = { ...profiloDiSerie(), ...(sharedState.freelance[business][chiave] || {}) };
+      return sharedState.freelance[business][chiave];
+    };
+
+    const freelanceScreen = document.getElementById('freelanceScreen');
+    const freelanceBody = document.getElementById('freelanceBody');
+    let businessCorrente = null;
+
+    const renderProfileList = (business) => {
+      const conf = businessFreelance[business];
+      document.getElementById('freelanceName').textContent = conf.nome;
+      freelanceBody.replaceChildren();
+      const testa = document.createElement('div');
+      testa.className = 'business-heading';
+      testa.innerHTML = '<h2>Profili</h2><p>Scegli il profilo da gestire. Ogni profilo tiene i suoi dati separati.</p>';
+      freelanceBody.append(testa);
+      const lista = document.createElement('div');
+      lista.className = 'profile-list';
+      conf.profili.forEach((nome) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'profile-card';
+        const testo = document.createElement('div');
+        const eyebrow = document.createElement('small');
+        eyebrow.textContent = 'Profilo';
+        const titolo = document.createElement('h3');
+        titolo.textContent = nome;
+        testo.append(eyebrow, titolo);
+        const apri = document.createElement('span');
+        apri.className = 'open-label';
+        apri.textContent = 'Apri profilo';
+        card.append(testo, apri);
+        card.addEventListener('click', () => renderProfile(business, nome));
+        lista.append(card);
+      });
+      freelanceBody.append(lista);
+    };
+
+    // Sezione con una casella di testo libera e il suo pulsante Salva.
+    const sezioneTesto = (titolo, descrizione, valore, onSave) => {
+      const box = document.createElement('section');
+      box.className = 'fl-section';
+      const h = document.createElement('h3'); h.textContent = titolo;
+      const p = document.createElement('p'); p.textContent = descrizione;
+      const area = document.createElement('textarea');
+      area.value = valore || '';
+      area.setAttribute('aria-label', titolo);
+      const azioni = document.createElement('div');
+      azioni.className = 'fl-actions';
+      const salva = document.createElement('button');
+      salva.type = 'button'; salva.textContent = 'Salva';
+      const stato = document.createElement('span');
+      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
+      salva.addEventListener('click', () => { onSave(area.value); saveShared(titolo + ' salvato'); });
+      azioni.append(salva, stato);
+      box.append(h, p, area, azioni);
+      return box;
+    };
+
+    // Sezione con elenco di voci aggiungibili (note spuntabili, oppure prompt).
+    const sezioneElenco = (titolo, descrizione, opzioni) => {
+      const { voci, spuntabili, segnaposto, onChange } = opzioni;
+      const box = document.createElement('section');
+      box.className = 'fl-section';
+      const h = document.createElement('h3'); h.textContent = titolo;
+      const p = document.createElement('p'); p.textContent = descrizione;
+      const lista = document.createElement('div');
+      const stato = document.createElement('span');
+      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
+
+      const disegna = () => {
+        lista.replaceChildren();
+        if (!voci.length) {
+          const vuoto = document.createElement('div');
+          vuoto.className = 'empty-tasks';
+          vuoto.textContent = spuntabili ? 'Nessuna nota. Aggiungine una qui sotto.' : 'Nessun prompt salvato.';
+          lista.append(vuoto);
+          return;
+        }
+        voci.forEach((voce) => {
+          const riga = document.createElement('div');
+          riga.className = 'fl-item' + (voce.done ? ' done' : '');
+          if (spuntabili) {
+            const spunta = document.createElement('input');
+            spunta.type = 'checkbox';
+            spunta.checked = Boolean(voce.done);
+            spunta.setAttribute('aria-label', 'Completata: ' + voce.text);
+            spunta.addEventListener('change', () => { voce.done = spunta.checked; disegna(); onChange(); });
+            riga.append(spunta);
+          } else {
+            riga.append(document.createElement('span'));
+          }
+          const testo = document.createElement('div');
+          testo.className = 'fl-item-text';
+          const forte = document.createElement('strong');
+          forte.textContent = voce.text;
+          testo.append(forte);
+          riga.append(testo);
+          const via = document.createElement('button');
+          via.type = 'button'; via.className = 'fl-remove'; via.textContent = '×';
+          via.setAttribute('aria-label', 'Elimina ' + voce.text);
+          via.addEventListener('click', () => {
+            const i = voci.indexOf(voce);
+            if (i >= 0) voci.splice(i, 1);
+            disegna(); onChange();
+          });
+          riga.append(via);
+          lista.append(riga);
+        });
+      };
+
+      const form = document.createElement('form');
+      form.className = 'fl-add';
+      const campo = document.createElement('input');
+      campo.type = 'text'; campo.placeholder = segnaposto; campo.required = true;
+      const aggiungi = document.createElement('button');
+      aggiungi.type = 'submit'; aggiungi.textContent = 'Aggiungi';
+      form.append(campo, aggiungi);
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const testo = campo.value.trim();
+        if (!testo) return;
+        voci.push({ id: String(Date.now()), text: testo, done: false });
+        campo.value = '';
+        disegna(); onChange();
+      });
+
+      const azioni = document.createElement('div');
+      azioni.className = 'fl-actions';
+      azioni.append(stato);
+      disegna();
+      box.append(h, p, lista, form, azioni);
+      return box;
+    };
+
+    const renderProfile = (business, nomeProfilo) => {
+      const conf = businessFreelance[business];
+      const dati = leggiProfilo(business, nomeProfilo);
+      document.getElementById('freelanceName').textContent = conf.nome + ' · ' + nomeProfilo;
+      freelanceBody.replaceChildren();
+
+      const testa = document.createElement('div');
+      testa.className = 'business-heading';
+      const h2 = document.createElement('h2'); h2.textContent = nomeProfilo;
+      const sotto = document.createElement('p'); sotto.textContent = 'Profilo ' + conf.nome + '. Tutto quello che scrivi qui si salva e si ritrova sugli altri dispositivi.';
+      const indietro = document.createElement('button');
+      indietro.type = 'button'; indietro.className = 'outline-button';
+      indietro.textContent = 'Torna ai profili';
+      indietro.style.marginTop = '12px';
+      indietro.addEventListener('click', () => renderProfileList(business));
+      testa.append(h2, sotto, indietro);
+      freelanceBody.append(testa);
+
+      freelanceBody.append(sezioneTesto('Richieste mandate',
+        'Le candidature inviate. Una per riga.', dati.sent, (v) => { dati.sent = v; }));
+
+      freelanceBody.append(sezioneTesto('Richieste accettate · lavori in corso',
+        'Le richieste andate a buon fine e i lavori aperti. Una per riga.', dati.accepted, (v) => { dati.accepted = v; }));
+
+      freelanceBody.append(sezioneElenco('Note', 'Attività da fare: si spuntano quando sono finite.', {
+        voci: dati.notes, spuntabili: true, segnaposto: 'Nuova attività',
+        onChange: () => saveShared('Note salvate')
+      }));
+
+      // Piano e investimento stanno insieme: si salvano con un solo pulsante.
+      const piano = document.createElement('section');
+      piano.className = 'fl-section';
+      const ph = document.createElement('h3'); ph.textContent = 'Piano e investimento';
+      const pp = document.createElement('p'); pp.textContent = 'Il piano del profilo e quanto ci hai messo dentro.';
+      piano.append(ph, pp);
+
+      const campoTesto = (etichetta, valore, tipo) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'fl-field';
+        const lab = document.createElement('label');
+        lab.textContent = etichetta;
+        const input = document.createElement('input');
+        input.type = tipo || 'text';
+        input.value = valore || '';
+        lab.htmlFor = input.id = 'fl-' + etichetta.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        wrap.append(lab, input);
+        return { wrap, input };
+      };
+
+      const fPiano = campoTesto('Piano profilo', dati.plan || 'Gratis');
+      piano.append(fPiano.wrap);
+      let fCrediti = null;
+      if (conf.crediti) {
+        fCrediti = campoTesto('Crediti acquistati', dati.credits, 'number');
+        piano.append(fCrediti.wrap);
+      }
+      const fInvest = campoTesto('Investimento', dati.investment);
+      piano.append(fInvest.wrap);
+
+      const azioniPiano = document.createElement('div');
+      azioniPiano.className = 'fl-actions';
+      const salvaPiano = document.createElement('button');
+      salvaPiano.type = 'button'; salvaPiano.textContent = 'Salva';
+      const statoPiano = document.createElement('span');
+      statoPiano.className = 'sync-status'; statoPiano.setAttribute('data-sync-status', '');
+      salvaPiano.addEventListener('click', () => {
+        dati.plan = fPiano.input.value.trim();
+        if (fCrediti) dati.credits = fCrediti.input.value.trim();
+        dati.investment = fInvest.input.value.trim();
+        saveShared('Piano e investimento salvati');
+      });
+      azioniPiano.append(salvaPiano, statoPiano);
+      piano.append(azioniPiano);
+      freelanceBody.append(piano);
+
+      freelanceBody.append(sezioneElenco('Prompt', 'I prompt che vuoi tenere a portata di mano.', {
+        voci: dati.prompts, spuntabili: false, segnaposto: 'Nuovo prompt',
+        onChange: () => saveShared('Prompt salvati')
+      }));
+    };
+
+    const apriFreelance = (business) => {
+      businessCorrente = business;
+      businessScreen.classList.add('hidden');
+      appScreen.classList.add('hidden');
+      freelanceScreen.classList.remove('hidden');
+      renderProfileList(business);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.querySelectorAll('[data-freelance]').forEach((card) => card.addEventListener('click', () => apriFreelance(card.dataset.freelance)));
+    document.getElementById('freelanceBack').addEventListener('click', () => {
+      freelanceScreen.classList.add('hidden');
+      businessScreen.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Se arrivano dati freschi dal servizio, ridisegniamo solo se siamo fermi sull'elenco.
+    applySharedPrefs = (remoto) => {
+      if (!remoto || typeof remoto !== 'object') return;
+      sharedState = { ...sharedState, ...remoto };
+      syncVerificata = true; // se e' tornato indietro, il servizio lo conserva
+
+      // Rimettiamo in circolo i dati arrivati dagli altri dispositivi.
+      if (sharedState.quantities && !quantitiesDirty) {
+        quantities = { ...quantities, ...sharedState.quantities };
+        applyQuantities();
+      }
+      if (sharedState.keyCodes) applyKeyCodesPrefs(sharedState.keyCodes);
+      if (sharedState.tasks) applyTasksPrefs(sharedState.tasks);
+      if (sharedState.earningsMode === 'netto' || sharedState.earningsMode === 'incasso') {
+        earningsMode = sharedState.earningsMode;
+        renderEarningsMode();
+        applyEarnings(null);
+      }
+      if (sharedState.accounting && !accountingConfig) {
+        accountingConfig = sharedState.accounting;
+        try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
+        renderAccountingStatus();
+      }
+      renderGoals();
+      if (businessCorrente && !freelanceScreen.classList.contains('hidden') && !freelanceBody.querySelector('textarea, .fl-add input')) {
+        renderProfileList(businessCorrente);
+      }
+    };
+
+    /* ================= workflow e pulizie programmate ================= */
+    /* Il workflow si prepara sull'ospite in casa oppure, se non c'e' nessuno,
+       sul prossimo arrivo: cosi' e' gia' pronto prima che l'ospite entri. */
+    const renderWorkflow = (booking) => {
+      const vuoto = document.getElementById('workflowEmpty');
+      const passi = document.getElementById('workflowSteps');
+      const testa = document.getElementById('workflowGuest');
+      if (!vuoto || !passi || !testa) return;
+      if (!booking) {
+        vuoto.classList.remove('hidden');
+        passi.classList.add('hidden');
+        testa.classList.add('hidden');
+        return;
+      }
+      vuoto.classList.add('hidden');
+      passi.classList.remove('hidden');
+      testa.classList.remove('hidden');
+      const inCasa = booking.checkIn <= todayKey && booking.checkOut > todayKey;
+      testa.replaceChildren();
+      const nome = document.createElement('strong');
+      nome.textContent = guestLabel(booking);
+      const dettaglio = document.createElement('small');
+      dettaglio.textContent = (inCasa ? 'Ospite presente · ' : 'Prossimo ospite · ')
+        + soggiorno(booking) + (canale(booking) ? ' · ' + canale(booking) : '');
+      testa.append(nome, dettaglio);
+    };
+
+    /* Ogni check-out genera una pulizia alle 11:00: l'elenco si costruisce da
+       solo dai calendari collegati, senza doverle programmare a mano. */
+    const renderCleaningSchedule = (eventi) => {
+      const lista = document.getElementById('cleaningSchedule');
+      const contatore = document.getElementById('cleaningCount');
+      if (!lista) return;
+      const pulizie = (eventi || [])
+        .filter(e => !e.blocked && e.checkOut >= todayKey)
+        .map(e => ({ data: e.checkOut, ospite: guestLabel(e), portale: canale(e) }))
+        .sort((a, b) => a.data.localeCompare(b.data));
+      if (contatore) contatore.textContent = String(pulizie.length);
+      lista.replaceChildren();
+      if (!pulizie.length) {
+        const vuoto = document.createElement('div');
+        vuoto.className = 'empty-tasks';
+        vuoto.textContent = 'Nessun check-out in programma.';
+        lista.append(vuoto);
+        return;
+      }
+      pulizie.forEach((p) => {
+        const riga = document.createElement('div');
+        riga.className = 'cleaning-row' + (p.data === todayKey ? ' oggi' : '');
+        const quando = document.createElement('time');
+        quando.dateTime = p.data;
+        quando.textContent = formatDate(p.data) + ' · 11:00';
+        const chi = document.createElement('span');
+        chi.textContent = 'dopo il check-out di ' + p.ospite + (p.portale ? ' · ' + p.portale : '');
+        const stato = document.createElement('b');
+        stato.textContent = p.data === todayKey ? 'Oggi' : 'Programmata';
+        riga.append(quando, chi, stato);
+        lista.append(riga);
+      });
+    };
+
+    /* ================= obiettivi modificabili ================= */
+    const campiGoal = {
+      monthly: { label:'goalMonthlyLabel', value:'goalMonthlyValue', percent:'goalMonthlyPercent', bar:'goalMonthlyBar' },
+      tiktok:  { label:'goalTiktokLabel',  value:'goalTiktokValue',  percent:'goalTiktokPercent',  bar:'goalTiktokBar' }
+    };
+
+    const renderGoals = () => {
+      Object.entries(campiGoal).forEach(([chiave, campi]) => {
+        const g = sharedState.goals?.[chiave] || {};
+        const label = document.getElementById(campi.label);
+        const value = document.getElementById(campi.value);
+        const percent = document.getElementById(campi.percent);
+        const bar = document.getElementById(campi.bar);
+        if (label && document.activeElement !== label) label.value = g.label || '';
+        if (value && document.activeElement !== value) value.value = g.value || '';
+        if (percent && document.activeElement !== percent) percent.value = String(g.percent ?? 0);
+        if (bar) bar.style.width = Math.max(0, Math.min(100, Number(g.percent) || 0)) + '%';
+      });
+    };
+
+    document.getElementById('saveGoals').addEventListener('click', () => {
+      Object.entries(campiGoal).forEach(([chiave, campi]) => {
+        sharedState.goals = sharedState.goals || {};
+        sharedState.goals[chiave] = {
+          label: document.getElementById(campi.label).value.trim(),
+          value: document.getElementById(campi.value).value.trim(),
+          percent: Math.max(0, Math.min(100, Number(document.getElementById(campi.percent).value) || 0))
+        };
+      });
+      renderGoals();
+      saveShared('Obiettivi salvati');
+    });
+
+    renderGoals();
 
     // Calcolatore della sezione Contabilita: invariato, resta uno strumento di sola simulazione.
     const calculateCompensation = (event) => {
