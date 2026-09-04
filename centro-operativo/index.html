@@ -369,6 +369,17 @@
     .fl-item-text strong { display:block; font-size:14px; color:#f7f3ea; line-height:1.5; }
     .fl-item-text span { color:var(--muted); font-size:12px; white-space:pre-wrap; }
     .fl-remove { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
+    .nav-switch { margin-top:12px; border-top:1px solid var(--line); padding-top:16px; }
+    .nav-switch span { color:var(--gold-soft); }
+    .fl-link-row { display:grid; grid-template-columns:1fr auto; gap:11px; align-items:center; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
+    .fl-link-row:last-child { border-bottom:0; }
+    .fl-link-row a { color:var(--gold-soft); font-size:13px; text-decoration:none; word-break:break-all; }
+    .fl-link-row a:hover { text-decoration:underline; }
+    .fl-link-row strong { display:block; font-size:14px; color:#f7f3ea; margin-bottom:2px; }
+    .fl-add-link { display:grid; grid-template-columns:1fr 1.4fr auto; gap:9px; margin-top:12px; }
+    @media (max-width:720px) { .fl-add-link { grid-template-columns:1fr; } }
+    .fl-add-link input { min-width:0; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
+    .fl-add-link button { padding:0 16px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .goal-card input { width:100%; min-width:0; box-sizing:border-box; border:1px solid transparent; border-radius:9px; background:transparent; color:inherit; font:inherit; padding:4px 7px; }
     .goal-card input:hover, .goal-card input:focus { border-color:rgba(222,190,126,.35); background:rgba(255,255,255,.04); outline:none; }
     .goal-label { color:var(--muted); font-size:11px !important; text-transform:uppercase; letter-spacing:.1em; }
@@ -530,6 +541,7 @@
         <button id="cleaningLink" class="nav-item" type="button"><span>Pulizie</span><small>Apri</small></button>
         <button id="codesLink" class="nav-item" type="button"><span>Codici cassetta</span><small>Apri</small></button>
         <button id="accountingLink" class="nav-item" type="button"><span>Contabilità</span><small>Apri</small></button>
+        <button id="switchBusinessLink" class="nav-item nav-switch" type="button"><span>Cambia business</span><small>Torna alla scelta</small></button>
       </nav>
     </aside>
   </div>
@@ -2537,7 +2549,7 @@
     };
     const chiaveProfilo = (nome) => nome.toLowerCase();
 
-    const profiloDiSerie = () => ({ sent:'', accepted:'', notes:[], plan:'', credits:'', investment:'', prompts:[] });
+    const profiloDiSerie = () => ({ sent:'', accepted:'', notes:[], plan:'', credits:'', investment:'', prompts:[], links:[] });
     const leggiProfilo = (business, profilo) => {
       sharedState.freelance = sharedState.freelance || {};
       sharedState.freelance[business] = sharedState.freelance[business] || {};
@@ -2756,6 +2768,73 @@
         voci: dati.prompts, spuntabili: false, segnaposto: 'Nuovo prompt',
         onChange: () => saveShared('Prompt salvati')
       }));
+
+      // Collegamenti: link al profilo, alla dashboard, alle ricerche salvate.
+      dati.links = Array.isArray(dati.links) ? dati.links : [];
+      const collegamenti = document.createElement('section');
+      collegamenti.className = 'fl-section';
+      const ch = document.createElement('h3'); ch.textContent = 'Collegamenti';
+      const cp = document.createElement('p');
+      cp.textContent = 'I link di questo profilo: pagina pubblica, bacheca, ricerche salvate. Si aprono in una scheda nuova.';
+      const clista = document.createElement('div');
+      const cstato = document.createElement('span');
+      cstato.className = 'sync-status'; cstato.setAttribute('data-sync-status', '');
+
+      const disegnaLink = () => {
+        clista.replaceChildren();
+        if (!dati.links.length) {
+          const vuoto = document.createElement('div');
+          vuoto.className = 'empty-tasks';
+          vuoto.textContent = 'Nessun collegamento salvato.';
+          clista.append(vuoto);
+          return;
+        }
+        dati.links.forEach((voce) => {
+          const riga = document.createElement('div');
+          riga.className = 'fl-link-row';
+          const testo = document.createElement('div');
+          const nome = document.createElement('strong');
+          nome.textContent = voce.label;
+          const a = document.createElement('a');
+          a.href = voce.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+          a.textContent = voce.url;
+          testo.append(nome, a);
+          const via = document.createElement('button');
+          via.type = 'button'; via.className = 'fl-remove'; via.textContent = '×';
+          via.setAttribute('aria-label', 'Elimina ' + voce.label);
+          via.addEventListener('click', () => {
+            dati.links = dati.links.filter(l => l !== voce);
+            disegnaLink(); saveShared('Collegamenti salvati');
+          });
+          riga.append(testo, via);
+          clista.append(riga);
+        });
+      };
+
+      const cform = document.createElement('form');
+      cform.className = 'fl-add-link';
+      const cnome = document.createElement('input');
+      cnome.type = 'text'; cnome.placeholder = 'Nome (es. Profilo pubblico)'; cnome.required = true;
+      const curl = document.createElement('input');
+      curl.type = 'url'; curl.placeholder = 'https://…'; curl.required = true;
+      const cadd = document.createElement('button');
+      cadd.type = 'submit'; cadd.textContent = 'Aggiungi';
+      cform.append(cnome, curl, cadd);
+      cform.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const label = cnome.value.trim(); const url = curl.value.trim();
+        if (!label || !url) return;
+        dati.links.push({ id: String(Date.now()), label, url });
+        cnome.value = ''; curl.value = '';
+        disegnaLink(); saveShared('Collegamenti salvati');
+      });
+
+      const cazioni = document.createElement('div');
+      cazioni.className = 'fl-actions';
+      cazioni.append(cstato);
+      disegnaLink();
+      collegamenti.append(ch, cp, clista, cform, cazioni);
+      freelanceBody.append(collegamenti);
     };
 
     const apriFreelance = (business) => {
@@ -2768,6 +2847,14 @@
     };
 
     document.querySelectorAll('[data-freelance]').forEach((card) => card.addEventListener('click', () => apriFreelance(card.dataset.freelance)));
+    document.getElementById('switchBusinessLink').addEventListener('click', () => {
+      setMenu(false);
+      appScreen.classList.add('hidden');
+      freelanceScreen.classList.add('hidden');
+      businessScreen.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     document.getElementById('freelanceBack').addEventListener('click', () => {
       freelanceScreen.classList.add('hidden');
       businessScreen.classList.remove('hidden');
