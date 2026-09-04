@@ -349,22 +349,24 @@
     .profile-card small { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
     .fl-section { margin-top:14px; padding:20px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.025); }
     .fl-section h3 { margin:0 0 3px; font:500 19px Georgia,serif; }
-    .fl-section > p { margin:0 0 12px; color:var(--muted); font-size:12px; }
-    .fl-section textarea { width:100%; box-sizing:border-box; min-height:110px; resize:vertical; padding:12px 13px; color:var(--ink); border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-section > p { margin:0 0 12px; color:#b9b2a4; font-size:12px; }
+    .fl-section textarea::placeholder, .fl-field input::placeholder, .fl-add input::placeholder { color:#7c766c; }
+    .fl-item { color:#f7f3ea; }
+    .fl-section textarea { width:100%; box-sizing:border-box; min-height:120px; resize:vertical; padding:13px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:12px; background:#15161a; font:inherit; font-size:14px; line-height:1.55; outline:none; }
     .fl-section textarea:focus, .fl-section input[type=text]:focus, .fl-section input[type=number]:focus { border-color:rgba(222,190,126,.45); }
     .fl-field { display:grid; gap:6px; margin-bottom:12px; }
     .fl-field label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
-    .fl-field input { width:100%; box-sizing:border-box; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-field input { width:100%; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
     .fl-actions { display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-top:12px; }
     .fl-actions button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .fl-add { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:12px; }
-    .fl-add input { min-width:0; box-sizing:border-box; padding:11px 13px; color:var(--ink); border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.035); font:inherit; outline:none; }
+    .fl-add input { min-width:0; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
     .fl-add button { padding:0 16px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .fl-item { display:grid; grid-template-columns:auto 1fr auto; gap:11px; align-items:start; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
     .fl-item:last-child { border-bottom:0; }
     .fl-item input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--gold); cursor:pointer; }
     .fl-item.done .fl-item-text { text-decoration:line-through; opacity:.5; }
-    .fl-item-text strong { display:block; font-size:14px; }
+    .fl-item-text strong { display:block; font-size:14px; color:#f7f3ea; line-height:1.5; }
     .fl-item-text span { color:var(--muted); font-size:12px; white-space:pre-wrap; }
     .fl-remove { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
     .goal-card input { width:100%; min-width:0; box-sizing:border-box; border:1px solid transparent; border-radius:9px; background:transparent; color:inherit; font:inherit; padding:4px 7px; }
@@ -934,6 +936,26 @@
     } catch { /* modalita privata */ }
     let syncVerificata = null; // null = non ancora provato, true/false = esito
 
+    /* Il servizio conserva solo alcune voci di prefs (notes e le liste
+       dell'inventario): sono quelle del meccanismo originale delle note
+       condivise. Le voci nuove le accetta ma non le restituisce, quindi da
+       sole non arrivano sugli altri dispositivi.
+       Soluzione senza toccare il servizio: lo stato viaggia anche dentro
+       hiddenInventory, come una voce marcata. Quella lista serve solo a
+       nascondere oggetti per nome, e nessun oggetto si chiama cosi': la voce
+       resta invisibile nell'inventario e passa il salvataggio. */
+    const STATE_MARKER = '##stato-centro-operativo##';
+    const pacchettoStato = () => STATE_MARKER + JSON.stringify(sharedState);
+    const separaStato = (lista) => {
+      const voci = Array.isArray(lista) ? lista : [];
+      const pacchetto = voci.find(v => typeof v === 'string' && v.startsWith(STATE_MARKER));
+      let stato = null;
+      if (pacchetto) {
+        try { stato = JSON.parse(pacchetto.slice(STATE_MARKER.length)); } catch { stato = null; }
+      }
+      return { stato, nascosti: voci.filter(v => !(typeof v === 'string' && v.startsWith(STATE_MARKER))) };
+    };
+
     let applySharedPrefs = () => {};
     let saveShared = async () => {};
 
@@ -1019,7 +1041,7 @@
       } else {
         hiddenInventory = [...new Set([...hiddenInventory, name])];
         renderInventory();
-        savePrefs({ hiddenInventory });
+        savePrefs({ hiddenInventory: [...hiddenInventory, pacchettoStato()] });
       }
       setInventoryStatus('Voce «' + name + '» rimossa', 'ok');
     });
@@ -1048,7 +1070,10 @@
       if (document.activeElement !== personalNotes && typeof prefs.notes === 'string' && personalNotes.value !== prefs.notes) {
         personalNotes.value = prefs.notes;
       }
-      hiddenInventory = Array.isArray(prefs.hiddenInventory) ? prefs.hiddenInventory : [];
+      const separato = separaStato(prefs.hiddenInventory);
+      hiddenInventory = separato.nascosti;
+      // Lo stato completo puo' arrivare dalla voce "shared" oppure dal pacchetto.
+      applySharedPrefs(prefs.shared || separato.stato);
       customInventory = Array.isArray(prefs.customInventory) ? prefs.customInventory : [];
       // Se l'utente ha modifiche in sospeso non gliele sovrascriviamo sotto le dita.
       if (prefs.quantities && typeof prefs.quantities === 'object' && !quantitiesDirty) {
@@ -1056,7 +1081,6 @@
       }
       applyKeyCodesPrefs(prefs.keyCodes);
       applyTasksPrefs(prefs.tasks);
-      applySharedPrefs(prefs.shared);
       if (prefs.earningsMode === 'netto' || prefs.earningsMode === 'incasso') {
         earningsMode = prefs.earningsMode;
         renderEarningsMode();
@@ -1226,13 +1250,16 @@
       const esiti = document.querySelectorAll('[data-sync-status]');
       esiti.forEach(el => { el.textContent = 'Salvataggio…'; el.className = el.className.replace(/\b(ok|ko)\b/g, ''); });
       try {
-        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({ shared: sharedState }) });
+        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({
+          shared: sharedState,
+          hiddenInventory: [...hiddenInventory, pacchettoStato()]
+        }) });
         lastVersion = data.version;
-        // Controllo vero: il servizio ha conservato la chiave?
-        if (syncVerificata === null) {
+        // Controllo vero: il servizio ha conservato lo stato per una delle due vie?
+        if (syncVerificata !== true) {
           try {
             const stato = await api('/api/state');
-            syncVerificata = Boolean(stato?.prefs?.shared);
+            syncVerificata = Boolean(stato?.prefs?.shared) || Boolean(separaStato(stato?.prefs?.hiddenInventory).stato);
           } catch { syncVerificata = null; }
         }
         const messaggio = syncVerificata === false
