@@ -2241,23 +2241,42 @@
       document.getElementById('arrivalTime').value = '15:00';
     });
 
+    /* I passaggi spuntati non venivano salvati da nessuna parte: bastava
+       ricaricare per perderli. Ora vivono nello stato condiviso, legati alla
+       prenotazione: quando arriva un ospite nuovo il workflow riparte pulito
+       da solo, senza doverlo azzerare a mano. */
     const workflowSteps = [...document.querySelectorAll('.workflow-step')];
+
+    const disegnaWorkflow = () => {
+      const fatti = Array.isArray(sharedState.workflow?.done) ? sharedState.workflow.done : [];
+      workflowSteps.forEach((step, index) => {
+        const toggle = step.querySelector('.step-toggle');
+        const fatto = fatti.includes(index);
+        // Un passaggio e' apribile se e' il primo o se quello prima e' fatto.
+        const apribile = index === 0 || fatti.includes(index - 1);
+        step.classList.toggle('done', fatto);
+        step.classList.toggle('locked', !fatto && !apribile);
+        toggle.disabled = fatto || !apribile;
+        toggle.textContent = fatto ? 'Fatto' : (apribile ? 'Da fare' : 'Bloccata');
+      });
+    };
+
+    const segnaPasso = (index) => {
+      sharedState.workflow = sharedState.workflow || {};
+      const fatti = new Set(Array.isArray(sharedState.workflow.done) ? sharedState.workflow.done : []);
+      fatti.add(index);
+      sharedState.workflow.done = [...fatti].sort((a, b) => a - b);
+      disegnaWorkflow();
+      saveShared('Passaggio salvato');
+    };
+
     workflowSteps.forEach((step, index) => {
-      const toggle = step.querySelector('.step-toggle');
-      toggle.addEventListener('click', () => {
-        step.classList.add('done');
-        toggle.textContent = 'Fatto';
-        toggle.disabled = true;
+      step.querySelector('.step-toggle').addEventListener('click', () => {
+        segnaPasso(index);
         if (index === 2 && activeBooking?.checkIn === todayKey) renderTodayTasks(activeBooking, true);
-        const next = workflowSteps[index + 1];
-        if (next) {
-          next.classList.remove('locked');
-          const nextToggle = next.querySelector('.step-toggle');
-          nextToggle.disabled = false;
-          nextToggle.textContent = 'Da fare';
-        }
       });
     });
+    disegnaWorkflow();
 
     document.getElementById('confirmCleaning').addEventListener('click', () => {
       const usedWater = document.getElementById('cWater').checked ? Number(document.getElementById('qWater').value) : 0;
@@ -2890,6 +2909,7 @@
         renderEarningsMode();
         applyEarnings(null);
       }
+      if (typeof disegnaWorkflow === 'function') disegnaWorkflow();
       if (sharedState.accountingSnapshot && !directAccounting) applyEarnings(null);
       if (sharedState.accounting && !accountingConfig) {
         accountingConfig = sharedState.accounting;
@@ -2919,6 +2939,13 @@
       vuoto.classList.add('hidden');
       passi.classList.remove('hidden');
       testa.classList.remove('hidden');
+      /* Ospite nuovo: i passaggi del precedente non valgono piu'. */
+      const idPrenotazione = booking.id || (booking.checkIn + '·' + booking.checkOut);
+      sharedState.workflow = sharedState.workflow || {};
+      if (sharedState.workflow.bookingId !== idPrenotazione) {
+        sharedState.workflow = { bookingId: idPrenotazione, done: [] };
+      }
+      disegnaWorkflow();
       const inCasa = booking.checkIn <= todayKey && booking.checkOut > todayKey;
       testa.replaceChildren();
       const nome = document.createElement('strong');
