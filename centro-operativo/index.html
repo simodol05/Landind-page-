@@ -388,6 +388,9 @@
     .goal-edit input { width:64px; display:inline-block; text-align:right; }
     .goals-save { grid-column:1/-1; display:flex; align-items:center; gap:11px; flex-wrap:wrap; }
     .goals-save button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
+    /* La riga di salvataggio dentro il workflow non e' in una griglia: le
+       diamo un po' d'aria per staccarla dall'ultimo passaggio. */
+    #workflowSteps .goals-save { margin-top:16px; padding-top:15px; border-top:1px solid rgba(230,213,175,.09); }
     .sync-status { color:var(--muted); font-size:12px; }
     .sync-status.ok { color:var(--gold-soft); }
     .sync-status.ko { color:var(--amber); }
@@ -791,6 +794,10 @@
           <div class="workflow-step locked"><span class="step-number">07</span><div><strong>Pulizia completata</strong><small>Dopo il check-out, dalle ore 11:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
           <div class="workflow-step locked"><span class="step-number">08</span><div><strong>Recensione dell’ospite</strong><small>Obbligatoria prima del messaggio finale</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
           <div class="workflow-step locked"><span class="step-number">09</span><div><strong>Messaggio finale</strong><small>Richiesta recensione dopo pulizia e recensione ospite</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="goals-save">
+            <button id="saveWorkflow" type="button">Salva su tutti i dispositivi</button>
+            <span data-sync-status class="sync-status"></span>
+          </div>
           </div>
         </div>
         <aside class="panel module-note"><h3>Controllo manuale</h3><p>Il sistema prepara e ordina le attività, ma non invia messaggi né documenti senza una tua azione esplicita.</p><div class="confirmation">La demo permette di completare i passaggi in ordine. Nella versione definitiva le date e gli sblocchi dipenderanno dalla prenotazione selezionata.</div></aside>
@@ -939,7 +946,8 @@
       keyCodes: null,       // codici cassetta
       tasks: null,          // promemoria di oggi
       earningsMode: null,   // incasso o netto
-      accounting: null      // indirizzo, tabella, chiave ed e-mail della contabilita
+      accounting: null,     // indirizzo, tabella, chiave ed e-mail della contabilita
+      rev: 0                // quando e' stato scritto: serve a non farsi sovrascrivere
     });
     let sharedState = statoDiSerie();
     try {
@@ -947,6 +955,16 @@
       if (salvato && typeof salvato === 'object') sharedState = { ...sharedState, ...salvato };
     } catch { /* modalita privata */ }
     let syncVerificata = null; // null = non ancora provato, true/false = esito
+
+    /* La pagina richiede lo stato al servizio ogni 8 secondi. Se una risposta
+       partita PRIMA di un salvataggio arriva DOPO, riporta indietro la copia
+       vecchia e la spunta appena messa sparisce: e' quello che succedeva sul
+       telefono, dove la rete e' piu' lenta e la finestra e' piu' larga.
+       Contiamo i salvataggi in corso e teniamo un numero di versione: finche'
+       il servizio non ci restituisce almeno la nostra versione, una risposta
+       piu' vecchia della nostra non ha diritto di sovrascrivere niente. */
+    let salvataggiInCorso = 0;
+    let attesaConferma = false;
 
     /* Il servizio conserva solo alcune voci di prefs (notes e le liste
        dell'inventario): sono quelle del meccanismo originale delle note
@@ -1258,6 +1276,10 @@
        conservato: rileggiamo lo stato e controlliamo che il dato sia tornato
        indietro. Se il servizio scarta la chiave, lo diciamo. */
     saveShared = async (etichetta) => {
+      // Timbriamo la versione: chi legge dopo sa quale copia e' la piu' recente.
+      sharedState.rev = Date.now();
+      salvataggiInCorso += 1;
+      attesaConferma = true;
       try { localStorage.setItem(SHARED_KEY, JSON.stringify(sharedState)); } catch { /* modalita privata */ }
       const esiti = document.querySelectorAll('[data-sync-status]');
       esiti.forEach(el => { el.textContent = 'Salvataggio…'; el.className = el.className.replace(/\b(ok|ko)\b/g, ''); });
@@ -1283,6 +1305,8 @@
           el.textContent = (etichetta || 'Salvato') + ' su questo dispositivo: ' + (error.message || 'servizio non raggiungibile');
           el.classList.add('ko');
         });
+      } finally {
+        salvataggiInCorso = Math.max(0, salvataggiInCorso - 1);
       }
     };
 
@@ -1612,7 +1636,7 @@
       if (!accountingClient) accountingClient = buildAccountingClient(accountingConfig);
       if (!accountingClient) return { ok:false, message:'Libreria di lettura non disponibile: ricarica la pagina.' };
       const { data: sessione } = await accountingClient.auth.getSession();
-      if (!sessione?.session) return { ok:false, message:'Serve di nuovo la password del software contabilità: inseriscila qui sotto e premi Collega.' };
+      if (!sessione?.session) return { ok:false, servePassword:true, message:'Indirizzo, tabella e chiave anon sono già arrivati dagli altri dispositivi: manca solo la password del software contabilità. Inseriscila qui sotto e premi Collega per leggere in diretta anche da qui.' };
       const tabella = accountingConfig.table || 'app_data';
       const { data: righe, error } = await accountingClient.from(tabella).select('data').limit(1);
       if (error) return { ok:false, message:'Lettura non riuscita: ' + error.message };
@@ -1645,7 +1669,7 @@
       status.textContent = accountingConfig.url.replace('https://', '')
         + ' · tabella ' + (accountingConfig.table || 'app_data')
         + (accountingConfig.email ? ' · login ' + accountingConfig.email : '')
-        + ' · lettura diretta';
+        + (directAccounting ? ' · lettura diretta attiva' : ' · chiave anon collegata, manca solo la password');
     };
     const renderAccounting = (state) => {
       const source = state.accountingSource;
@@ -1659,6 +1683,12 @@
       if (!source) {
         renderAccountingStatus();
         if (!accountingConfig) setNote(feedback, 'Nessun collegamento salvato.');
+        /* Collegamento arrivato da un altro dispositivo ma qui non si legge
+           ancora: lo diciamo al posto del vecchio "nessun collegamento", senza
+           coprire un messaggio piu' specifico gia' scritto. */
+        else if (!directAccounting && /^\s*(Nessun collegamento salvato\.)?\s*$/.test(feedback.textContent)) {
+          setNote(feedback, 'Chiave anon già collegata da un altro dispositivo: inserisci qui sotto solo la password del software contabilità e premi Collega.');
+        }
         key.placeholder = accountingConfig ? 'salvata su questo dispositivo' : 'incolla qui la chiave';
         if (accountingConfig) {
           if (document.activeElement !== url) url.value = accountingConfig.url;
@@ -1759,7 +1789,10 @@
         if (manuale) setNote(feedback, 'Rileggo la contabilità…');
         try {
           const esito = await leggiContabilita();
-          if (esito.ok || manuale) setNote(feedback, esito.message, esito.ok ? 'ok' : 'ko');
+          /* La mancanza della password non e' un errore passeggero da
+             nascondere: e' l'unica cosa che l'utente deve fare, quindi resta
+             scritta anche quando la rilettura e' automatica. */
+          if (esito.ok || esito.servePassword || manuale) setNote(feedback, esito.message, esito.ok ? 'ok' : 'ko');
           if (esito.ok) return;
         } catch (error) {
           if (manuale) setNote(feedback, error.message || 'Rilettura non riuscita.', 'ko');
@@ -2276,6 +2309,15 @@
         if (index === 2 && activeBooking?.checkIn === todayKey) renderTodayTasks(activeBooking, true);
       });
     });
+
+    /* Ogni spunta si salva gia' da sola, ma senza una conferma sotto gli occhi
+       sembra che non sia successo niente. Il pulsante rimanda lo stato e dice
+       a chiare lettere com'e' finita, anche quando la rete e' lenta. */
+    document.getElementById('saveWorkflow').addEventListener('click', async () => {
+      const button = document.getElementById('saveWorkflow');
+      button.disabled = true;
+      try { await saveShared('Workflow salvato'); } finally { button.disabled = false; }
+    });
     disegnaWorkflow();
 
     document.getElementById('confirmCleaning').addEventListener('click', () => {
@@ -2497,9 +2539,15 @@
     };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
-      /* Ordine: la lettura diretta di questo dispositivo, poi la fotografia
-         arrivata dagli altri dispositivi, infine il valore del servizio. */
-      const info = directAccounting || accounting || sharedState.accountingSnapshot || {};
+      /* Ordine: la lettura diretta di questo dispositivo, poi il valore del
+         servizio SOLO se e' davvero collegato, poi la fotografia arrivata
+         dagli altri dispositivi.
+         Il servizio risponde sempre con un oggetto: quando la contabilita' non
+         e' collegata li' manda { configured:false }, che pero' e' "vero" per
+         JavaScript e copriva la fotografia. Era questo che sul telefono
+         lasciava il totale del mese vuoto mentre sul pc si vedeva. */
+      const dalServizio = accounting && accounting.configured ? accounting : null;
+      const info = directAccounting || dalServizio || sharedState.accountingSnapshot || accounting || {};
       const label = document.getElementById('monthlyLabel');
       const note = document.getElementById('monthlyNote');
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
@@ -2894,7 +2942,24 @@
     // Se arrivano dati freschi dal servizio, ridisegniamo solo se siamo fermi sull'elenco.
     applySharedPrefs = (remoto) => {
       if (!remoto || typeof remoto !== 'object') return;
-      sharedState = { ...sharedState, ...remoto };
+      // Un salvataggio non ancora concluso: questa risposta e' per forza vecchia.
+      if (salvataggiInCorso > 0) return;
+      const revRemota = Number(remoto.rev) || 0;
+      const revLocale = Number(sharedState.rev) || 0;
+      if (attesaConferma) {
+        // Finche' non rivediamo almeno la nostra versione, la nostra copia vince.
+        if (revRemota < revLocale) return;
+        attesaConferma = false;
+      }
+      /* Fusione prudente: una voce vuota nella copia remota NON cancella quella
+         che abbiamo qui. Nello stato di serie molte voci valgono null, quindi
+         un dispositivo che non ha mai collegato niente, salvando, spediva dei
+         null che spegnevano il collegamento contabilita' anche agli altri. */
+      Object.keys(remoto).forEach((chiave) => {
+        const valore = remoto[chiave];
+        if (valore === null || valore === undefined) return;
+        sharedState[chiave] = valore;
+      });
       syncVerificata = true; // se e' tornato indietro, il servizio lo conserva
 
       // Rimettiamo in circolo i dati arrivati dagli altri dispositivi.
@@ -2915,6 +2980,10 @@
         accountingConfig = sharedState.accounting;
         try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
         renderAccountingStatus();
+        /* Il collegamento e' appena arrivato da un altro dispositivo: proviamo
+           subito a leggere, cosi' la scheda dice che manca solo la password
+           invece di restare ferma su "Nessun collegamento salvato". */
+        refreshAccounting(false);
       }
       renderGoals();
       if (businessCorrente && !freelanceScreen.classList.contains('hidden') && !freelanceBody.querySelector('textarea, .fl-add input')) {

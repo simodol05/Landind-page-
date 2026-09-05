@@ -135,3 +135,54 @@ comunque il salvataggio, e la pagina lo dice invece di fingere che sia andata.
 
 Per la sincronizzazione fra dispositivi il servizio deve conservare in `prefs`
 anche le chiavi `quantities`, `keyCodes`, `tasks` e `earningsMode`.
+
+## Aggiornamento: workflow che resta e guadagno visibile dal telefono
+
+### Il totale del mese non compariva sul telefono
+
+Il pc legge la contabilità in diretta e ne salva una **fotografia** nello stato
+condiviso, così gli altri dispositivi vedono il numero senza rifare il login.
+La fotografia però non veniva mai usata: il servizio risponde sempre con un
+oggetto e, quando la contabilità non è collegata lì, manda
+`{ configured: false }`. In JavaScript quell'oggetto è "vero", quindi passava
+prima della fotografia e il riquadro restava a zero — sul pc no, perché lì c'è
+la lettura diretta che viene ancora prima.
+
+Ora il valore del servizio conta solo se dichiara di essere davvero collegato.
+L'ordine è: lettura diretta di questo dispositivo → servizio collegato →
+fotografia arrivata dagli altri dispositivi.
+
+### La contabilità sul telefono
+
+Indirizzo, tabella, chiave anon ed e-mail viaggiano già con lo stato condiviso:
+sul telefono la scheda *Collegamenti → Software contabilità* si compila da sola
+e adesso lo dice esplicitamente — «chiave anon già collegata, manca solo la
+password». Inserita quella una volta, anche il telefono legge in diretta.
+
+La password non viene sincronizzata di proposito: è la credenziale del software
+contabilità e resta sul dispositivo dove la scrivi, sotto forma di sessione
+gestita da Supabase.
+
+### Le spunte del workflow sparivano
+
+La pagina richiede lo stato al servizio ogni 8 secondi. Se una risposta partita
+*prima* di un salvataggio arrivava *dopo*, riportava indietro la copia vecchia e
+la spunta appena messa spariva. Sul telefono succedeva più spesso, perché la
+rete è più lenta e la finestra più larga.
+
+Due correzioni:
+
+- lo stato condiviso porta un numero di versione; finché il servizio non ci
+  restituisce almeno la nostra, una risposta più vecchia non sovrascrive nulla,
+  e durante un salvataggio in corso le risposte vengono ignorate;
+- la fusione con i dati remoti è prudente: una voce **vuota** nella copia remota
+  non cancella più quella presente qui. Prima un dispositivo che non aveva mai
+  collegato niente, salvando, spediva dei `null` che spegnevano il collegamento
+  contabilità anche agli altri.
+
+### Pulsante «Salva su tutti i dispositivi»
+
+In fondo al *Workflow ospite*. Ogni spunta si salva già da sola, ma senza una
+conferma sotto gli occhi sembrava non fosse successo niente: il pulsante rimanda
+lo stato e scrive com'è finita — «Workflow salvato su tutti i dispositivi»,
+oppure che è rimasto solo qui se il servizio non risponde.
