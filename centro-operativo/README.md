@@ -240,3 +240,47 @@ calcolato su dati mozzati.
 Restano fuori dal totale, come nel software contabilità, ma non devono sembrare
 spariti: sotto il numero ora si legge quanto valgono e quanto fa la somma
 complessiva — «1 pacchetto a parte 15,99 € · con i pacchetti 655,13 €».
+
+## Aggiornamento: ordine del workflow, salvataggio automatico, prompt apribili
+
+### Il Rustico · nuovo ordine dei passaggi
+
+Dopo *Richiesta documenti* la sequenza è cambiata:
+
+| | prima | adesso |
+|---|---|---|
+| 03 | Check-in effettuato | **Check-in con guida** |
+| 04 | Alloggiati Web e ROSS1000 | **Istruzioni di check-in** |
+| 05 | Istruzioni di check-in | **Registrazione Portale Alloggiati e ROSS 1000** |
+
+Gli altri sei passaggi restano dov'erano. Insieme all'ordine sono stati
+allineati i due punti che lo rispecchiavano altrove, altrimenti l'app avrebbe
+detto due cose diverse: il *Promemoria della prenotazione* e il richiamo che
+ridisegna le attività di oggi quando si spunta l'adempimento sui portali.
+
+### I campi scritti a mano non si perdono più
+
+Nei profili freelance il testo finiva nello stato **solo premendo Salva**:
+bastava toccare *Torna ai profili* o chiudere l'app per perderlo.
+
+Ora ogni tasto premuto scrive subito nello stato, e il salvataggio parte da
+solo dopo mezzo secondo di pausa — così non si manda una richiesta a ogni
+lettera. Quello che è ancora in attesa viene mandato subito quando esci dal
+campo, quando torni ai profili e quando l'app passa in secondo piano o viene
+chiusa (con `keepalive`, altrimenti alla chiusura la richiesta verrebbe
+annullata a metà). Il pulsante *Salva* resta, per chi vuole la conferma.
+
+C'è anche una protezione che prima mancava: mentre stai scrivendo, una risposta
+del servizio non può più riportare indietro il testo sotto le dita.
+
+### Prompt: elenco puntato che si apre
+
+La sezione *Prompt* era un elenco di sole righe di testo. Adesso ogni prompt ha
+un **titolo** e il **prompt vero e proprio**: l'elenco mostra i titoli, e
+toccandone uno si apre il testo, modificabile, con un pulsante per copiarlo.
+
+I prompt già salvati col formato vecchio non si perdono: il testo che c'era
+diventa il titolo, e il corpo resta da riempire.
+
+Vale per tutti e due i profili di Workana e anche per Upwork: la sezione è la
+stessa per tutti i profili freelance.

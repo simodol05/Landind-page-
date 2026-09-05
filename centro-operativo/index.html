@@ -367,6 +367,26 @@
     .fl-item input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--gold); cursor:pointer; }
     .fl-item.done .fl-item-text { text-decoration:line-through; opacity:.5; }
     .fl-item-text strong { display:block; font-size:14px; color:#f7f3ea; line-height:1.5; }
+
+    /* Prompt: elenco puntato di titoli che si aprono sul prompt vero e proprio. */
+    .prompt-list { list-style:none; margin:0; padding:0; }
+    .prompt-list > li { border-bottom:1px solid rgba(230,213,175,.08); }
+    .prompt-list > li:last-child { border-bottom:0; }
+    .prompt-item > summary { display:flex; gap:10px; align-items:baseline; padding:12px 2px; cursor:pointer; list-style:none; color:#f7f3ea; font-size:14px; line-height:1.5; }
+    .prompt-item > summary::-webkit-details-marker { display:none; }
+    .prompt-item > summary::before { content:"▸"; color:var(--gold); flex:none; transition:transform .15s; }
+    .prompt-item[open] > summary::before { transform:rotate(90deg); }
+    .prompt-item > summary span { flex:1; min-width:0; }
+    .prompt-item > summary:focus-visible { outline:2px solid rgba(222,190,126,.5); outline-offset:2px; border-radius:8px; }
+    .prompt-body { padding:2px 0 16px 22px; display:grid; gap:9px; }
+    .prompt-body textarea { min-height:150px; }
+    .prompt-body .fl-actions { margin-top:0; }
+    .prompt-body .fl-actions button.ghost { color:var(--gold-soft); background:transparent; padding:9px 14px; font-weight:600; }
+    .prompt-body .fl-field { margin-bottom:0; }
+    .prompt-add { display:grid; gap:9px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(230,213,175,.08); }
+    .prompt-add input { box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
+    .prompt-add textarea { min-height:110px; }
+    .prompt-add button { justify-self:start; padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .fl-item-text span { color:var(--muted); font-size:12px; white-space:pre-wrap; }
     .fl-remove { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
     .nav-switch { margin-top:12px; border-top:1px solid var(--line); padding-top:16px; }
@@ -787,10 +807,10 @@
           <div id="workflowSteps" class="hidden">
           <div class="workflow-step"><span class="step-number">01</span><div><strong>Messaggio di benvenuto</strong><small>Subito dopo la nuova prenotazione</small></div><button class="step-toggle" type="button">Da fare</button></div>
           <div class="workflow-step locked"><span class="step-number">02</span><div><strong>Richiesta documenti</strong><small>Si sblocca dopo il benvenuto</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
-          <div class="workflow-step locked"><span class="step-number">03</span><div><strong>Check-in effettuato</strong><small>Conferma manuale dopo l’ingresso dell’ospite, dalle 15:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
-          <div class="workflow-step locked" data-compliance-step><span class="step-number">04</span><div><strong>Alloggiati Web e ROSS1000</strong><small>Solo dopo il check-in effettuato e dopo le 15:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
-          <div class="workflow-step locked"><span class="step-number">05</span><div><strong>Istruzioni di check-in</strong><small>Invio con codice inserito manualmente</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
-          <div class="workflow-step locked"><span class="step-number">06</span><div><strong>Siamo a vostra disposizione</strong><small>Dopo le istruzioni di check-in</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">03</span><div><strong>Check-in con guida</strong><small>Il messaggio con la guida al check-in, dopo i documenti</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">04</span><div><strong>Istruzioni di check-in</strong><small>Invio con codice inserito manualmente</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked" data-compliance-step><span class="step-number">05</span><div><strong>Registrazione Portale Alloggiati e ROSS 1000</strong><small>Adempimento di legge, entro 24 ore dal check-in</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
+          <div class="workflow-step locked"><span class="step-number">06</span><div><strong>Siamo a vostra disposizione</strong><small>Dopo la registrazione sui portali</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
           <div class="workflow-step locked"><span class="step-number">07</span><div><strong>Pulizia completata</strong><small>Dopo il check-out, dalle ore 11:00</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
           <div class="workflow-step locked"><span class="step-number">08</span><div><strong>Recensione dell’ospite</strong><small>Obbligatoria prima del messaggio finale</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
           <div class="workflow-step locked"><span class="step-number">09</span><div><strong>Messaggio finale</strong><small>Richiesta recensione dopo pulizia e recensione ospite</small></div><button class="step-toggle" type="button" disabled>Bloccata</button></div>
@@ -1282,7 +1302,7 @@
     /* Salva lo stato condiviso e verifica che il servizio lo abbia davvero
        conservato: rileggiamo lo stato e controlliamo che il dato sia tornato
        indietro. Se il servizio scarta la chiave, lo diciamo. */
-    saveShared = async (etichetta) => {
+    saveShared = async (etichetta, opzioni) => {
       // Timbriamo la versione: chi legge dopo sa quale copia e' la piu' recente.
       sharedState.rev = Date.now();
       salvataggiInCorso += 1;
@@ -1291,7 +1311,7 @@
       const esiti = document.querySelectorAll('[data-sync-status]');
       esiti.forEach(el => { el.textContent = 'Salvataggio…'; el.className = el.className.replace(/\b(ok|ko)\b/g, ''); });
       try {
-        const data = await api('/api/prefs', { method:'POST', body: JSON.stringify({
+        const data = await api('/api/prefs', { ...(opzioni || {}), method:'POST', body: JSON.stringify({
           shared: sharedState,
           hiddenInventory: [...hiddenInventory, pacchettoStato()]
         }) });
@@ -1316,6 +1336,46 @@
         salvataggiInCorso = Math.max(0, salvataggiInCorso - 1);
       }
     };
+
+    /* Salvataggio automatico dei campi che si scrivono a mano.
+       Prima il testo finiva nello stato solo premendo Salva: bastava tornare
+       indietro o chiudere l'app per perderlo. Ora ogni tasto premuto lo scrive
+       subito nello stato e il salvataggio parte da solo poco dopo, cosi' non
+       mandiamo una richiesta a ogni lettera. */
+    let attesaAutoSalva = null;
+    let etichettaAutoSalva = '';
+    // Mentre si scrive, una risposta del servizio non deve riportare indietro il testo.
+    let freelanceDirty = false;
+
+    const autoSalva = (etichetta) => {
+      freelanceDirty = true;
+      etichettaAutoSalva = etichetta;
+      clearTimeout(attesaAutoSalva);
+      attesaAutoSalva = setTimeout(() => { attesaAutoSalva = null; eseguiAutoSalva(); }, 700);
+    };
+
+    const eseguiAutoSalva = (opzioni) => saveShared(etichettaAutoSalva, opzioni)
+      .finally(() => { if (!attesaAutoSalva) freelanceDirty = false; });
+
+    /* Salvataggio immediato: annulla l'attesa e manda adesso. Il pulsante Salva
+       passa di qui, cosi' non parte due volte la stessa richiesta. */
+    const salvaOra = (etichetta, opzioni) => {
+      clearTimeout(attesaAutoSalva);
+      attesaAutoSalva = null;
+      if (etichetta) etichettaAutoSalva = etichetta;
+      return eseguiAutoSalva(opzioni);
+    };
+
+    /* Da chiamare prima di lasciare la schermata o di chiudere: manda subito
+       quello che era ancora in attesa, invece di aspettare il timer. */
+    const salvaInSospeso = (opzioni) => { if (attesaAutoSalva) salvaOra(null, opzioni); };
+
+    /* Alla chiusura o al passaggio in secondo piano la richiesta normale verrebbe
+       annullata: keepalive la fa arrivare lo stesso. */
+    window.addEventListener('pagehide', () => salvaInSospeso({ keepalive: true }));
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) salvaInSospeso({ keepalive: true });
+    });
 
     /* ================= chiavi API ================= */
     // Alcune modalita di autenticazione hanno campi diversi: mostriamo solo quelli utili.
@@ -2229,9 +2289,9 @@
       const reminderLabels = [
         'Messaggio di benvenuto',
         'Richiesta documenti',
-        'Check-in effettuato',
-        'Alloggiati Web e ROSS1000 dopo le 15:00',
+        'Check-in con guida',
         'Istruzioni check-in',
+        'Registrazione Portale Alloggiati e ROSS 1000',
         'Siamo a vostra disposizione',
         'Istruzioni check-out',
         'Pulizia completata',
@@ -2339,7 +2399,8 @@
     workflowSteps.forEach((step, index) => {
       step.querySelector('.step-toggle').addEventListener('click', () => {
         segnaPasso(index);
-        if (index === 2 && activeBooking?.checkIn === todayKey) renderTodayTasks(activeBooking, true);
+        // Spuntata la registrazione sui portali, le attivita' di oggi si ridisegnano.
+        if (index === 4 && activeBooking?.checkIn === todayKey) renderTodayTasks(activeBooking, true);
       });
     });
 
@@ -2739,7 +2800,9 @@
       salva.type = 'button'; salva.textContent = 'Salva';
       const stato = document.createElement('span');
       stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
-      salva.addEventListener('click', () => { onSave(area.value); saveShared(titolo + ' salvato'); });
+      area.addEventListener('input', () => { onSave(area.value); autoSalva(titolo + ' salvato'); });
+      area.addEventListener('blur', () => { onSave(area.value); salvaInSospeso(); });
+      salva.addEventListener('click', () => { onSave(area.value); salvaOra(titolo + ' salvato'); });
       azioni.append(salva, stato);
       box.append(h, p, area, azioni);
       return box;
@@ -2821,6 +2884,139 @@
       return box;
     };
 
+    /* Sezione Prompt: elenco puntato dei titoli, e cliccando un titolo si apre
+       il prompt vero e proprio, modificabile. Le voci vecchie avevano il solo
+       campo "text": lo teniamo come titolo, cosi' niente va perso. */
+    const titoloPrompt = (voce) => voce.title || voce.text || 'Senza titolo';
+
+    const sezionePrompt = (voci, onChange) => {
+      const box = document.createElement('section');
+      box.className = 'fl-section';
+      const h = document.createElement('h3'); h.textContent = 'Prompt';
+      const p = document.createElement('p');
+      p.textContent = 'Elenco dei tuoi prompt: scrivi il titolo e il prompt. Tocca un titolo per aprirlo.';
+      const lista = document.createElement('ul');
+      lista.className = 'prompt-list';
+      const stato = document.createElement('span');
+      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
+
+      const disegna = () => {
+        lista.replaceChildren();
+        if (!voci.length) {
+          const vuoto = document.createElement('li');
+          const dentro = document.createElement('div');
+          dentro.className = 'empty-tasks';
+          dentro.textContent = 'Nessun prompt salvato. Aggiungine uno qui sotto.';
+          vuoto.append(dentro);
+          lista.append(vuoto);
+          return;
+        }
+        voci.forEach((voce) => {
+          const li = document.createElement('li');
+          const blocco = document.createElement('details');
+          blocco.className = 'prompt-item';
+          const testa = document.createElement('summary');
+          const nome = document.createElement('span');
+          nome.textContent = titoloPrompt(voce);
+          testa.append(nome);
+          blocco.append(testa);
+
+          const corpo = document.createElement('div');
+          corpo.className = 'prompt-body';
+
+          /* Titolo e prompt hanno un'etichetta: aperto il pannello, il titolo
+             comparirebbe due volte senza spiegazione di quale campo sia. */
+          const rigaTitolo = document.createElement('div');
+          rigaTitolo.className = 'fl-field';
+          const etTitolo = document.createElement('label');
+          etTitolo.textContent = 'Titolo';
+          const campoTitolo = document.createElement('input');
+          campoTitolo.type = 'text';
+          campoTitolo.value = titoloPrompt(voce);
+          etTitolo.htmlFor = campoTitolo.id = 'prompt-titolo-' + (voce.id || Math.random().toString(36).slice(2));
+          rigaTitolo.append(etTitolo, campoTitolo);
+
+          const rigaCorpo = document.createElement('div');
+          rigaCorpo.className = 'fl-field';
+          const etCorpo = document.createElement('label');
+          etCorpo.textContent = 'Prompt';
+          campoTitolo.addEventListener('input', () => {
+            voce.title = campoTitolo.value;
+            delete voce.text;           // il campo vecchio non serve piu'
+            nome.textContent = titoloPrompt(voce);
+            autoSalva('Prompt salvati');
+          });
+          campoTitolo.addEventListener('blur', () => salvaInSospeso());
+
+          const corpoTesto = document.createElement('textarea');
+          corpoTesto.value = voce.body || '';
+          corpoTesto.placeholder = 'Scrivi qui il prompt.';
+          etCorpo.htmlFor = corpoTesto.id = 'prompt-corpo-' + (voce.id || Math.random().toString(36).slice(2));
+          rigaCorpo.append(etCorpo, corpoTesto);
+          corpoTesto.addEventListener('input', () => { voce.body = corpoTesto.value; autoSalva('Prompt salvati'); });
+          corpoTesto.addEventListener('blur', () => salvaInSospeso());
+
+          const azioni = document.createElement('div');
+          azioni.className = 'fl-actions';
+          const copia = document.createElement('button');
+          copia.type = 'button'; copia.className = 'ghost'; copia.textContent = 'Copia il prompt';
+          const esito = document.createElement('span');
+          esito.className = 'sync-status';
+          copia.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(voce.body || '');
+              esito.textContent = 'Copiato.'; esito.classList.add('ok');
+            } catch {
+              // Senza permesso per gli appunti selezioniamo il testo: si copia a mano.
+              corpoTesto.focus(); corpoTesto.select();
+              esito.textContent = 'Selezionato: copialo tu.'; esito.classList.add('ko');
+            }
+          });
+          const via = document.createElement('button');
+          via.type = 'button'; via.className = 'ghost'; via.textContent = 'Elimina';
+          via.addEventListener('click', () => {
+            const i = voci.indexOf(voce);
+            if (i >= 0) voci.splice(i, 1);
+            disegna(); onChange();
+          });
+          azioni.append(copia, via, esito);
+
+          corpo.append(rigaTitolo, rigaCorpo, azioni);
+          blocco.append(corpo);
+          li.append(blocco);
+          lista.append(li);
+        });
+      };
+
+      const form = document.createElement('form');
+      form.className = 'prompt-add';
+      const nuovoTitolo = document.createElement('input');
+      nuovoTitolo.type = 'text'; nuovoTitolo.required = true;
+      nuovoTitolo.placeholder = 'Titolo del prompt';
+      nuovoTitolo.setAttribute('aria-label', 'Titolo del nuovo prompt');
+      const nuovoCorpo = document.createElement('textarea');
+      nuovoCorpo.placeholder = 'Il prompt';
+      nuovoCorpo.setAttribute('aria-label', 'Testo del nuovo prompt');
+      const aggiungi = document.createElement('button');
+      aggiungi.type = 'submit'; aggiungi.textContent = 'Aggiungi prompt';
+      form.append(nuovoTitolo, nuovoCorpo, aggiungi);
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const titolo = nuovoTitolo.value.trim();
+        if (!titolo) return;
+        voci.push({ id: String(Date.now()), title: titolo, body: nuovoCorpo.value });
+        nuovoTitolo.value = ''; nuovoCorpo.value = '';
+        disegna(); onChange();
+      });
+
+      const azioni = document.createElement('div');
+      azioni.className = 'fl-actions';
+      azioni.append(stato);
+      disegna();
+      box.append(h, p, lista, form, azioni);
+      return box;
+    };
+
     const renderProfile = (business, nomeProfilo) => {
       const conf = businessFreelance[business];
       const dati = leggiProfilo(business, nomeProfilo);
@@ -2835,7 +3031,7 @@
       indietro.type = 'button'; indietro.className = 'outline-button';
       indietro.textContent = 'Torna ai profili';
       indietro.style.marginTop = '12px';
-      indietro.addEventListener('click', () => renderProfileList(business));
+      indietro.addEventListener('click', () => { salvaInSospeso(); renderProfileList(business); });
       testa.append(h2, sotto, indietro);
       freelanceBody.append(testa);
 
@@ -2847,7 +3043,7 @@
 
       freelanceBody.append(sezioneElenco('Note', 'Attività da fare: si spuntano quando sono finite.', {
         voci: dati.notes, spuntabili: true, segnaposto: 'Nuova attività',
-        onChange: () => saveShared('Note salvate')
+        onChange: () => salvaOra('Note salvate')
       }));
 
       // Piano e investimento stanno insieme: si salvano con un solo pulsante.
@@ -2880,6 +3076,18 @@
       const fInvest = campoTesto('Investimento', dati.investment);
       piano.append(fInvest.wrap);
 
+      /* Anche qui il testo finiva nello stato solo col pulsante: ora ogni campo
+         si scrive da solo mentre lo compili. */
+      const leggiPiano = () => {
+        dati.plan = fPiano.input.value.trim();
+        if (fCrediti) dati.credits = fCrediti.input.value.trim();
+        dati.investment = fInvest.input.value.trim();
+      };
+      [fPiano, fCrediti, fInvest].filter(Boolean).forEach(({ input }) => {
+        input.addEventListener('input', () => { leggiPiano(); autoSalva('Piano e investimento salvati'); });
+        input.addEventListener('blur', () => { leggiPiano(); salvaInSospeso(); });
+      });
+
       const azioniPiano = document.createElement('div');
       azioniPiano.className = 'fl-actions';
       const salvaPiano = document.createElement('button');
@@ -2887,19 +3095,14 @@
       const statoPiano = document.createElement('span');
       statoPiano.className = 'sync-status'; statoPiano.setAttribute('data-sync-status', '');
       salvaPiano.addEventListener('click', () => {
-        dati.plan = fPiano.input.value.trim();
-        if (fCrediti) dati.credits = fCrediti.input.value.trim();
-        dati.investment = fInvest.input.value.trim();
-        saveShared('Piano e investimento salvati');
+        leggiPiano();
+        salvaOra('Piano e investimento salvati');
       });
       azioniPiano.append(salvaPiano, statoPiano);
       piano.append(azioniPiano);
       freelanceBody.append(piano);
 
-      freelanceBody.append(sezioneElenco('Prompt', 'I prompt che vuoi tenere a portata di mano.', {
-        voci: dati.prompts, spuntabili: false, segnaposto: 'Nuovo prompt',
-        onChange: () => saveShared('Prompt salvati')
-      }));
+      freelanceBody.append(sezionePrompt(dati.prompts, () => salvaOra('Prompt salvati')));
 
       // Collegamenti: link al profilo, alla dashboard, alle ricerche salvate.
       dati.links = Array.isArray(dati.links) ? dati.links : [];
@@ -3012,6 +3215,8 @@
       Object.keys(remoto).forEach((chiave) => {
         const valore = remoto[chiave];
         if (valore === null || valore === undefined) return;
+        // Mentre si sta scrivendo in un profilo freelance quella parte non si tocca.
+        if (chiave === 'freelance' && freelanceDirty) return;
         sharedState[chiave] = valore;
       });
       syncVerificata = true; // se e' tornato indietro, il servizio lo conserva
