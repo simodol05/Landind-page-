@@ -1130,7 +1130,14 @@
     setInterval(updateClock, 1000);
     document.getElementById('priorityDate').textContent = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(today);
     const updateEarningsChart = (cents) => {
-      document.getElementById('monthlyEarnings').textContent = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
+      /* Con null non abbiamo una lettura attendibile: mostriamo una lineetta.
+         Scrivere "0,00 €" sarebbe un'affermazione falsa sugli incassi del
+         mese, non un posto vuoto. */
+      const vuoto = cents === null || cents === undefined;
+      document.getElementById('monthlyEarnings').textContent = vuoto
+        ? '—'
+        : new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
+      if (vuoto) cents = 0;
       const days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
       const progressX = Math.max(40, Math.round((today.getDate() / days) * 900));
       const rise = cents > 0 ? Math.min(82, 22 + Math.log10(cents / 100 + 1) * 21) : 0;
@@ -1603,6 +1610,26 @@
        ci mettiamo in ascolto, cosi' il totale in home cambia nell'istante in
        cui aggiungi una prenotazione, senza aspettare il giro di rilettura. */
     let accountingChannel = null;
+
+    /* La fotografia e' l'unico modo che ha il telefono di vedere il totale
+       senza la password. Va quindi ripubblicata a OGNI lettura nuova, non solo
+       al giro di rilettura da un minuto: cosi' una prenotazione aggiunta sul
+       pc compare sul telefono nel giro di pochi secondi. */
+    let attesaPubblicazione = null;
+    const pubblicaFotografia = () => {
+      if (!directAccounting) return;
+      sharedState.accountingSnapshot = { ...directAccounting, letturaDa: 'questo dispositivo' };
+      // Piccola attesa: piu' modifiche di fila diventano un salvataggio solo.
+      clearTimeout(attesaPubblicazione);
+      attesaPubblicazione = setTimeout(() => saveShared(''), 1200);
+    };
+
+    let attesaRilettura = null;
+    const rileggiPresto = () => {
+      clearTimeout(attesaRilettura);
+      attesaRilettura = setTimeout(() => { leggiContabilita().catch(() => {}); }, 800);
+    };
+
     const seguiContabilita = (userId, tabella) => {
       if (!accountingClient || accountingChannel) return;
       accountingChannel = accountingClient
@@ -1611,9 +1638,16 @@
           { event:'*', schema:'public', table: tabella, ...(userId ? { filter: 'user_id=eq.' + userId } : {}) },
           (payload) => {
             const scheda = payload?.new?.data;
-            if (!scheda) return;
+            /* Realtime puo' consegnare una riga incompleta: Postgres tronca i
+               messaggi troppo grossi e la scheda della contabilita' e' un blob
+               unico che cresce a ogni prenotazione. Se non riconosciamo una
+               scheda intera non ci fidiamo del payload: rileggiamo la riga.
+               Fidarsi di un blob mozzato significherebbe pubblicare a tutti i
+               dispositivi un totale sbagliato. */
+            if (!scheda || !Array.isArray(scheda.bookings)) { rileggiPresto(); return; }
             directAccounting = totaleDelMese(scheda);
             applyEarnings(null);
+            pubblicaFotografia();
           })
         .subscribe();
     };
@@ -1646,8 +1680,7 @@
          contabilita' resta legata a questo dispositivo (e' giusto che sia
          cosi'), ma il numero deve vedersi anche dal telefono senza rifare il
          login. Gli altri dispositivi mostrano questa fotografia. */
-      sharedState.accountingSnapshot = { ...directAccounting, letturaDa: 'questo dispositivo' };
-      saveShared('');
+      pubblicaFotografia();
       applyEarnings(null);
       seguiContabilita(sessione.session?.user?.id, tabella);
       const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
@@ -2539,22 +2572,27 @@
     };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
-      /* Ordine: la lettura diretta di questo dispositivo, poi il valore del
-         servizio SOLO se e' davvero collegato, poi la fotografia arrivata
-         dagli altri dispositivi.
-         Il servizio risponde sempre con un oggetto: quando la contabilita' non
-         e' collegata li' manda { configured:false }, che pero' e' "vero" per
-         JavaScript e copriva la fotografia. Era questo che sul telefono
-         lasciava il totale del mese vuoto mentre sul pc si vedeva. */
+      /* IL NUMERO IN HOME NON PUO' VENIRE DAL SERVIZIO.
+         Il lettore del servizio somma riga per riga, mentre la contabilita'
+         tiene tutto dentro un unico blob JSON in una riga sola: con questa
+         forma dei dati non puo' produrre un totale giusto. Prima restituiva
+         0, poi ha cominciato a restituire il solo pacchetto appena aggiunto
+         (15,99). Finche' era lui a vincere, il telefono mostrava quella cifra
+         e il pulsante Incasso "aggiustava" il numero solo perche' ridisegna
+         senza passare il valore del servizio.
+         Qui mostriamo solo cifre calcolate con la regola giusta: la lettura
+         diretta di questo dispositivo, oppure la fotografia calcolata con la
+         stessa regola su un altro dispositivo. Se non c'e' ne' l'una ne'
+         l'altra non inventiamo un numero: diciamo cosa fare. */
       const dalServizio = accounting && accounting.configured ? accounting : null;
-      const info = directAccounting || dalServizio || sharedState.accountingSnapshot || accounting || {};
+      const info = directAccounting || sharedState.accountingSnapshot || {};
       const label = document.getElementById('monthlyLabel');
       const note = document.getElementById('monthlyNote');
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
       // Con la lettura diretta abbiamo tutte e due le colonne: mostriamo quella scelta.
       const netto = typeof info.bookingsNetTotal === 'number';
       const mostrato = netto && earningsMode === 'netto' ? info.bookingsNetTotal : (info.total || 0);
-      updateEarningsChart(mostrato);
+      updateEarningsChart(info.configured ? mostrato : null);
       const altra = document.getElementById('earningsModeNote');
       if (altra) {
         altra.textContent = netto
@@ -2565,9 +2603,15 @@
       }
       if (!info.configured) {
         renderBreakdown(null);
-        note.textContent = accountingConfig
-          ? 'Contabilità collegata: sto rileggendo il totale del mese…'
-          : 'Contabilità non ancora collegata: collegala da Collegamenti per il calcolo automatico.';
+        /* Niente numero: spieghiamo quale delle tre situazioni e' e cosa fare.
+           Il caso di mezzo e' quello del telefono: il servizio dice di essere
+           collegato ma il suo conto non e' attendibile, quindi lo scartiamo
+           invece di mostrare una cifra sbagliata. */
+        note.textContent = dalServizio
+          ? 'Su questo dispositivo manca la password della contabilità. Il conto del servizio non è attendibile con questo formato dati, quindi non lo mostro: inseriscila in Collegamenti, oppure apri il centro operativo sul pc e il totale arriva da solo.'
+          : (accountingConfig
+              ? 'Contabilità collegata: sto rileggendo il totale del mese…'
+              : 'Contabilità non ancora collegata: collegala da Collegamenti per il calcolo automatico.');
         return;
       }
       if (info.error) {
@@ -2575,21 +2619,31 @@
         note.textContent = info.error;
         return;
       }
-      const quando = info.readAt
-        ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt))
+      renderBreakdown(info);
+
+      const letto = info.readAt ? new Date(info.readAt) : null;
+      const quando = letto
+        ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(letto)
         : '';
-      const daLetturaDiretta = info === directAccounting || info === sharedState.accountingSnapshot;
-      renderBreakdown(daLetturaDiretta ? info : null);
-      if (daLetturaDiretta) {
-        note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
-          + ' nel mese, dal software contabilità'
-          + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
-          + (info.packagesCount ? ' · ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto a parte' : ' pacchetti a parte') : '')
-          + quando
-          + (info === sharedState.accountingSnapshot && !directAccounting ? ' · letto da un altro dispositivo' : '');
-        return;
-      }
-      note.textContent = (info.count || 0) + (info.count === 1 ? ' incasso' : ' incassi') + ' dal software contabilità' + quando;
+      // Una fotografia vecchia va detta: e' il solo modo di distinguerla da un dato fresco.
+      const minutiFa = letto ? Math.round((Date.now() - letto.getTime()) / 60000) : null;
+      const vecchia = (minutiFa !== null && minutiFa >= 30)
+        ? ' · attenzione: fotografia di ' + (minutiFa >= 120 ? Math.round(minutiFa / 60) + ' ore fa' : minutiFa + ' minuti fa')
+        : '';
+      /* I pacchetti restano fuori dal totale, come nel software contabilita',
+         ma il numero non deve sembrare sparito: lo scriviamo qui con la somma
+         complessiva, cosi' non c'e' niente da andare a cercare. */
+      const conPacchetti = info.packagesCount
+        ? ' · ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto a parte ' : ' pacchetti a parte ')
+          + euro(info.packagesTotal) + ' · con i pacchetti ' + euro((mostrato || 0) + (info.packagesTotal || 0))
+        : '';
+      note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+        + ' nel mese, dal software contabilità'
+        + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
+        + conPacchetti
+        + quando
+        + (info === sharedState.accountingSnapshot && !directAccounting ? ' · letto da un altro dispositivo' : '')
+        + vecchia;
     };
 
     /* Verifica onesta della sincronizzazione: scriviamo un valore di prova e

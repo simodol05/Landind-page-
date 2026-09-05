@@ -186,3 +186,57 @@ In fondo al *Workflow ospite*. Ogni spunta si salva già da sola, ma senza una
 conferma sotto gli occhi sembrava non fosse successo niente: il pulsante rimanda
 lo stato e scrive com'è finita — «Workflow salvato su tutti i dispositivi»,
 oppure che è rimasto solo qui se il servizio non risponde.
+
+## Aggiornamento: il numero in home non viene più dal servizio
+
+### Il sintomo
+
+Sul telefono la dashboard mostrava **15,99 €** — cioè il solo pacchetto appena
+aggiunto — invece del totale del mese. Toccando il pulsante *Incasso* il numero
+diventava corretto, ma chiudendo e riaprendo tornava sbagliato.
+
+### La causa
+
+Quel comportamento è la firma esatta del difetto. Il pulsante *Incasso*
+ridisegna il riquadro **senza** passare il valore del servizio, quindi cadeva
+sulla fotografia corretta; l'apertura invece ridisegna **con** il valore del
+servizio, che vinceva e copriva la fotografia.
+
+Il valore del servizio è quello del lettore difettoso diagnosticato all'inizio:
+somma riga per riga, mentre la contabilità tiene tutto dentro **un unico blob
+JSON in una riga sola**. Con questa forma dei dati non può produrre un totale
+giusto. Prima restituiva `0`; ora che c'è un pacchetto restituisce quello.
+
+Riprodotto in laboratorio contro un finto servizio che dichiara 15,99: la
+versione precedente mostrava `15,99 €`, quella corretta mostra `639,14 €`.
+
+### La correzione
+
+In home compaiono **solo cifre calcolate con la regola giusta**: la lettura
+diretta di questo dispositivo, oppure la fotografia calcolata con la stessa
+regola su un altro dispositivo. Il numero del servizio non viene più mostrato.
+
+Se non c'è né l'una né l'altra non si inventa un numero: compare una lineetta
+`—` e la nota dice cosa fare. Scrivere `0,00 €` sarebbe stata un'affermazione
+falsa sugli incassi del mese, non un posto vuoto.
+
+### Aggiornamento in tempo reale sul telefono
+
+Il pc è in ascolto sulle modifiche della contabilità, ma finora una modifica
+aggiornava solo il suo schermo: la fotografia condivisa veniva riscritta solo
+al giro di rilettura da un minuto. Ora ogni lettura nuova ripubblica la
+fotografia (accorpando le modifiche ravvicinate in un salvataggio solo), e il
+telefono la riceve al suo giro da 8 secondi. Misurato: **5–8 secondi** dalla
+modifica sul pc alla comparsa sul telefono.
+
+In più il payload di Realtime viene controllato prima di essere creduto:
+Postgres tronca i messaggi troppo grossi e la scheda della contabilità è un
+blob che cresce a ogni prenotazione. Se non arriva una scheda intera la riga
+viene riletta per intero invece di pubblicare a tutti i dispositivi un totale
+calcolato su dati mozzati.
+
+### I pacchetti
+
+Restano fuori dal totale, come nel software contabilità, ma non devono sembrare
+spariti: sotto il numero ora si legge quanto valgono e quanto fa la somma
+complessiva — «1 pacchetto a parte 15,99 € · con i pacchetti 655,13 €».
