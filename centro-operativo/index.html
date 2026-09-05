@@ -451,8 +451,8 @@
       .task { grid-template-columns: 38px 1fr; }
       .task-time { grid-column: 1; grid-row: 1; }
       .task-icon { grid-column: 1; grid-row: 2; }
-      .task > div:nth-of-type(3) { grid-column: 2; grid-row: 1 / span 2; }
-      .task-end { grid-column: 2; justify-self: start; }
+      .task-body { grid-column: 2; grid-row: 1 / span 2; min-width: 0; }
+      .task-end { grid-column: 2; grid-row: 3; justify-self: start; margin-top: 4px; }
       .summary { gap: 8px; }
       .metric { padding: 13px 10px; }
       .metric strong { font-size: 20px; }
@@ -1618,6 +1618,12 @@
       if (error) return { ok:false, message:'Lettura non riuscita: ' + error.message };
       if (!righe || !righe.length) return { ok:false, message:'Nessuna scheda trovata nella tabella ' + tabella + ' per questo login.' };
       directAccounting = totaleDelMese(righe[0].data);
+      /* Il totale calcolato viaggia con lo stato condiviso: la sessione della
+         contabilita' resta legata a questo dispositivo (e' giusto che sia
+         cosi'), ma il numero deve vedersi anche dal telefono senza rifare il
+         login. Gli altri dispositivi mostrano questa fotografia. */
+      sharedState.accountingSnapshot = { ...directAccounting, letturaDa: 'questo dispositivo' };
+      saveShared('');
       applyEarnings(null);
       seguiContabilita(sessione.session?.user?.id, tabella);
       const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
@@ -2036,17 +2042,19 @@
         ['', '', '1 Reel', 'Contenuto giornaliero', 'Importante'],
         ['', '', '1 TikTok', 'Contenuto giornaliero', 'Importante']
       ];
+      /* Qui restano solo gli adempimenti operativi. I messaggi all'ospite
+         vivono nel Workflow ospite, per non avere le stesse cose in due posti. */
       if (booking?.checkIn === todayKey) {
-        tasks.push(['10:00', '💬', 'Messaggio mattutino e istruzioni check-in', booking.guestName, 'Importante']);
         tasks.push(['15:00', '🚪', 'Confermare check-in effettuato', 'L’ospite deve essere entrato prima degli adempimenti', 'Urgente']);
-        if (complianceReady) tasks.push(['15:15', '🧾', 'Alloggiati Web e ROSS1000', 'Da completare dopo il check-in', 'Urgente']);
+        /* Adempimento di legge: compare sempre nel giorno di check-in, non solo
+           dopo aver spuntato il workflow, altrimenti si rischia di dimenticarlo. */
+        tasks.push(['15:15', '🧾', 'Portale Alloggiati e ROSS1000', 'Entro 24 ore dal check-in di ' + (booking.guestName || 'l’ospite'), 'Urgente']);
       }
       if (booking?.checkOut === todayKey) {
         const ospite = booking.guestName || 'ospite in uscita';
         tasks.push(['10:00', '🚪', 'Check-out ospite', ospite, 'Importante']);
         /* La pulizia serve a poco senza la lista di cosa portare: la mettiamo nell'attivita. */
         tasks.push(['11:00', '🧹', 'Pulizia programmata · Simona e Lorenzo', 'Da portare: ' + cleaningSupplies(), 'Importante']);
-        tasks.push(['12:30', '⭐', 'Messaggio di richiesta recensione', 'Da inviare a ' + ospite + ' dopo la pulizia', 'Importante']);
         tasks.push(['12:45', '✍️', "Lasciare la recensione all'ospite", ospite + ' · obbligatoria prima del messaggio finale', 'Urgente']);
       }
       // Ogni riga porta la sua chiave, cosi' la spunta sa a chi appartiene.
@@ -2063,7 +2071,7 @@
         righe.sort((a,b) => a[0].localeCompare(b[0])).forEach(([time, icon, title, note, priority, chiave, custom]) => {
           const row = document.createElement('article');
           row.className = `task${time ? '' : ' no-time'}`;
-          row.innerHTML = `${time ? `<div class="task-time">${time}</div>` : ''}<label class="task-icon" aria-label="Completa attività"><input type="checkbox"></label><div><strong></strong><small></small></div><div class="task-end"><span class="status ${priority === 'Urgente' ? 'urgent' : priority === 'Normale' ? 'normal' : 'important'}">${priority}</span></div>`;
+          row.innerHTML = `${time ? `<div class="task-time">${time}</div>` : ''}<label class="task-icon" aria-label="Completa attività"><input type="checkbox"></label><div class="task-body"><strong></strong><small></small></div><div class="task-end"><span class="status ${priority === 'Urgente' ? 'urgent' : priority === 'Normale' ? 'normal' : 'important'}">${priority}</span></div>`;
           row.querySelector('strong').textContent = title;
           row.querySelector('small').textContent = note;
           const spunta = row.querySelector('input');
@@ -2470,8 +2478,9 @@
     };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
-      // La lettura diretta e' quella che vede davvero gli importi: se c'e', vince.
-      const info = directAccounting || accounting || {};
+      /* Ordine: la lettura diretta di questo dispositivo, poi la fotografia
+         arrivata dagli altri dispositivi, infine il valore del servizio. */
+      const info = directAccounting || accounting || sharedState.accountingSnapshot || {};
       const label = document.getElementById('monthlyLabel');
       const note = document.getElementById('monthlyNote');
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
@@ -2502,13 +2511,15 @@
       const quando = info.readAt
         ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt))
         : '';
-      renderBreakdown(info === directAccounting ? info : null);
-      if (info === directAccounting) {
+      const daLetturaDiretta = info === directAccounting || info === sharedState.accountingSnapshot;
+      renderBreakdown(daLetturaDiretta ? info : null);
+      if (daLetturaDiretta) {
         note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
           + ' nel mese, dal software contabilità'
           + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
           + (info.packagesCount ? ' · ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto a parte' : ' pacchetti a parte') : '')
-          + quando;
+          + quando
+          + (info === sharedState.accountingSnapshot && !directAccounting ? ' · letto da un altro dispositivo' : '');
         return;
       }
       note.textContent = (info.count || 0) + (info.count === 1 ? ' incasso' : ' incassi') + ' dal software contabilità' + quando;
@@ -2879,6 +2890,7 @@
         renderEarningsMode();
         applyEarnings(null);
       }
+      if (sharedState.accountingSnapshot && !directAccounting) applyEarnings(null);
       if (sharedState.accounting && !accountingConfig) {
         accountingConfig = sharedState.accounting;
         try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
