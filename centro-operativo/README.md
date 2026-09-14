@@ -284,3 +284,50 @@ diventa il titolo, e il corpo resta da riempire.
 
 Vale per tutti e due i profili di Workana e anche per Upwork: la sezione è la
 stessa per tutti i profili freelance.
+
+## Aggiornamento: pacchetti nel totale, somma Gian + Lorenzo, workflow che riparte
+
+### I pacchetti entrano nel guadagno del mese
+
+Il numero in home era la somma delle sole prenotazioni, con i pacchetti contati
+a parte — la stessa regola del software contabilità. Ora i pacchetti sono
+**dentro il totale**.
+
+La somma si fa al momento di mostrare il numero, non dentro il calcolo: così
+vale anche per le fotografie salvate prima di questa modifica, che tengono i
+pacchetti in una voce separata e altrimenti andrebbero ricalcolate.
+
+> Da adesso il numero in home **non coincide più** con il totale mensile del
+> software contabilità, che i pacchetti li tiene fuori. È una differenza voluta,
+> e la nota sotto il numero lo scrive, altrimenti sembrerebbe un errore di conto.
+
+Vale in tutte e due le colonne: *incasso* e *netto*. Il dettaglio «vedi le voci
+contate» mostra prenotazioni e pacchetti in due gruppi e chiude con il totale.
+
+### Calcolatore: riga «Gian + Lorenzo»
+
+Sotto le tre quote c'è una quarta riga con la somma di Gian e Lorenzo, che si
+aggiorna insieme al resto ogni volta che cambia un importo. È staccata
+graficamente dalle altre: è una somma di due quote già mostrate sopra, non un
+quarto proprietario.
+
+Verificato: 1.000 € ricevuti, 200 € di pulizie, 50 € di pacchetti →
+Gian 600,00 · Simona 225,00 · Lorenzo 225,00 · **Gian + Lorenzo 825,00**.
+
+### Il workflow riparte dopo ogni check-out
+
+Prima il workflow passava al prossimo ospite **la mattina stessa** del
+check-out: `present` richiede che l'uscita sia oltre oggi, quindi nel giorno
+dell'uscita l'ospite non era più "presente". Conseguenza: gli ultimi tre
+passaggi — pulizia completata, recensione dell'ospite, messaggio finale, che si
+spuntano proprio quel giorno — non si potevano più segnare.
+
+Adesso:
+
+- **il giorno del check-out** il workflow resta sull'ospite che parte, e la
+  testata lo dice: «Esce oggi · ultimi passaggi, poi il workflow riparte pulito»;
+- **dal giorno dopo** riparte da zero sul prossimo ospite.
+
+L'azzeramento non dipende più solo dal cambio di prenotazione: il workflow si
+porta dietro la data di uscita, così riparte pulito anche se in calendario non è
+ancora comparsa la prenotazione successiva.

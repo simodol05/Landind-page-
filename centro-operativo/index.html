@@ -219,6 +219,9 @@
     .allocation-row span { color:var(--muted); }
     .allocation-row strong { color:var(--gold-soft); font-family:Georgia,serif; font-size:15px; }
     .allocation-row.total { background:rgba(201,168,106,.07); }
+    /* Somma di due quote gia' mostrate sopra: si stacca, cosi' non sembra un quarto proprietario. */
+    .allocation-row.somma { border-top:1px solid rgba(222,190,126,.3); background:rgba(201,168,106,.14); }
+    .allocation-row.somma span { color:var(--gold-soft); font-weight:600; }
     .delete-reservation { grid-column:1/-1; justify-self:end; padding:7px 10px; border:1px solid rgba(237,126,120,.34); border-radius:9px; color:var(--red); background:transparent; cursor:pointer; font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
     .earnings-panel { grid-column:1/-1; padding:22px; position:relative; overflow:hidden; }
     .earnings-panel::after { content:""; position:absolute; inset:auto -10% -80% 40%; height:210px; background:radial-gradient(circle,rgba(201,168,106,.16),transparent 65%); pointer-events:none; }
@@ -886,7 +889,7 @@
         </form>
         <div class="panel finance-results">
           <h3>Risultato</h3>
-          <div class="allocation-group"><div class="allocation-row total"><span>Gian</span><strong id="rOwnerFinal">€0,00</strong></div><div class="allocation-row total"><span>Simona</span><strong id="rSFinal">€0,00</strong></div><div class="allocation-row total"><span>Lorenzo</span><strong id="rLFinal">€0,00</strong></div></div>
+          <div class="allocation-group"><div class="allocation-row total"><span>Gian</span><strong id="rOwnerFinal">€0,00</strong></div><div class="allocation-row total"><span>Simona</span><strong id="rSFinal">€0,00</strong></div><div class="allocation-row total"><span>Lorenzo</span><strong id="rLFinal">€0,00</strong></div><div class="allocation-row somma"><span>Gian + Lorenzo</span><strong id="rGianLorenzo">€0,00</strong></div></div>
         </div>
       </div>
     </section>
@@ -1957,8 +1960,13 @@
       if (activeBooking && !activeBooking.guestName) activeBooking.guestName = '';
       renderTodayTasks(activeBooking);
       /* Il workflow non deve aspettare il giorno del check-in: si prepara gia'
-         ora sull'ospite in casa o, se non c'e' nessuno, sul prossimo arrivo. */
-      renderWorkflow(present || nextIn || null);
+         ora sull'ospite in casa o, se non c'e' nessuno, sul prossimo arrivo.
+         Il giorno dell'uscita l'ospite non e' piu' "presente" (present vuole
+         checkOut oltre oggi), quindi il workflow saltava subito al prossimo e
+         gli ultimi passaggi — pulizia, recensione, messaggio finale, che si
+         spuntano proprio quel giorno — non si potevano piu' segnare. Teniamo
+         quindi l'ospite che esce per tutta la sua giornata di check-out. */
+      renderWorkflow(present || outToday || nextIn || null);
       renderCleaningSchedule(inOrder);
     };
 
@@ -2609,7 +2617,9 @@
         lista.append(el);
       };
 
-      gruppo('Nel totale · ' + euro(earningsMode === 'netto' ? info.bookingsNetTotal : info.bookingsTotal));
+      // Il totale in home e' prenotazioni + pacchetti: il dettaglio lo mostra diviso.
+      const quotaPrenotazioni = earningsMode === 'netto' ? info.bookingsNetTotal : info.bookingsTotal;
+      gruppo('Prenotazioni · ' + euro(quotaPrenotazioni));
       if (!info.voci.length) {
         const vuoto = document.createElement('div');
         vuoto.className = 'breakdown-row fuori';
@@ -2627,8 +2637,9 @@
       }
       if (info.packagesCount) {
         gruppo(info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti')
-          + ' · ' + euro(info.packagesTotal) + ' — contati a parte, come nel software contabilità');
-        info.vociPacchetti.forEach((voce) => lista.append(riga(voce, false)));
+          + ' · ' + euro(info.packagesTotal) + ' — dentro il totale');
+        info.vociPacchetti.forEach((voce) => lista.append(riga(voce, true)));
+        gruppo('Totale · ' + euro((quotaPrenotazioni || 0) + (info.packagesTotal || 0)));
       }
     };
     // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
@@ -2652,14 +2663,20 @@
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
       // Con la lettura diretta abbiamo tutte e due le colonne: mostriamo quella scelta.
       const netto = typeof info.bookingsNetTotal === 'number';
-      const mostrato = netto && earningsMode === 'netto' ? info.bookingsNetTotal : (info.total || 0);
+      /* I pacchetti entrano nel totale in home. La somma si fa qui, al momento
+         di mostrare, e non dentro il calcolo: cosi' vale anche per le
+         fotografie salvate prima di questa modifica, che tengono i pacchetti
+         in una voce separata e non andrebbero ricalcolate. */
+      const pacchetti = info.packagesTotal || 0;
+      const base = netto && earningsMode === 'netto' ? info.bookingsNetTotal : (info.total || 0);
+      const mostrato = base + pacchetti;
       updateEarningsChart(info.configured ? mostrato : null);
       const altra = document.getElementById('earningsModeNote');
       if (altra) {
         altra.textContent = netto
           ? (earningsMode === 'netto'
-              ? 'incasso ' + euro(info.total || 0) + ' meno pulizie ed extra'
-              : 'netto ' + euro(info.bookingsNetTotal) + ' togliendo pulizie ed extra')
+              ? 'incasso ' + euro((info.total || 0) + pacchetti) + ' meno pulizie ed extra'
+              : 'netto ' + euro(info.bookingsNetTotal + pacchetti) + ' togliendo pulizie ed extra')
           : '';
       }
       if (!info.configured) {
@@ -2691,17 +2708,21 @@
       const vecchia = (minutiFa !== null && minutiFa >= 30)
         ? ' · attenzione: fotografia di ' + (minutiFa >= 120 ? Math.round(minutiFa / 60) + ' ore fa' : minutiFa + ' minuti fa')
         : '';
-      /* I pacchetti restano fuori dal totale, come nel software contabilita',
-         ma il numero non deve sembrare sparito: lo scriviamo qui con la somma
-         complessiva, cosi' non c'e' niente da andare a cercare. */
       const conPacchetti = info.packagesCount
-        ? ' · ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto a parte ' : ' pacchetti a parte ')
-          + euro(info.packagesTotal) + ' · con i pacchetti ' + euro((mostrato || 0) + (info.packagesTotal || 0))
+        ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto da ' : ' pacchetti da ') + euro(pacchetti)
+        : '';
+      /* I pacchetti ora sono dentro il totale. Va detto, perche' nel software
+         contabilita' restano fuori dal suo totale mensile: da oggi i due numeri
+         non coincidono piu' e senza una riga che lo spieghi sembrerebbe un
+         errore di conto. */
+      const avvisoPacchetti = info.packagesCount
+        ? ' · lì i pacchetti restano fuori dal totale, qui sono dentro'
         : '';
       note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+        + conPacchetti
         + ' nel mese, dal software contabilità'
         + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
-        + conPacchetti
+        + avvisoPacchetti
         + quando
         + (info === sharedState.accountingSnapshot && !directAccounting ? ' · letto da un altro dispositivo' : '')
         + vecchia;
@@ -3267,19 +3288,28 @@
       vuoto.classList.add('hidden');
       passi.classList.remove('hidden');
       testa.classList.remove('hidden');
-      /* Ospite nuovo: i passaggi del precedente non valgono piu'. */
+      /* Il workflow vale per una sola prenotazione e si azzera DOPO il
+         check-out: il giorno dell'uscita resta quello di chi parte, dal giorno
+         dopo riparte pulito per l'ospite seguente. Teniamo da parte anche la
+         data di uscita, cosi' l'azzeramento avviene anche se in calendario non
+         e' ancora comparsa la prenotazione successiva. */
       const idPrenotazione = booking.id || (booking.checkIn + '·' + booking.checkOut);
       sharedState.workflow = sharedState.workflow || {};
-      if (sharedState.workflow.bookingId !== idPrenotazione) {
-        sharedState.workflow = { bookingId: idPrenotazione, done: [] };
+      const dopoIlCheckOut = sharedState.workflow.checkOut && todayKey > sharedState.workflow.checkOut;
+      if (sharedState.workflow.bookingId !== idPrenotazione || dopoIlCheckOut) {
+        sharedState.workflow = { bookingId: idPrenotazione, checkOut: booking.checkOut, done: [] };
       }
       disegnaWorkflow();
       const inCasa = booking.checkIn <= todayKey && booking.checkOut > todayKey;
+      const esceOggi = booking.checkOut === todayKey;
       testa.replaceChildren();
       const nome = document.createElement('strong');
       nome.textContent = guestLabel(booking);
       const dettaglio = document.createElement('small');
-      dettaglio.textContent = (inCasa ? 'Ospite presente · ' : 'Prossimo ospite · ')
+      // Tre situazioni diverse: chiamarle tutte "prossimo ospite" confonderebbe.
+      const situazione = inCasa ? 'Ospite presente · '
+        : (esceOggi ? 'Esce oggi · ultimi passaggi, poi il workflow riparte pulito · ' : 'Prossimo ospite · ');
+      dettaglio.textContent = situazione
         + soggiorno(booking) + (canale(booking) ? ' · ' + canale(booking) : '');
       testa.append(nome, dettaglio);
     };
@@ -3371,10 +3401,13 @@
       const simonaCleaning = cleaning - lorenzoCleaning;
       const lorenzoPackage = Math.round(packageRevenue / 2);
       const simonaPackage = packageRevenue - lorenzoPackage;
+      const lorenzoTotale = lorenzoNet + lorenzoCleaning + lorenzoPackage;
       const values = {
         rOwnerFinal: owner,
-        rLFinal: lorenzoNet + lorenzoCleaning + lorenzoPackage,
-        rSFinal: simonaNet + simonaCleaning + simonaPackage
+        rLFinal: lorenzoTotale,
+        rSFinal: simonaNet + simonaCleaning + simonaPackage,
+        // Somma delle due quote qui sopra: si aggiorna insieme al resto del calcolo.
+        rGianLorenzo: owner + lorenzoTotale
       };
       Object.entries(values).forEach(([id, value]) => { document.getElementById(id).textContent = euro(value); });
       document.getElementById('financeMessage').textContent = 'Calcolo completato.';
