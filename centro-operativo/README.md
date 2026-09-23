@@ -331,3 +331,61 @@ Adesso:
 L'azzeramento non dipende più solo dal cambio di prenotazione: il workflow si
 porta dietro la data di uscita, così riparte pulito anche se in calendario non è
 ancora comparsa la prenotazione successiva.
+
+## Aggiornamento: una sola lista di prenotazioni, guadagni fedeli alla contabilità
+
+### Le cose da fare non spariscono più quando aggiungi una prenotazione
+
+C'erano **due liste di prenotazioni che si ignoravano**: quelle dei calendari e
+quelle scritte a mano. Inserendone una a mano, il codice riscriveva i riquadri e
+ricostruiva le attività di oggi **sulla sola prenotazione appena inserita** —
+ed è lì che sparivano pulizie programmate e adempimenti già in calendario. Al
+giro di lettura successivo (8 secondi) succedeva l'opposto: spariva l'effetto di
+quella aggiunta a mano.
+
+Ora la lista è una sola: calendari più aggiunte a mano. Tutto quello che ne
+deriva — attività di oggi, pulizie programmate, workflow, riquadri in alto — si
+ricalcola una volta sola su quella somma.
+
+Effetti collaterali, tutti in meglio:
+
+- le prenotazioni scritte a mano **si salvano** e si ritrovano dopo un ricarico
+  (prima vivevano solo nella pagina e sparivano);
+- si vedono **anche dagli altri dispositivi**;
+- compaiono nelle **pulizie programmate**, che prima ignoravano le manuali;
+- inserire due volte lo stesso soggiorno lo **sostituisce** invece di duplicarlo;
+- se il portale importa un soggiorno già inserito a mano, vince quello del
+  calendario e non si vede due volte.
+
+### Il guadagno del mese ora rispecchia il software contabilità
+
+**Perché «aggiorna» non aggiornava niente.** Il software contabilità tiene una
+riga per utente e la rilegge sempre con `.eq('user_id', …)`. Il centro operativo
+invece prendeva *la prima riga che capitava* — `select().limit(1)`, senza filtro
+né ordinamento. Con più righe in tabella si poteva leggere per sempre quella
+sbagliata: premere Aggiorna non cambiava niente perché la riga letta era davvero
+sempre la stessa. Ora si chiede la propria riga, esattamente come fa il software
+contabilità.
+
+**Cosa entra nel mese.** Sia gli importi **ricevuti** sia quelli **da ricevere**:
+
+| voce | nel totale |
+|---|---|
+| prenotazioni del mese, stato *Ricevuto* | sì |
+| prenotazioni del mese, stato *Da ricevere* | sì |
+| righe **senza data** (pagamenti in arrivo) | sì, fra quelle da ricevere |
+| pacchetti del mese | sì |
+| mesi diversi da quello corrente | no |
+
+Le righe senza data nel software contabilità non appartengono a nessun mese —
+lì vengono saltate. Qui entrano nel mese corrente fra quelle da ricevere, e nel
+dettaglio hanno un gruppo tutto loro perché si vedano.
+
+**Cosa si legge adesso.** Sotto il numero: quanto è già stato ricevuto e quanto
+è ancora atteso, e **quando è stata modificata la scheda** della contabilità —
+così se premi Aggiorna e quella data non si muove, il dato di là non è cambiato.
+
+Il dettaglio «vedi le voci contate» elenca ogni riga con il suo stato
+(*Ricevuto* / *Da ricevere*), divisa in prenotazioni del mese, righe senza data
+e pacchetti, e chiude con il totale: **i gruppi sommati fanno esattamente il
+numero in home**, in entrambe le colonne incasso e netto.

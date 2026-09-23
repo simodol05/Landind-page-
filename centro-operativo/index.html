@@ -970,6 +970,7 @@
       tasks: null,          // promemoria di oggi
       earningsMode: null,   // incasso o netto
       accounting: null,     // indirizzo, tabella, chiave ed e-mail della contabilita
+      manualBookings: null, // prenotazioni scritte a mano, accanto a quelle dei calendari
       rev: 0                // quando e' stato scritto: serve a non farsi sovrascrivere
     });
     let sharedState = statoDiSerie();
@@ -1630,45 +1631,77 @@
     const totaleDelMese = (blob) => {
       const bookings = Array.isArray(blob?.bookings) ? blob.bookings : [];
       const packages = Array.isArray(blob?.packages) ? blob.packages : [];
-      const prenotazioni = bookings.filter(b => meseCorrente(b.startDate));
-      const senzaData = bookings.filter(b => !haData(b));
-      const pacchetti = packages.filter(p => meseCorrente(p.date));
 
-      const incassi = prenotazioni.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
-      const extra = pacchetti.reduce((somma, p) => somma + (Number(p.amount) || 0), 0);
-      const sospesi = senzaData.reduce((somma, b) => somma + (Number(b.revenue) || 0), 0);
-      /* Nella tabella del software contabilita' ogni prenotazione mostra due
-         importi: "incasso" (revenue) e "netto" (incasso - pulizie - extra).
-         Sono due numeri diversi e a colpo d'occhio si sommano entrambi, quindi
-         li calcoliamo tutti e due e lasciamo scegliere quale e' il guadagno. */
-      const netto = (b) => (Number(b.revenue) || 0) - (Number(b.cleaning) || 0) - (Number(b.extra) || 0);
-      const netti = prenotazioni.reduce((somma, b) => somma + netto(b), 0);
+      /* Stesse etichette del software contabilita': lo stato di una riga e'
+         "Ricevuto" oppure "Da ricevere". Tutto cio' che non e' "Ricevuto" lo
+         trattiamo come ancora da incassare. */
+      const incassato = (riga) => String(riga.status || '').trim().toLowerCase() === 'ricevuto';
+
+      /* Il mese comprende sia gli importi gia' ricevuti sia quelli da
+         ricevere. Le righe senza data non appartengono a nessun mese nel
+         software contabilita' (li' vengono saltate), ma sono i pagamenti in
+         arrivo: qui entrano nel mese corrente fra quelli "da ricevere", e nel
+         dettaglio hanno un gruppo tutto loro perche' si vedano. */
+      const prenotazioni = bookings.filter(b => haData(b) && meseCorrente(b.startDate));
+      const senzaData = bookings.filter(b => !haData(b));
+      const pacchettiMese = packages.filter(p => p.date && meseCorrente(p.date));
+      const pacchettiSenzaData = packages.filter(p => !p.date);
+
+      const somma = (righe, campo) => righe.reduce((s, r) => s + (Number(r[campo]) || 0), 0);
+      // Netto come nella tabella del software contabilita': incasso meno pulizie ed extra.
+      const nettoDi = (b) => (Number(b.revenue) || 0) - (Number(b.cleaning) || 0) - (Number(b.extra) || 0);
+
+      const conData = prenotazioni;
+      const tutteLeRighe = [...conData, ...senzaData];
+      const pacchettiTutti = [...pacchettiMese, ...pacchettiSenzaData];
+
+      const incassiPren = somma(tutteLeRighe, 'revenue');
+      const nettiPren = tutteLeRighe.reduce((s, b) => s + nettoDi(b), 0);
+      const incassiPacchetti = somma(pacchettiTutti, 'amount');
+
+      // Ripartizione fra gia' incassato e ancora atteso, sull'intero perimetro.
+      const ricevutoPren = somma(tutteLeRighe.filter(incassato), 'revenue');
+      const ricevutoPacchetti = somma(pacchettiTutti.filter(incassato), 'amount');
+      const attesoPren = incassiPren - ricevutoPren;
+      const attesoPacchetti = incassiPacchetti - ricevutoPacchetti;
 
       const nome = (b) => (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : '');
+      const stato = (r) => incassato(r) ? 'Ricevuto' : 'Da ricevere';
+      const rigaPren = (b) => ({
+        date: b.startDate || '', label: nome(b), cents: importo(b.revenue),
+        netCents: Math.round(nettoDi(b) * 100), status: stato(b)
+      });
+      const rigaPacco = (p) => ({
+        date: p.date || '', label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''),
+        cents: importo(p.amount), status: stato(p)
+      });
+      const perData = (a, b) => (a.date || '9999').localeCompare(b.date || '9999');
+
       return {
         configured: true,
+        schema: 2,                       // i pacchetti sono gia' dentro "total"
         monthLabel: etichettaMese(),
-        // Il totale in home e' la somma delle sole prenotazioni del mese.
-        total: Math.round(incassi * 100),
-        count: prenotazioni.length,
-        bookingsTotal: Math.round(incassi * 100),
-        bookingsNetTotal: Math.round(netti * 100),
-        bookingsCount: prenotazioni.length,
-        packagesTotal: Math.round(extra * 100),
-        packagesCount: pacchetti.length,
-        undatedTotal: Math.round(sospesi * 100),
+        // Il numero in home: tutto quello che il mese porta, incassato o atteso.
+        total: Math.round((incassiPren + incassiPacchetti) * 100),
+        totalNet: Math.round((nettiPren + incassiPacchetti) * 100),
+        receivedTotal: Math.round((ricevutoPren + ricevutoPacchetti) * 100),
+        pendingTotal: Math.round((attesoPren + attesoPacchetti) * 100),
+        count: tutteLeRighe.length,
+        bookingsTotal: Math.round(incassiPren * 100),
+        bookingsNetTotal: Math.round(nettiPren * 100),
+        bookingsCount: tutteLeRighe.length,
+        datedCount: conData.length,
+        packagesTotal: Math.round(incassiPacchetti * 100),
+        packagesCount: pacchettiTutti.length,
+        undatedTotal: Math.round(somma(senzaData, 'revenue') * 100),
         undatedCount: senzaData.length,
-        voci: prenotazioni
-          .map(b => ({ date: b.startDate, label: nome(b), cents: importo(b.revenue), netCents: Math.round(netto(b) * 100), status: b.status || '' }))
-          .sort((a, b) => a.date.localeCompare(b.date)),
-        vociPacchetti: pacchetti
-          .map(p => ({ date: p.date, label: (p.name || 'Pacchetto') + (p.guest ? ' · ' + p.guest : ''), cents: importo(p.amount) }))
-          .sort((a, b) => a.date.localeCompare(b.date)),
-        vociSenzaData: senzaData.map(b => ({ date: '', label: nome(b), cents: importo(b.revenue), status: b.status || '' })),
-        readAt: new Date().toISOString()
+        voci: conData.map(rigaPren).sort(perData),
+        vociSenzaData: senzaData.map(rigaPren),
+        vociPacchetti: pacchettiTutti.map(rigaPacco).sort(perData),
+        readAt: new Date().toISOString(),
+        dataUpdatedAt: blob?.__updatedAt || null
       };
     };
-
     /* Il software contabilita' pubblica le sue modifiche su Supabase Realtime:
        ci mettiamo in ascolto, cosi' il totale in home cambia nell'istante in
        cui aggiungi una prenotazione, senza aspettare il giro di rilettura. */
@@ -1708,7 +1741,7 @@
                Fidarsi di un blob mozzato significherebbe pubblicare a tutti i
                dispositivi un totale sbagliato. */
             if (!scheda || !Array.isArray(scheda.bookings)) { rileggiPresto(); return; }
-            directAccounting = totaleDelMese(scheda);
+            directAccounting = totaleDelMese({ ...scheda, __updatedAt: payload?.new?.updated_at || new Date().toISOString() });
             applyEarnings(null);
             pubblicaFotografia();
           })
@@ -1735,10 +1768,35 @@
       const { data: sessione } = await accountingClient.auth.getSession();
       if (!sessione?.session) return { ok:false, servePassword:true, message:'Indirizzo, tabella e chiave anon sono già arrivati dagli altri dispositivi: manca solo la password del software contabilità. Inseriscila qui sotto e premi Collega per leggere in diretta anche da qui.' };
       const tabella = accountingConfig.table || 'app_data';
-      const { data: righe, error } = await accountingClient.from(tabella).select('data').limit(1);
-      if (error) return { ok:false, message:'Lettura non riuscita: ' + error.message };
-      if (!righe || !righe.length) return { ok:false, message:'Nessuna scheda trovata nella tabella ' + tabella + ' per questo login.' };
-      directAccounting = totaleDelMese(righe[0].data);
+      /* IL PUNTO DOVE L'AGGIORNAMENTO NON ARRIVAVA.
+         Il software contabilita' tiene UNA riga per utente e la rilegge sempre
+         con .eq('user_id', ...). Qui invece prendevamo la prima riga che
+         capitava (select().limit(1), senza filtro ne' ordinamento): con piu'
+         righe in tabella si poteva leggere per sempre quella di qualcun altro
+         o una vecchia, e premere Aggiorna non cambiava niente perche' la riga
+         letta era davvero sempre la stessa. Ora chiediamo la nostra, come fa
+         il software contabilita'. */
+      const utente = sessione.session?.user?.id || null;
+      let riga = null;
+      if (utente) {
+        const esito = await accountingClient.from(tabella)
+          .select('data, updated_at').eq('user_id', utente).maybeSingle();
+        if (esito.error) return { ok:false, message:'Lettura non riuscita: ' + esito.error.message };
+        riga = esito.data;
+      }
+      if (!riga) {
+        // Nessuna riga intestata a questo login: ripieghiamo sulla piu' recente.
+        const esito = await accountingClient.from(tabella)
+          .select('data, updated_at').order('updated_at', { ascending: false }).limit(1);
+        if (esito.error) return { ok:false, message:'Lettura non riuscita: ' + esito.error.message };
+        riga = esito.data && esito.data[0];
+      }
+      if (!riga) return { ok:false, message:'Nessuna scheda trovata nella tabella ' + tabella + ' per questo login.' };
+      // La data di ultima modifica della scheda: dice se il dato e' davvero fresco.
+      const scheda = riga.data && typeof riga.data === 'object'
+        ? { ...riga.data, __updatedAt: riga.updated_at || null }
+        : riga.data;
+      directAccounting = totaleDelMese(scheda);
       /* Il totale calcolato viaggia con lo stato condiviso: la sessione della
          contabilita' resta legata a questo dispositivo (e' giusto che sia
          cosi'), ma il numero deve vedersi anche dal telefono senza rifare il
@@ -1747,12 +1805,18 @@
       applyEarnings(null);
       seguiContabilita(sessione.session?.user?.id, tabella);
       const euroDi = (cents) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(cents / 100);
+      const i = directAccounting;
+      const quandoScheda = i.dataUpdatedAt
+        ? ' · scheda modificata il ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(i.dataUpdatedAt))
+        : '';
       return {
         ok: true,
-        message: euroDi(directAccounting.total) + ' nel mese, da '
-          + directAccounting.bookingsCount + (directAccounting.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
-          + (directAccounting.undatedCount ? ' · attenzione: ' + directAccounting.undatedCount + ' senza data (' + euroDi(directAccounting.undatedTotal) + ') non entrano in nessun mese' : '')
-          + (directAccounting.packagesCount ? ' · ' + directAccounting.packagesCount + (directAccounting.packagesCount === 1 ? ' pacchetto a parte (' : ' pacchetti a parte (') + euroDi(directAccounting.packagesTotal) + ')' : '')
+        message: euroDi(i.total) + ' nel mese · ' + euroDi(i.receivedTotal) + ' ricevuti e '
+          + euroDi(i.pendingTotal) + ' da ricevere · '
+          + i.bookingsCount + (i.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+          + (i.undatedCount ? ' (di cui ' + i.undatedCount + ' senza data)' : '')
+          + (i.packagesCount ? ' e ' + i.packagesCount + (i.packagesCount === 1 ? ' pacchetto' : ' pacchetti') : '')
+          + quandoScheda
       };
     };
 
@@ -1916,6 +1980,22 @@
     /* ================= prenotazioni ================= */
     let importedEvents = [];
 
+    /* UNA SOLA LISTA DI PRENOTAZIONI.
+       Prima ce n'erano due che si ignoravano: quelle dei calendari e quelle
+       scritte a mano. Aggiungendone una a mano, le attivita' di oggi venivano
+       ricostruite sulla sola nuova e sparivano pulizie e adempimenti gia' in
+       programma; al giro di lettura successivo spariva invece l'effetto di
+       quella aggiunta a mano. Adesso le due liste si sommano e tutto —
+       attivita' di oggi, pulizie, workflow, riquadri in alto — si ricalcola
+       una volta sola su quella somma. */
+    const prenotazioniManuali = () => Array.isArray(sharedState.manualBookings) ? sharedState.manualBookings : [];
+    const chiaveSoggiorno = (e) => (e.checkIn || '') + '·' + (e.checkOut || '');
+    const tutteLePrenotazioni = () => {
+      const daiCalendari = new Set(importedEvents.map(chiaveSoggiorno));
+      // Se il portale importa lo stesso soggiorno, la versione del calendario vince.
+      return [...importedEvents, ...prenotazioniManuali().filter(m => !daiCalendari.has(chiaveSoggiorno(m)))];
+    };
+
     const displayName = (event) => (event && (event.guestName || event.title)) || '';
 
     /* Sul riquadro in home vogliamo sempre un nome leggibile: se il portale non lo
@@ -1936,7 +2016,7 @@
     const applyDashboard = () => {
       /* L'ordine di arrivo dai portali non e' garantito: ordiniamo noi prima di
          cercare "il prossimo", altrimenti find() restituisce il primo a caso. */
-      const inOrder = [...importedEvents].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+      const inOrder = [...tutteLePrenotazioni()].sort((a, b) => a.checkIn.localeCompare(b.checkIn));
       const present = inOrder.find(event => event.checkIn <= todayKey && event.checkOut > todayKey);
       /* "Prossimo ospite" e' una prenotazione vera: i periodi bloccati non hanno un ospite. */
       const nextIn = inOrder.find(event => event.checkIn >= todayKey && event !== present && !event.blocked)
@@ -1954,7 +2034,7 @@
         nextOut ? guestLabel(nextOut) : 'Non programmato',
         nextOut ? 'Check-out ' + formatDate(nextOut.checkOut) : '');
       // Una prenotazione che esce OGGI non e' piu' "presente" ma ha ancora tutte le attivita' del check-out.
-      const outToday = importedEvents.find(event => event.checkOut === todayKey && !event.blocked);
+      const outToday = inOrder.find(event => event.checkOut === todayKey && !event.blocked);
       activeBooking = present || outToday || (nextIn?.checkIn === todayKey ? nextIn : null);
       /* Se il portale non ha dato un nome lo lasciamo vuoto: le attivita usano un testo neutro. */
       if (activeBooking && !activeBooking.guestName) activeBooking.guestName = '';
@@ -2044,17 +2124,35 @@
     };
 
     // La lista Prenotazioni e' uno specchio in sola lettura: il nome si modifica dai Collegamenti.
+    /* L'elenco si ridisegna sempre dai dati, calendari e aggiunte a mano
+       insieme: cosi' una prenotazione scritta a mano non sparisce al primo
+       giro di lettura e si ritrova anche sugli altri dispositivi. */
     const renderReservationMirror = () => {
       const list = document.getElementById('reservationItems');
-      list.querySelectorAll('.imported-reservation').forEach(item => item.remove());
+      list.querySelectorAll('.imported-reservation, .manual-reservation').forEach(item => item.remove());
       // I periodi bloccati non sono prenotazioni: restano fuori da questo elenco.
-      const prenotazioni = importedEvents.filter(event => !event.blocked);
+      const prenotazioni = tutteLePrenotazioni().filter(event => !event.blocked)
+        .sort((a, b) => (a.checkIn || '').localeCompare(b.checkIn || ''));
       prenotazioni.forEach((event) => {
         const card = buildReservationCard(event, false);
-        card.classList.add('imported-reservation');
+        card.classList.add(event.manuale ? 'manual-reservation' : 'imported-reservation');
+        if (event.manuale) {
+          const via = document.createElement('button');
+          via.className = 'delete-reservation';
+          via.type = 'button';
+          via.textContent = 'Elimina prenotazione';
+          via.addEventListener('click', () => {
+            sharedState.manualBookings = prenotazioniManuali().filter(m => m.id !== event.id);
+            salvaOra('Prenotazione eliminata');
+            renderReservationMirror();
+            applyDashboard();
+          });
+          card.append(via);
+        }
         list.append(card);
       });
-      if (prenotazioni.length) document.getElementById('emptyReservations').style.display = 'none';
+      const vuoto = document.getElementById('emptyReservations');
+      if (vuoto) vuoto.style.display = prenotazioni.length ? 'none' : '';
     };
 
     const renderImportedEvents = (events) => {
@@ -2067,9 +2165,11 @@
         empty.className = 'empty-tasks';
         empty.textContent = 'Nessuna prenotazione futura trovata nei calendari.';
         syncResults.append(empty);
-        return;
+      } else {
+        importedEvents.forEach((event) => syncResults.append(buildReservationCard(event, true)));
       }
-      importedEvents.forEach((event) => syncResults.append(buildReservationCard(event, true)));
+      /* Anche senza niente dai calendari si continua: le prenotazioni scritte
+         a mano devono comunque comparire e muovere la dashboard. */
       renderReservationMirror();
       applyDashboard();
     };
@@ -2278,98 +2378,33 @@
       const guestName = document.getElementById('guestName').value.trim();
       const platform = document.getElementById('platform').value;
       const arrivalTime = document.getElementById('arrivalTime').value || '15:00';
-      const item = document.createElement('article');
-      item.className = 'reservation-item';
-      const details = document.createElement('div');
-      const name = document.createElement('h4');
-      name.textContent = guestName;
-      const dates = document.createElement('p');
-      dates.textContent = `${formatDate(checkIn)} · ${arrivalTime}  →  ${formatDate(checkOut)} · 10:00`;
-      details.append(name, dates);
-      const source = document.createElement('span');
-      source.className = 'platform';
-      source.textContent = platform;
-      const reminderMenu = document.createElement('details');
-      const reminderTitle = document.createElement('summary');
-      reminderTitle.textContent = 'Promemoria della prenotazione';
-      const reminderList = document.createElement('div');
-      reminderList.className = 'reminder-list';
-      const reminderLabels = [
-        'Messaggio di benvenuto',
-        'Richiesta documenti',
-        'Check-in con guida',
-        'Istruzioni check-in',
-        'Registrazione Portale Alloggiati e ROSS 1000',
-        'Siamo a vostra disposizione',
-        'Istruzioni check-out',
-        'Pulizia completata',
-        'Nuovo codice cassetta inserito',
-        'Rilascio recensione ospite',
-        'Arrivederci e messaggio richiesta recensione'
-      ];
-      reminderLabels.forEach((text, index) => {
-        const row = document.createElement('div');
-        row.className = 'reminder-row';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `reminder-${Date.now()}-${index}`;
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = text;
-        row.append(checkbox, label);
-        reminderList.append(row);
-      });
-      const packageRow = document.createElement('div');
-      packageRow.className = 'reminder-row';
-      const packageMarker = document.createElement('span');
-      const packageLabel = document.createElement('label');
-      packageLabel.textContent = 'Acquisto pacchetto';
-      const packageSelect = document.createElement('select');
-      ['Da definire', 'Sì', 'No'].forEach((text) => { const option = document.createElement('option'); option.textContent = text; packageSelect.append(option); });
-      packageRow.append(packageMarker, packageLabel, packageSelect);
-      reminderList.insertBefore(packageRow, reminderList.children[1]);
-      const progress = document.createElement('div');
-      progress.className = 'reminder-progress';
-      progress.textContent = `0 di ${reminderLabels.length} completati`;
-      reminderList.addEventListener('change', () => {
-        const completed = reminderList.querySelectorAll('input[type=checkbox]:checked').length;
-        progress.textContent = `${completed} di ${reminderLabels.length} completati`;
-      });
-      reminderMenu.append(reminderTitle, reminderList, progress);
-      const deleteButton = document.createElement('button');
-      deleteButton.className = 'delete-reservation';
-      deleteButton.type = 'button';
-      deleteButton.textContent = 'Elimina prenotazione';
-      deleteButton.addEventListener('click', () => {
-        item.remove();
-        if (!document.getElementById('reservationItems').children.length) {
-          document.getElementById('emptyReservations').classList.remove('hidden');
-          activeBooking = null;
-          renderTodayTasks(null);
-          setMetric('occupancyValue', 'occupancyDetail', 'Nessun ospite', 'Nessuna prenotazione in corso oggi');
-          setMetric('nextCheckInValue', 'nextCheckInDetail', 'Non programmato', '');
-          setMetric('nextCheckOutValue', 'nextCheckOutDetail', 'Non programmato', '');
-          document.getElementById('workflowEmpty').classList.remove('hidden');
-          document.getElementById('workflowSteps').classList.add('hidden');
-        }
-      });
-      item.append(details, source, reminderMenu, deleteButton);
-      document.getElementById('reservationItems').prepend(item);
-      document.getElementById('emptyReservations').classList.add('hidden');
-      const now = new Date();
-      const inDate = new Date(checkIn + 'T15:00:00');
-      const outDate = new Date(checkOut + 'T10:00:00');
-      const inCorso = now >= inDate && now < outDate;
-      setMetric('nextCheckInValue', 'nextCheckInDetail', guestName,
-        'Check-in ' + formatDate(checkIn) + ' · ' + arrivalTime + ' · ' + platform);
-      setMetric('nextCheckOutValue', 'nextCheckOutDetail', guestName,
-        'Check-out ' + formatDate(checkOut) + ' · 10:00');
-      setMetric('occupancyValue', 'occupancyDetail', inCorso ? guestName : 'Nessun ospite',
-        inCorso ? formatDate(checkIn) + ' → ' + formatDate(checkOut) + ' · ' + platform : 'Nessuna prenotazione in corso oggi');
-      activeBooking = { guestName, checkIn, checkOut };
-      renderTodayTasks(activeBooking);
-      document.getElementById('workflowEmpty').classList.add('hidden');
-      document.getElementById('workflowSteps').classList.remove('hidden');
+      const notti = Math.max(0, Math.round(
+        (new Date(checkOut + 'T00:00:00') - new Date(checkIn + 'T00:00:00')) / 86400000));
+
+      /* La prenotazione entra nella stessa lista delle altre e poi si
+         ridisegna tutto una volta sola. Prima invece questo punto riscriveva
+         a mano i riquadri e le attivita' di oggi sulla sola prenotazione
+         appena inserita: era li' che sparivano le pulizie gia' programmate e
+         gli altri adempimenti. */
+      /* Stesse date gia' inserite a mano: sostituiamo invece di accodare, cosi'
+         un secondo invio per sbaglio non crea due volte lo stesso soggiorno. */
+      const senzaDoppione = prenotazioniManuali()
+        .filter(m => chiaveSoggiorno(m) !== chiaveSoggiorno({ checkIn, checkOut }));
+      sharedState.manualBookings = [...senzaDoppione, {
+        id: 'man-' + Date.now(),
+        manuale: true,
+        provider: platform,
+        guestName,
+        checkIn,
+        checkOut,
+        arrivalTime,
+        nights: notti,
+        blocked: false
+      }];
+      salvaOra('Prenotazione salvata');
+      renderReservationMirror();
+      applyDashboard();
+
       event.target.reset();
       document.getElementById('guestCount').value = '2';
       document.getElementById('arrivalTime').value = '15:00';
@@ -2604,6 +2639,7 @@
         if (voce.date) { quando.dateTime = voce.date; quando.textContent = giorno(voce.date); }
         else quando.textContent = '—';
         const nome = document.createElement('span');
+        // Lo stato di ogni riga e' quello del software contabilita': Ricevuto o Da ricevere.
         nome.textContent = voce.label + (voce.status ? ' · ' + voce.status : '');
         const soldi = document.createElement('b');
         soldi.textContent = euro(earningsMode === 'netto' && typeof voce.netCents === 'number' ? voce.netCents : voce.cents);
@@ -2617,32 +2653,43 @@
         lista.append(el);
       };
 
-      // Il totale in home e' prenotazioni + pacchetti: il dettaglio lo mostra diviso.
-      const quotaPrenotazioni = earningsMode === 'netto' ? info.bookingsNetTotal : info.bookingsTotal;
-      gruppo('Prenotazioni · ' + euro(quotaPrenotazioni));
-      if (!info.voci.length) {
+      /* Tutte le voci del mese, nessuna esclusa: prenotazioni con data, righe
+         senza data e pacchetti. Insieme fanno esattamente il numero in home. */
+      const conNetto = earningsMode === 'netto';
+      const vociPren = Array.isArray(info.voci) ? info.voci : [];
+      const vociNoData = Array.isArray(info.vociSenzaData) ? info.vociSenzaData : [];
+      const vociPacchi = Array.isArray(info.vociPacchetti) ? info.vociPacchetti : [];
+      const valore = (v) => (conNetto && typeof v.netCents === 'number' ? v.netCents : v.cents) || 0;
+      const sommaVoci = (voci) => voci.reduce((s, v) => s + valore(v), 0);
+
+      gruppo('Prenotazioni del mese · ' + euro(sommaVoci(vociPren)));
+      if (!vociPren.length) {
         const vuoto = document.createElement('div');
         vuoto.className = 'breakdown-row fuori';
         vuoto.textContent = 'Nessuna prenotazione con data in questo mese.';
         lista.append(vuoto);
       }
-      info.voci.forEach((voce) => lista.append(riga(voce, true)));
+      vociPren.forEach((voce) => lista.append(riga(voce, true)));
 
-      /* Queste due categorie non entrano nel totale, ma nasconderle sarebbe
-         peggio: sono esattamente le voci che fanno sballare una somma a mano. */
-      if (info.undatedCount) {
-        gruppo(info.undatedCount + (info.undatedCount === 1 ? ' prenotazione senza data' : ' prenotazioni senza data')
-          + ' · ' + euro(info.undatedTotal) + ' — fuori da ogni mese, aggiungi la data nel software contabilità', 'attenzione');
-        info.vociSenzaData.forEach((voce) => lista.append(riga(voce, false)));
+      if (vociNoData.length) {
+        gruppo(vociNoData.length + (vociNoData.length === 1 ? ' riga senza data' : ' righe senza data')
+          + ' · ' + euro(sommaVoci(vociNoData))
+          + ' — fuori dai mesi nel software contabilità: qui contano fra quelle da ricevere');
+        vociNoData.forEach((voce) => lista.append(riga(voce, true)));
       }
-      if (info.packagesCount) {
-        gruppo(info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti')
-          + ' · ' + euro(info.packagesTotal) + ' — dentro il totale');
-        info.vociPacchetti.forEach((voce) => lista.append(riga(voce, true)));
-        gruppo('Totale · ' + euro((quotaPrenotazioni || 0) + (info.packagesTotal || 0)));
+
+      if (vociPacchi.length) {
+        gruppo(vociPacchi.length + (vociPacchi.length === 1 ? ' pacchetto' : ' pacchetti')
+          + ' · ' + euro(sommaVoci(vociPacchi)) + ' — dentro il totale');
+        vociPacchi.forEach((voce) => lista.append(riga(voce, true)));
       }
-    };
-    // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
+
+      const totale = sommaVoci(vociPren) + sommaVoci(vociNoData) + sommaVoci(vociPacchi);
+      gruppo('Totale del mese · ' + euro(totale));
+      if (typeof info.receivedTotal === 'number' && !conNetto) {
+        gruppo('di cui ' + euro(info.receivedTotal) + ' ricevuti · ' + euro(info.pendingTotal) + ' da ricevere');
+      }
+    };    // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
       /* IL NUMERO IN HOME NON PUO' VENIRE DAL SERVIZIO.
          Il lettore del servizio somma riga per riga, mentre la contabilita'
@@ -2663,20 +2710,26 @@
       label.textContent = info.monthLabel || new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }).format(new Date());
       // Con la lettura diretta abbiamo tutte e due le colonne: mostriamo quella scelta.
       const netto = typeof info.bookingsNetTotal === 'number';
-      /* I pacchetti entrano nel totale in home. La somma si fa qui, al momento
-         di mostrare, e non dentro il calcolo: cosi' vale anche per le
-         fotografie salvate prima di questa modifica, che tengono i pacchetti
-         in una voce separata e non andrebbero ricalcolate. */
       const pacchetti = info.packagesTotal || 0;
-      const base = netto && earningsMode === 'netto' ? info.bookingsNetTotal : (info.total || 0);
-      const mostrato = base + pacchetti;
+      /* Dalla versione con schema 2 i pacchetti sono gia' dentro "total" e
+         "totalNet". Le fotografie piu' vecchie, arrivate da un dispositivo non
+         ancora aggiornato, li tengono fuori: solo per quelle li sommiamo qui,
+         altrimenti li conteremmo due volte. */
+      const vecchiaFotografia = info.schema !== 2;
+      const mostrato = earningsMode === 'netto' && netto
+        ? (typeof info.totalNet === 'number' ? info.totalNet : info.bookingsNetTotal + (vecchiaFotografia ? pacchetti : 0))
+        : (info.total || 0) + (vecchiaFotografia ? pacchetti : 0);
       updateEarningsChart(info.configured ? mostrato : null);
       const altra = document.getElementById('earningsModeNote');
       if (altra) {
+        const lordo = (info.total || 0) + (vecchiaFotografia ? pacchetti : 0);
+        const netTot = typeof info.totalNet === 'number'
+          ? info.totalNet
+          : info.bookingsNetTotal + (vecchiaFotografia ? pacchetti : 0);
         altra.textContent = netto
           ? (earningsMode === 'netto'
-              ? 'incasso ' + euro((info.total || 0) + pacchetti) + ' meno pulizie ed extra'
-              : 'netto ' + euro(info.bookingsNetTotal + pacchetti) + ' togliendo pulizie ed extra')
+              ? 'incasso ' + euro(lordo) + ' meno pulizie ed extra'
+              : 'netto ' + euro(netTot) + ' togliendo pulizie ed extra')
           : '';
       }
       if (!info.configured) {
@@ -2701,7 +2754,7 @@
 
       const letto = info.readAt ? new Date(info.readAt) : null;
       const quando = letto
-        ? ' · letto alle ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(letto)
+        ? ' · letto ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(letto)
         : '';
       // Una fotografia vecchia va detta: e' il solo modo di distinguerla da un dato fresco.
       const minutiFa = letto ? Math.round((Date.now() - letto.getTime()) / 60000) : null;
@@ -2709,22 +2762,30 @@
         ? ' · attenzione: fotografia di ' + (minutiFa >= 120 ? Math.round(minutiFa / 60) + ' ore fa' : minutiFa + ' minuti fa')
         : '';
       const conPacchetti = info.packagesCount
-        ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto da ' : ' pacchetti da ') + euro(pacchetti)
+        ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti')
         : '';
-      /* I pacchetti ora sono dentro il totale. Va detto, perche' nel software
-         contabilita' restano fuori dal suo totale mensile: da oggi i due numeri
-         non coincidono piu' e senza una riga che lo spieghi sembrerebbe un
-         errore di conto. */
-      const avvisoPacchetti = info.packagesCount
-        ? ' · lì i pacchetti restano fuori dal totale, qui sono dentro'
+      /* La ripartizione fra incassato e atteso e' la prima cosa da sapere:
+         il totale del mese li comprende tutti e due. */
+      const ripartizione = typeof info.receivedTotal === 'number'
+        ? ' · ' + euro(info.receivedTotal) + ' ricevuti e ' + euro(info.pendingTotal) + ' da ricevere'
+        : '';
+      // Le righe senza data nel software contabilita' sono contate fra quelle da ricevere: va detto.
+      const nonDatate = info.undatedCount
+        ? ' · ' + info.undatedCount + ' senza data, fra quelle da ricevere'
+        : '';
+      /* Quando e' stata modificata la scheda della contabilita': se premi
+         Aggiorna e questa data non si muove, il dato la' non e' cambiato. */
+      const schedaDel = info.dataUpdatedAt
+        ? ' · scheda ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(info.dataUpdatedAt))
         : '';
       note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
         + conPacchetti
-        + ' nel mese, dal software contabilità'
-        + (info.undatedCount ? ' · ' + info.undatedCount + ' senza data non conteggiate' : '')
-        + avvisoPacchetti
+        + ' nel mese'
+        + ripartizione
+        + nonDatate
+        + schedaDel
         + quando
-        + (info === sharedState.accountingSnapshot && !directAccounting ? ' · letto da un altro dispositivo' : '')
+        + (info === sharedState.accountingSnapshot && !directAccounting ? ' · da un altro dispositivo' : '')
         + vecchia;
     };
 
@@ -3253,6 +3314,12 @@
         earningsMode = sharedState.earningsMode;
         renderEarningsMode();
         applyEarnings(null);
+      }
+      /* Una prenotazione aggiunta su un altro dispositivo deve comparire qui:
+         ridisegniamo l'elenco e tutto cio' che ne deriva. */
+      if (typeof renderReservationMirror === 'function') {
+        renderReservationMirror();
+        applyDashboard();
       }
       if (typeof disegnaWorkflow === 'function') disegnaWorkflow();
       if (sharedState.accountingSnapshot && !directAccounting) applyEarnings(null);
