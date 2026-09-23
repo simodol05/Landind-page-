@@ -584,3 +584,44 @@ automatico, premi Aggiorna»* quando la sessione è appena scaduta.
 Il compromesso, detto chiaro: chi ha accesso a quel browser può leggere quella
 password. Se il dispositivo è condiviso, togli la spunta e continua a inserirla
 a mano.
+
+## Icona sulla home di iPhone e iPad
+
+La pagina non aveva **nessun tag icona**: per questo iOS ripiegava su una
+miniatura, da cui la «L» su fondo nero. Ora c'è il logo SL Holding.
+
+Il file è preparato per lo scopo, non caricato così com'era:
+
+- ritagliato e **ricentrato** sul cerchio, che nell'originale era spostato in
+  basso (margine sotto 124 px contro 78 sopra);
+- lasciato un margine del 5%, così l'angolo arrotondato che iOS applica non
+  tocca il bagliore dell'anello;
+- ridotto a 256 colori: **scarto medio 0,42 su 255**, invisibile a occhio, con
+  metà del peso. Verificato misurando la differenza pixel per pixel, non a
+  sensazione.
+
+| file | uso | peso |
+|---|---|---|
+| `apple-touch-icon.png` 180×180 | home di iPhone e iPad | 18 KB |
+| `icona-192.png` | home Android | 20 KB |
+| `favicon-32.png` | scheda del browser | 2 KB |
+
+**40 KB in tutto.** Sotto l'icona comparirà «Luxury Business».
+
+Le icone sono file veri, non `data:` URI: per `apple-touch-icon` Safari non
+accetta in modo affidabile un URI incorporato, quindi lo script di
+pubblicazione ora carica anche loro insieme alla pagina.
+
+> Se avevi già il segnalibro sulla home, iOS tiene in cache la vecchia icona:
+> togli il segnalibro e rimettilo per vedere quella nuova.
+
+## Workana e Upwork rimossi
+
+Tolti i due business freelance: le schede nella scelta business, la schermata
+dei profili e tutto il codice che la costruiva — 449 righe di JavaScript e 50 di
+CSS rimaste orfane, più due funzioni di appoggio che non avevano più chiamanti.
+
+La pagina passa da **254 KB a 226 KB**.
+
+I dati già salvati dei profili **non sono stati cancellati** dallo stato
+condiviso: se un giorno servissero, sono ancora lì.

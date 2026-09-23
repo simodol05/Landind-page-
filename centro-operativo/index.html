@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090a0b">
   <title>Luxury Business</title>
+  <!-- Icona per il segnalibro sulla home di iPhone e iPad: senza questi tag
+       iOS ripiegava su una miniatura della pagina, da cui la "L" su fondo nero.
+       180x180 e' la misura che Apple usa: iPad e schermi diversi la riscalano. -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icona-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <meta name="apple-mobile-web-app-title" content="Luxury Business">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -371,59 +378,9 @@
     .profile-card:hover { border-color:rgba(222,190,126,.4); background:rgba(201,168,106,.06); }
     .profile-card h3 { margin:0; font:500 22px Georgia,serif; }
     .profile-card small { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
-    .fl-section { margin-top:14px; padding:20px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.025); }
-    .fl-section h3 { margin:0 0 3px; font:500 19px Georgia,serif; }
-    .fl-section > p { margin:0 0 12px; color:#b9b2a4; font-size:12px; }
-    .fl-section textarea::placeholder, .fl-field input::placeholder, .fl-add input::placeholder { color:#7c766c; }
-    .fl-item { color:#f7f3ea; }
-    .fl-section textarea { width:100%; box-sizing:border-box; min-height:120px; resize:vertical; padding:13px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:12px; background:#15161a; font:inherit; font-size:14px; line-height:1.55; outline:none; }
-    .fl-section textarea:focus, .fl-section input[type=text]:focus, .fl-section input[type=number]:focus { border-color:rgba(222,190,126,.45); }
-    .fl-field { display:grid; gap:6px; margin-bottom:12px; }
-    .fl-field label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
-    .fl-field input { width:100%; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
-    .fl-actions { display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin-top:12px; }
-    .fl-actions button { padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
-    .fl-add { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:12px; }
-    .fl-add input { min-width:0; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
-    .fl-add button { padding:0 16px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
-    .fl-item { display:grid; grid-template-columns:auto 1fr auto; gap:11px; align-items:start; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
-    .fl-item:last-child { border-bottom:0; }
-    .fl-item input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--gold); cursor:pointer; }
-    .fl-item.done .fl-item-text { text-decoration:line-through; opacity:.5; }
-    .fl-item-text strong { display:block; font-size:14px; color:#f7f3ea; line-height:1.5; }
 
-    /* Prompt: elenco puntato di titoli che si aprono sul prompt vero e proprio. */
-    .prompt-list { list-style:none; margin:0; padding:0; }
-    .prompt-list > li { border-bottom:1px solid rgba(230,213,175,.08); }
-    .prompt-list > li:last-child { border-bottom:0; }
-    .prompt-item > summary { display:flex; gap:10px; align-items:baseline; padding:12px 2px; cursor:pointer; list-style:none; color:#f7f3ea; font-size:14px; line-height:1.5; }
-    .prompt-item > summary::-webkit-details-marker { display:none; }
-    .prompt-item > summary::before { content:"▸"; color:var(--gold); flex:none; transition:transform .15s; }
-    .prompt-item[open] > summary::before { transform:rotate(90deg); }
-    .prompt-item > summary span { flex:1; min-width:0; }
-    .prompt-item > summary:focus-visible { outline:2px solid rgba(222,190,126,.5); outline-offset:2px; border-radius:8px; }
-    .prompt-body { padding:2px 0 16px 22px; display:grid; gap:9px; }
-    .prompt-body textarea { min-height:150px; }
-    .prompt-body .fl-actions { margin-top:0; }
-    .prompt-body .fl-actions button.ghost { color:var(--gold-soft); background:transparent; padding:9px 14px; font-weight:600; }
-    .prompt-body .fl-field { margin-bottom:0; }
-    .prompt-add { display:grid; gap:9px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(230,213,175,.08); }
-    .prompt-add input { box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
-    .prompt-add textarea { min-height:110px; }
-    .prompt-add button { justify-self:start; padding:10px 17px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
-    .fl-item-text span { color:var(--muted); font-size:12px; white-space:pre-wrap; }
-    .fl-remove { width:26px; height:26px; padding:0; border:1px solid rgba(237,126,120,.28); border-radius:8px; color:var(--red); background:transparent; cursor:pointer; line-height:1; }
     .nav-switch { margin-top:12px; border-top:1px solid var(--line); padding-top:16px; }
     .nav-switch span { color:var(--gold-soft); }
-    .fl-link-row { display:grid; grid-template-columns:1fr auto; gap:11px; align-items:center; padding:11px 0; border-bottom:1px solid rgba(230,213,175,.08); }
-    .fl-link-row:last-child { border-bottom:0; }
-    .fl-link-row a { color:var(--gold-soft); font-size:13px; text-decoration:none; word-break:break-all; }
-    .fl-link-row a:hover { text-decoration:underline; }
-    .fl-link-row strong { display:block; font-size:14px; color:#f7f3ea; margin-bottom:2px; }
-    .fl-add-link { display:grid; grid-template-columns:1fr 1.4fr auto; gap:9px; margin-top:12px; }
-    @media (max-width:720px) { .fl-add-link { grid-template-columns:1fr; } }
-    .fl-add-link input { min-width:0; box-sizing:border-box; padding:12px 14px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:11px; background:#15161a; font:inherit; font-size:14px; outline:none; }
-    .fl-add-link button { padding:0 16px; border:1px solid rgba(222,190,126,.35); border-radius:11px; color:#0a0a0a; background:var(--gold-soft); cursor:pointer; font-weight:700; }
     .goal-card input { width:100%; min-width:0; box-sizing:border-box; border:1px solid transparent; border-radius:9px; background:transparent; color:inherit; font:inherit; padding:4px 7px; }
     .goal-card input:hover, .goal-card input:focus { border-color:rgba(222,190,126,.35); background:rgba(255,255,255,.04); outline:none; }
     .goal-label { color:var(--muted); font-size:11px !important; text-transform:uppercase; letter-spacing:.1em; }
@@ -576,22 +533,7 @@
           <div><small>Business 01 · Ospitalità</small><h3>Il Rustico Romantic<br>Suite &amp; Sauna</h3><p>Prenotazioni, ospiti, pulizie, promemoria e inventario in un unico centro operativo.</p></div>
           <span class="open-label">Apri business</span>
         </button>
-        <button class="business-card" type="button" data-freelance="workana">
-          <div><small>Business 02 · Freelance</small><h3>Workana</h3><p>Profili Lorenzo e Simona: richieste mandate, lavori in corso, note, piano e investimento.</p></div>
-          <span class="open-label">Apri business</span>
-        </button>
-        <button class="business-card" type="button" data-freelance="upwork">
-          <div><small>Business 03 · Freelance</small><h3>Upwork</h3><p>Profilo Lorenzo: richieste, lavori in corso, note, crediti acquistati e investimento.</p></div>
-          <span class="open-label">Apri business</span>
-        </button>
       </div>
-    </div>
-  </section>
-
-  <section id="freelanceScreen" class="screen business-screen hidden">
-    <div class="business-shell">
-      <div class="business-top"><strong id="freelanceName">Workana</strong><button id="freelanceBack" class="outline-button" type="button">Torna ai business</button></div>
-      <div id="freelanceBody"></div>
     </div>
   </section>
 
@@ -1014,7 +956,8 @@
     let applyTasksPrefs = () => {};
 
     /* ================= stato condiviso =================
-       Tutti i dati nuovi (obiettivi, Workana, Upwork) stanno qui dentro.
+       Tutti i dati nuovi (obiettivi, software collegati, prenotazioni a mano)
+       stanno qui dentro.
        Vengono mandati al servizio in prefs, cosi' si ritrovano su ogni
        dispositivo che apre il link, e ricopiati in locale come rete di
        sicurezza. Dopo il salvataggio controlliamo che il servizio li abbia
@@ -1412,18 +1355,8 @@
        mandiamo una richiesta a ogni lettera. */
     let attesaAutoSalva = null;
     let etichettaAutoSalva = '';
-    // Mentre si scrive, una risposta del servizio non deve riportare indietro il testo.
-    let freelanceDirty = false;
 
-    const autoSalva = (etichetta) => {
-      freelanceDirty = true;
-      etichettaAutoSalva = etichetta;
-      clearTimeout(attesaAutoSalva);
-      attesaAutoSalva = setTimeout(() => { attesaAutoSalva = null; eseguiAutoSalva(); }, 700);
-    };
-
-    const eseguiAutoSalva = (opzioni) => saveShared(etichettaAutoSalva, opzioni)
-      .finally(() => { if (!attesaAutoSalva) freelanceDirty = false; });
+    const eseguiAutoSalva = (opzioni) => saveShared(etichettaAutoSalva, opzioni);
 
     /* Salvataggio immediato: annulla l'attesa e manda adesso. Il pulsante Salva
        passa di qui, cosi' non parte due volte la stessa richiesta. */
@@ -3360,465 +3293,9 @@
     };
     document.getElementById('deviceSyncCheck')?.addEventListener('click', controllaSync);
 
-    /* ================= business freelance: Workana e Upwork =================
-       Stessa struttura per ogni profilo, cosi' aggiungerne uno costa una riga.
-       Upwork ha in piu' la voce "Crediti acquistati". */
-    const businessFreelance = {
-      workana: { nome:'Workana', profili:['Lorenzo','Simona'], crediti:false },
-      upwork:  { nome:'Upwork',  profili:['Lorenzo'],          crediti:true  }
-    };
-    const chiaveProfilo = (nome) => nome.toLowerCase();
-
-    const profiloDiSerie = () => ({ sent:'', accepted:'', notes:[], plan:'', credits:'', investment:'', prompts:[], links:[] });
-    const leggiProfilo = (business, profilo) => {
-      sharedState.freelance = sharedState.freelance || {};
-      sharedState.freelance[business] = sharedState.freelance[business] || {};
-      const chiave = chiaveProfilo(profilo);
-      sharedState.freelance[business][chiave] = { ...profiloDiSerie(), ...(sharedState.freelance[business][chiave] || {}) };
-      return sharedState.freelance[business][chiave];
-    };
-
-    const freelanceScreen = document.getElementById('freelanceScreen');
-    const freelanceBody = document.getElementById('freelanceBody');
-    let businessCorrente = null;
-
-    const renderProfileList = (business) => {
-      const conf = businessFreelance[business];
-      document.getElementById('freelanceName').textContent = conf.nome;
-      freelanceBody.replaceChildren();
-      const testa = document.createElement('div');
-      testa.className = 'business-heading';
-      testa.innerHTML = '<h2>Profili</h2><p>Scegli il profilo da gestire. Ogni profilo tiene i suoi dati separati.</p>';
-      freelanceBody.append(testa);
-      const lista = document.createElement('div');
-      lista.className = 'profile-list';
-      conf.profili.forEach((nome) => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'profile-card';
-        const testo = document.createElement('div');
-        const eyebrow = document.createElement('small');
-        eyebrow.textContent = 'Profilo';
-        const titolo = document.createElement('h3');
-        titolo.textContent = nome;
-        testo.append(eyebrow, titolo);
-        const apri = document.createElement('span');
-        apri.className = 'open-label';
-        apri.textContent = 'Apri profilo';
-        card.append(testo, apri);
-        card.addEventListener('click', () => renderProfile(business, nome));
-        lista.append(card);
-      });
-      freelanceBody.append(lista);
-    };
-
-    // Sezione con una casella di testo libera e il suo pulsante Salva.
-    const sezioneTesto = (titolo, descrizione, valore, onSave) => {
-      const box = document.createElement('section');
-      box.className = 'fl-section';
-      const h = document.createElement('h3'); h.textContent = titolo;
-      const p = document.createElement('p'); p.textContent = descrizione;
-      const area = document.createElement('textarea');
-      area.value = valore || '';
-      area.setAttribute('aria-label', titolo);
-      const azioni = document.createElement('div');
-      azioni.className = 'fl-actions';
-      const salva = document.createElement('button');
-      salva.type = 'button'; salva.textContent = 'Salva';
-      const stato = document.createElement('span');
-      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
-      area.addEventListener('input', () => { onSave(area.value); autoSalva(titolo + ' salvato'); });
-      area.addEventListener('blur', () => { onSave(area.value); salvaInSospeso(); });
-      salva.addEventListener('click', () => { onSave(area.value); salvaOra(titolo + ' salvato'); });
-      azioni.append(salva, stato);
-      box.append(h, p, area, azioni);
-      return box;
-    };
-
-    // Sezione con elenco di voci aggiungibili (note spuntabili, oppure prompt).
-    const sezioneElenco = (titolo, descrizione, opzioni) => {
-      const { voci, spuntabili, segnaposto, onChange } = opzioni;
-      const box = document.createElement('section');
-      box.className = 'fl-section';
-      const h = document.createElement('h3'); h.textContent = titolo;
-      const p = document.createElement('p'); p.textContent = descrizione;
-      const lista = document.createElement('div');
-      const stato = document.createElement('span');
-      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
-
-      const disegna = () => {
-        lista.replaceChildren();
-        if (!voci.length) {
-          const vuoto = document.createElement('div');
-          vuoto.className = 'empty-tasks';
-          vuoto.textContent = spuntabili ? 'Nessuna nota. Aggiungine una qui sotto.' : 'Nessun prompt salvato.';
-          lista.append(vuoto);
-          return;
-        }
-        voci.forEach((voce) => {
-          const riga = document.createElement('div');
-          riga.className = 'fl-item' + (voce.done ? ' done' : '');
-          if (spuntabili) {
-            const spunta = document.createElement('input');
-            spunta.type = 'checkbox';
-            spunta.checked = Boolean(voce.done);
-            spunta.setAttribute('aria-label', 'Completata: ' + voce.text);
-            spunta.addEventListener('change', () => { voce.done = spunta.checked; disegna(); onChange(); });
-            riga.append(spunta);
-          } else {
-            riga.append(document.createElement('span'));
-          }
-          const testo = document.createElement('div');
-          testo.className = 'fl-item-text';
-          const forte = document.createElement('strong');
-          forte.textContent = voce.text;
-          testo.append(forte);
-          riga.append(testo);
-          const via = document.createElement('button');
-          via.type = 'button'; via.className = 'fl-remove'; via.textContent = '×';
-          via.setAttribute('aria-label', 'Elimina ' + voce.text);
-          via.addEventListener('click', () => {
-            const i = voci.indexOf(voce);
-            if (i >= 0) voci.splice(i, 1);
-            disegna(); onChange();
-          });
-          riga.append(via);
-          lista.append(riga);
-        });
-      };
-
-      const form = document.createElement('form');
-      form.className = 'fl-add';
-      const campo = document.createElement('input');
-      campo.type = 'text'; campo.placeholder = segnaposto; campo.required = true;
-      const aggiungi = document.createElement('button');
-      aggiungi.type = 'submit'; aggiungi.textContent = 'Aggiungi';
-      form.append(campo, aggiungi);
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const testo = campo.value.trim();
-        if (!testo) return;
-        voci.push({ id: String(Date.now()), text: testo, done: false });
-        campo.value = '';
-        disegna(); onChange();
-      });
-
-      const azioni = document.createElement('div');
-      azioni.className = 'fl-actions';
-      azioni.append(stato);
-      disegna();
-      box.append(h, p, lista, form, azioni);
-      return box;
-    };
-
-    /* Sezione Prompt: elenco puntato dei titoli, e cliccando un titolo si apre
-       il prompt vero e proprio, modificabile. Le voci vecchie avevano il solo
-       campo "text": lo teniamo come titolo, cosi' niente va perso. */
-    const titoloPrompt = (voce) => voce.title || voce.text || 'Senza titolo';
-
-    const sezionePrompt = (voci, onChange) => {
-      const box = document.createElement('section');
-      box.className = 'fl-section';
-      const h = document.createElement('h3'); h.textContent = 'Prompt';
-      const p = document.createElement('p');
-      p.textContent = 'Elenco dei tuoi prompt: scrivi il titolo e il prompt. Tocca un titolo per aprirlo.';
-      const lista = document.createElement('ul');
-      lista.className = 'prompt-list';
-      const stato = document.createElement('span');
-      stato.className = 'sync-status'; stato.setAttribute('data-sync-status', '');
-
-      const disegna = () => {
-        lista.replaceChildren();
-        if (!voci.length) {
-          const vuoto = document.createElement('li');
-          const dentro = document.createElement('div');
-          dentro.className = 'empty-tasks';
-          dentro.textContent = 'Nessun prompt salvato. Aggiungine uno qui sotto.';
-          vuoto.append(dentro);
-          lista.append(vuoto);
-          return;
-        }
-        voci.forEach((voce) => {
-          const li = document.createElement('li');
-          const blocco = document.createElement('details');
-          blocco.className = 'prompt-item';
-          const testa = document.createElement('summary');
-          const nome = document.createElement('span');
-          nome.textContent = titoloPrompt(voce);
-          testa.append(nome);
-          blocco.append(testa);
-
-          const corpo = document.createElement('div');
-          corpo.className = 'prompt-body';
-
-          /* Titolo e prompt hanno un'etichetta: aperto il pannello, il titolo
-             comparirebbe due volte senza spiegazione di quale campo sia. */
-          const rigaTitolo = document.createElement('div');
-          rigaTitolo.className = 'fl-field';
-          const etTitolo = document.createElement('label');
-          etTitolo.textContent = 'Titolo';
-          const campoTitolo = document.createElement('input');
-          campoTitolo.type = 'text';
-          campoTitolo.value = titoloPrompt(voce);
-          etTitolo.htmlFor = campoTitolo.id = 'prompt-titolo-' + (voce.id || Math.random().toString(36).slice(2));
-          rigaTitolo.append(etTitolo, campoTitolo);
-
-          const rigaCorpo = document.createElement('div');
-          rigaCorpo.className = 'fl-field';
-          const etCorpo = document.createElement('label');
-          etCorpo.textContent = 'Prompt';
-          campoTitolo.addEventListener('input', () => {
-            voce.title = campoTitolo.value;
-            delete voce.text;           // il campo vecchio non serve piu'
-            nome.textContent = titoloPrompt(voce);
-            autoSalva('Prompt salvati');
-          });
-          campoTitolo.addEventListener('blur', () => salvaInSospeso());
-
-          const corpoTesto = document.createElement('textarea');
-          corpoTesto.value = voce.body || '';
-          corpoTesto.placeholder = 'Scrivi qui il prompt.';
-          etCorpo.htmlFor = corpoTesto.id = 'prompt-corpo-' + (voce.id || Math.random().toString(36).slice(2));
-          rigaCorpo.append(etCorpo, corpoTesto);
-          corpoTesto.addEventListener('input', () => { voce.body = corpoTesto.value; autoSalva('Prompt salvati'); });
-          corpoTesto.addEventListener('blur', () => salvaInSospeso());
-
-          const azioni = document.createElement('div');
-          azioni.className = 'fl-actions';
-          const copia = document.createElement('button');
-          copia.type = 'button'; copia.className = 'ghost'; copia.textContent = 'Copia il prompt';
-          const esito = document.createElement('span');
-          esito.className = 'sync-status';
-          copia.addEventListener('click', async () => {
-            try {
-              await navigator.clipboard.writeText(voce.body || '');
-              esito.textContent = 'Copiato.'; esito.classList.add('ok');
-            } catch {
-              // Senza permesso per gli appunti selezioniamo il testo: si copia a mano.
-              corpoTesto.focus(); corpoTesto.select();
-              esito.textContent = 'Selezionato: copialo tu.'; esito.classList.add('ko');
-            }
-          });
-          const via = document.createElement('button');
-          via.type = 'button'; via.className = 'ghost'; via.textContent = 'Elimina';
-          via.addEventListener('click', () => {
-            const i = voci.indexOf(voce);
-            if (i >= 0) voci.splice(i, 1);
-            disegna(); onChange();
-          });
-          azioni.append(copia, via, esito);
-
-          corpo.append(rigaTitolo, rigaCorpo, azioni);
-          blocco.append(corpo);
-          li.append(blocco);
-          lista.append(li);
-        });
-      };
-
-      const form = document.createElement('form');
-      form.className = 'prompt-add';
-      const nuovoTitolo = document.createElement('input');
-      nuovoTitolo.type = 'text'; nuovoTitolo.required = true;
-      nuovoTitolo.placeholder = 'Titolo del prompt';
-      nuovoTitolo.setAttribute('aria-label', 'Titolo del nuovo prompt');
-      const nuovoCorpo = document.createElement('textarea');
-      nuovoCorpo.placeholder = 'Il prompt';
-      nuovoCorpo.setAttribute('aria-label', 'Testo del nuovo prompt');
-      const aggiungi = document.createElement('button');
-      aggiungi.type = 'submit'; aggiungi.textContent = 'Aggiungi prompt';
-      form.append(nuovoTitolo, nuovoCorpo, aggiungi);
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const titolo = nuovoTitolo.value.trim();
-        if (!titolo) return;
-        voci.push({ id: String(Date.now()), title: titolo, body: nuovoCorpo.value });
-        nuovoTitolo.value = ''; nuovoCorpo.value = '';
-        disegna(); onChange();
-      });
-
-      const azioni = document.createElement('div');
-      azioni.className = 'fl-actions';
-      azioni.append(stato);
-      disegna();
-      box.append(h, p, lista, form, azioni);
-      return box;
-    };
-
-    const renderProfile = (business, nomeProfilo) => {
-      const conf = businessFreelance[business];
-      const dati = leggiProfilo(business, nomeProfilo);
-      document.getElementById('freelanceName').textContent = conf.nome + ' · ' + nomeProfilo;
-      freelanceBody.replaceChildren();
-
-      const testa = document.createElement('div');
-      testa.className = 'business-heading';
-      const h2 = document.createElement('h2'); h2.textContent = nomeProfilo;
-      const sotto = document.createElement('p'); sotto.textContent = 'Profilo ' + conf.nome + '. Tutto quello che scrivi qui si salva e si ritrova sugli altri dispositivi.';
-      const indietro = document.createElement('button');
-      indietro.type = 'button'; indietro.className = 'outline-button';
-      indietro.textContent = 'Torna ai profili';
-      indietro.style.marginTop = '12px';
-      indietro.addEventListener('click', () => { salvaInSospeso(); renderProfileList(business); });
-      testa.append(h2, sotto, indietro);
-      freelanceBody.append(testa);
-
-      freelanceBody.append(sezioneTesto('Richieste mandate',
-        'Le candidature inviate. Una per riga.', dati.sent, (v) => { dati.sent = v; }));
-
-      freelanceBody.append(sezioneTesto('Richieste accettate · lavori in corso',
-        'Le richieste andate a buon fine e i lavori aperti. Una per riga.', dati.accepted, (v) => { dati.accepted = v; }));
-
-      freelanceBody.append(sezioneElenco('Note', 'Attività da fare: si spuntano quando sono finite.', {
-        voci: dati.notes, spuntabili: true, segnaposto: 'Nuova attività',
-        onChange: () => salvaOra('Note salvate')
-      }));
-
-      // Piano e investimento stanno insieme: si salvano con un solo pulsante.
-      const piano = document.createElement('section');
-      piano.className = 'fl-section';
-      const ph = document.createElement('h3'); ph.textContent = 'Piano e investimento';
-      const pp = document.createElement('p'); pp.textContent = 'Il piano del profilo e quanto ci hai messo dentro.';
-      piano.append(ph, pp);
-
-      const campoTesto = (etichetta, valore, tipo) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'fl-field';
-        const lab = document.createElement('label');
-        lab.textContent = etichetta;
-        const input = document.createElement('input');
-        input.type = tipo || 'text';
-        input.value = valore || '';
-        lab.htmlFor = input.id = 'fl-' + etichetta.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        wrap.append(lab, input);
-        return { wrap, input };
-      };
-
-      const fPiano = campoTesto('Piano profilo', dati.plan || 'Gratis');
-      piano.append(fPiano.wrap);
-      let fCrediti = null;
-      if (conf.crediti) {
-        fCrediti = campoTesto('Crediti acquistati', dati.credits, 'number');
-        piano.append(fCrediti.wrap);
-      }
-      const fInvest = campoTesto('Investimento', dati.investment);
-      piano.append(fInvest.wrap);
-
-      /* Anche qui il testo finiva nello stato solo col pulsante: ora ogni campo
-         si scrive da solo mentre lo compili. */
-      const leggiPiano = () => {
-        dati.plan = fPiano.input.value.trim();
-        if (fCrediti) dati.credits = fCrediti.input.value.trim();
-        dati.investment = fInvest.input.value.trim();
-      };
-      [fPiano, fCrediti, fInvest].filter(Boolean).forEach(({ input }) => {
-        input.addEventListener('input', () => { leggiPiano(); autoSalva('Piano e investimento salvati'); });
-        input.addEventListener('blur', () => { leggiPiano(); salvaInSospeso(); });
-      });
-
-      const azioniPiano = document.createElement('div');
-      azioniPiano.className = 'fl-actions';
-      const salvaPiano = document.createElement('button');
-      salvaPiano.type = 'button'; salvaPiano.textContent = 'Salva';
-      const statoPiano = document.createElement('span');
-      statoPiano.className = 'sync-status'; statoPiano.setAttribute('data-sync-status', '');
-      salvaPiano.addEventListener('click', () => {
-        leggiPiano();
-        salvaOra('Piano e investimento salvati');
-      });
-      azioniPiano.append(salvaPiano, statoPiano);
-      piano.append(azioniPiano);
-      freelanceBody.append(piano);
-
-      freelanceBody.append(sezionePrompt(dati.prompts, () => salvaOra('Prompt salvati')));
-
-      // Collegamenti: link al profilo, alla dashboard, alle ricerche salvate.
-      dati.links = Array.isArray(dati.links) ? dati.links : [];
-      const collegamenti = document.createElement('section');
-      collegamenti.className = 'fl-section';
-      const ch = document.createElement('h3'); ch.textContent = 'Collegamenti';
-      const cp = document.createElement('p');
-      cp.textContent = 'I link di questo profilo: pagina pubblica, bacheca, ricerche salvate. Si aprono in una scheda nuova.';
-      const clista = document.createElement('div');
-      const cstato = document.createElement('span');
-      cstato.className = 'sync-status'; cstato.setAttribute('data-sync-status', '');
-
-      const disegnaLink = () => {
-        clista.replaceChildren();
-        if (!dati.links.length) {
-          const vuoto = document.createElement('div');
-          vuoto.className = 'empty-tasks';
-          vuoto.textContent = 'Nessun collegamento salvato.';
-          clista.append(vuoto);
-          return;
-        }
-        dati.links.forEach((voce) => {
-          const riga = document.createElement('div');
-          riga.className = 'fl-link-row';
-          const testo = document.createElement('div');
-          const nome = document.createElement('strong');
-          nome.textContent = voce.label;
-          const a = document.createElement('a');
-          a.href = voce.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-          a.textContent = voce.url;
-          testo.append(nome, a);
-          const via = document.createElement('button');
-          via.type = 'button'; via.className = 'fl-remove'; via.textContent = '×';
-          via.setAttribute('aria-label', 'Elimina ' + voce.label);
-          via.addEventListener('click', () => {
-            dati.links = dati.links.filter(l => l !== voce);
-            disegnaLink(); saveShared('Collegamenti salvati');
-          });
-          riga.append(testo, via);
-          clista.append(riga);
-        });
-      };
-
-      const cform = document.createElement('form');
-      cform.className = 'fl-add-link';
-      const cnome = document.createElement('input');
-      cnome.type = 'text'; cnome.placeholder = 'Nome (es. Profilo pubblico)'; cnome.required = true;
-      const curl = document.createElement('input');
-      curl.type = 'url'; curl.placeholder = 'https://…'; curl.required = true;
-      const cadd = document.createElement('button');
-      cadd.type = 'submit'; cadd.textContent = 'Aggiungi';
-      cform.append(cnome, curl, cadd);
-      cform.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const label = cnome.value.trim(); const url = curl.value.trim();
-        if (!label || !url) return;
-        dati.links.push({ id: String(Date.now()), label, url });
-        cnome.value = ''; curl.value = '';
-        disegnaLink(); saveShared('Collegamenti salvati');
-      });
-
-      const cazioni = document.createElement('div');
-      cazioni.className = 'fl-actions';
-      cazioni.append(cstato);
-      disegnaLink();
-      collegamenti.append(ch, cp, clista, cform, cazioni);
-      freelanceBody.append(collegamenti);
-    };
-
-    const apriFreelance = (business) => {
-      businessCorrente = business;
-      businessScreen.classList.add('hidden');
-      appScreen.classList.add('hidden');
-      freelanceScreen.classList.remove('hidden');
-      renderProfileList(business);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    document.querySelectorAll('[data-freelance]').forEach((card) => card.addEventListener('click', () => apriFreelance(card.dataset.freelance)));
     document.getElementById('switchBusinessLink').addEventListener('click', () => {
       setMenu(false);
       appScreen.classList.add('hidden');
-      freelanceScreen.classList.add('hidden');
-      businessScreen.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    document.getElementById('freelanceBack').addEventListener('click', () => {
-      freelanceScreen.classList.add('hidden');
       businessScreen.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -3842,8 +3319,6 @@
       Object.keys(remoto).forEach((chiave) => {
         const valore = remoto[chiave];
         if (valore === null || valore === undefined) return;
-        // Mentre si sta scrivendo in un profilo freelance quella parte non si tocca.
-        if (chiave === 'freelance' && freelanceDirty) return;
         sharedState[chiave] = valore;
       });
       syncVerificata = true; // se e' tornato indietro, il servizio lo conserva
@@ -3879,9 +3354,6 @@
         refreshAccounting(false);
       }
       renderGoals();
-      if (businessCorrente && !freelanceScreen.classList.contains('hidden') && !freelanceBody.querySelector('textarea, .fl-add input')) {
-        renderProfileList(businessCorrente);
-      }
     };
 
     /* ================= workflow e pulizie programmate ================= */
