@@ -517,3 +517,35 @@ giro di messaggi:
   del mese → è una questione di **date**;
 - non compare da nessuna parte → la lettura sta prendendo una **scheda diversa**
   da quella che guardi.
+
+## Due allarmi che mentivano
+
+### «Sincronizzazione non attiva» era un falso allarme
+
+Il controllo provava una via **diversa** da quella che l'app usa davvero per
+salvare: spediva solo la voce `shared` e guardava solo quella. Il servizio non
+conserva quella chiave, quindi il verdetto era **sempre** «non attiva» — anche
+quando la sincronizzazione funzionava perfettamente attraverso il pacchetto
+nascosto dentro `hiddenInventory`, che è la via in uso.
+
+Peggio: quel falso negativo faceva scrivere a **ogni salvataggio** che i dati
+restavano solo su quel dispositivo, quando invece stavano arrivando ovunque.
+
+Ora il controllo usa la stessa via del salvataggio vero e verifica entrambe le
+strade, dicendo quale delle due regge.
+
+### La contabilità sembrava collegata anche dove non lo era
+
+Il collegamento può essere salvato **sul servizio** mentre su un dispositivo la
+lettura diretta non è mai partita. In quel caso la scheda mostrava indirizzo,
+tabella e login — sembrava tutto a posto — e la chiave appariva come
+«salvata: ••••q7lw», che è la chiave tenuta dal servizio, non una chiave
+presente su quel dispositivo.
+
+Risultato: il totale in home arrivava dal **conteggio del servizio**, quello che
+con questo formato dati sbaglia. Ed è esattamente il numero che non tornava.
+
+Adesso la scheda lo dice: *«NON collegato su questo dispositivo: incolla chiave
+e password e premi Collega»*, la chiave dichiara di stare sul servizio e di
+dover essere reincollata, e il conteggio del servizio non viene più presentato
+come buono ma accompagnato dall'avvertenza e da cosa fare.

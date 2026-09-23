@@ -2135,9 +2135,26 @@
       if (document.activeElement !== url) url.value = source.url || '';
       if (document.activeElement !== table) table.value = source.table || 'app_data';
       if (document.activeElement !== email) email.value = source.email || '';
-      key.placeholder = 'salvata: ' + source.keyMask;
-      password.placeholder = source.hasPassword ? 'salvata, lascia vuoto per tenerla' : 'quella del login contabilità';
-      status.textContent = source.url.replace('https://', '') + ' · tabella ' + source.table + (source.email ? ' · login ' + source.email : '');
+      /* Attenzione a non far sembrare collegato cio' che non lo e'.
+         Il servizio puo' avere il collegamento salvato mentre su QUESTO
+         dispositivo la lettura diretta non e' mai partita: in quel caso il
+         numero in home verrebbe dal lettore del servizio, che con questa forma
+         dei dati sbaglia. La chiave mascherata qui sotto e' quella tenuta dal
+         servizio, non una chiave presente qui: va reincollata. */
+      const quiCollegato = Boolean(accountingConfig);
+      key.placeholder = quiCollegato
+        ? 'salvata su questo dispositivo'
+        : 'salvata sul servizio (' + source.keyMask + '): reincollala qui';
+      password.placeholder = source.hasPassword ? 'quella del login contabilità' : 'quella del login contabilità';
+      status.textContent = source.url.replace('https://', '') + ' · tabella ' + source.table
+        + (source.email ? ' · login ' + source.email : '')
+        + (quiCollegato
+            ? (directAccounting ? ' · lettura diretta attiva' : ' · chiave anon collegata, manca solo la password')
+            : ' · NON collegato su questo dispositivo: incolla chiave e password e premi Collega');
+      if (!quiCollegato) {
+        setNote(feedback, 'Il collegamento è salvato sul servizio, ma la lettura diretta su questo dispositivo non è mai partita: finché non lo fai, il totale in home viene dal conteggio del servizio, che con questo formato dati non è attendibile. Incolla qui la chiave anon e la password e premi Collega.', 'ko');
+        return;
+      }
       if (info.error) return setNote(feedback, info.error, 'ko');
       const quando = info.readAt ? new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date(info.readAt)) : '';
       setNote(feedback, (info.count || 0) + ' incassi nel mese · ' + (info.movementsFound || 0) + ' movimenti letti in totale' + (quando ? ' · alle ' + quando : ''), 'ok');
@@ -2216,7 +2233,12 @@
         box.append(p);
         return p;
       };
-      if (!accountingConfig) { dimmi('Contabilità non collegata su questo dispositivo.'); return; }
+      if (!accountingConfig) {
+        dimmi('La lettura diretta non è attiva su questo dispositivo, quindi non posso leggere la tua scheda da qui.');
+        dimmi('Qui sotto, nel modulo: incolla la chiave anon del progetto e la password del software contabilità, premi Collega, poi ripremi Diagnostica.');
+        dimmi('Finché non lo fai, il numero in home arriva dal conteggio del servizio — quello che con questo formato dati non torna.');
+        return;
+      }
       if (!accountingClient) accountingClient = buildAccountingClient(accountingConfig);
       if (!accountingClient) { dimmi('Libreria di lettura non disponibile: ricarica la pagina.'); return; }
       const attesa = dimmi('Lettura in corso…');
@@ -2345,7 +2367,14 @@
         lastVersion = data.version;
         applyEarnings(data.accounting);
         if (data.accounting?.error) setNote(feedback, data.accounting.error, 'ko');
-        else {
+        else if (!accountingConfig) {
+          /* Il conteggio del servizio non va spacciato per buono: con questo
+             formato dati sbaglia, ed e' proprio il numero che non torna.
+             Finche' manca la lettura diretta qui, diciamo cosa fare. */
+          setNote(feedback, 'Il servizio conta ' + (data.accounting.count || 0)
+            + (data.accounting.count === 1 ? ' incasso' : ' incassi')
+            + ', ma quel conteggio non è attendibile con questo formato dati. Per il totale vero collega la lettura diretta qui sotto: chiave anon + password, poi Collega.', 'ko');
+        } else {
           const quando = new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(new Date());
           setNote(feedback, (data.accounting.count || 0) + ' incassi nel mese · aggiornato alle ' + quando, 'ok');
         }
@@ -3251,14 +3280,27 @@
       riga.textContent = 'Controllo in corso…';
       riga.classList.remove('ok', 'ko');
       try {
-        await api('/api/prefs', { method:'POST', body: JSON.stringify({ shared: sharedState }) });
+        /* Il controllo va fatto sulla STESSA via che usa il salvataggio vero.
+           Prima spediva solo la voce "shared" e guardava solo quella: il
+           servizio non la conserva, e il verdetto era sempre "non attiva"
+           anche quando la sincronizzazione funzionava benissimo attraverso il
+           pacchetto dentro hiddenInventory, che e' la via davvero in uso.
+           Era un falso allarme, e per giunta faceva scrivere a ogni
+           salvataggio che i dati restavano solo su quel dispositivo. */
+        await api('/api/prefs', { method:'POST', body: JSON.stringify({
+          shared: sharedState,
+          hiddenInventory: [...hiddenInventory, pacchettoStato()]
+        }) });
         const stato = await api('/api/state');
-        syncVerificata = Boolean(stato?.prefs?.shared);
+        const viaDiretta = Boolean(stato?.prefs?.shared);
+        const viaPacchetto = Boolean(separaStato(stato?.prefs?.hiddenInventory).stato);
+        syncVerificata = viaDiretta || viaPacchetto;
         if (syncVerificata) {
-          riga.textContent = 'Attiva: codici, quantità, obiettivi, promemoria e i business freelance si ritrovano su ogni dispositivo che apre il link.';
+          riga.textContent = 'Attiva: codici, quantità, obiettivi, promemoria, prenotazioni scritte a mano e i business freelance si ritrovano su ogni dispositivo che apre il link'
+            + (viaDiretta ? '.' : ' (il servizio non conserva la voce "shared", quindi viaggiano nella lista nascosta dell\'inventario: funziona lo stesso).');
           riga.classList.add('ok');
         } else {
-          riga.textContent = 'Non attiva: il servizio accetta il salvataggio ma non conserva questi dati, quindi restano solo su questo dispositivo. Va aggiornato il servizio perché tenga anche la voce "shared".';
+          riga.textContent = 'Non attiva: il servizio non conserva né la voce "shared" né la lista dell\'inventario, quindi i dati restano solo su questo dispositivo.';
           riga.classList.add('ko');
         }
       } catch (error) {
