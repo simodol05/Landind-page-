@@ -414,6 +414,25 @@
     /* La riga di salvataggio dentro il workflow non e' in una griglia: le
        diamo un po' d'aria per staccarla dall'ultimo passaggio. */
     #workflowSteps .goals-save { margin-top:16px; padding-top:15px; border-top:1px solid rgba(230,213,175,.09); }
+    /* I miei software: una scheda per programma collegato. */
+    .sw-card { display:grid; gap:8px; padding:14px; margin-bottom:11px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.025); }
+    .sw-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .sw-head strong { font:500 17px Georgia,serif; color:var(--gold-soft); }
+    .sw-meta { color:var(--muted); font-size:12px; line-height:1.55; }
+    .sw-nums { display:flex; flex-wrap:wrap; gap:8px; }
+    .sw-num { padding:6px 10px; border:1px solid rgba(222,190,126,.22); border-radius:9px; font-size:12px; color:#f7f3ea; }
+    .sw-num b { color:var(--gold-soft); font-variant-numeric:tabular-nums; }
+    .sw-actions { display:flex; flex-wrap:wrap; gap:9px; align-items:center; }
+    .sw-actions a, .sw-actions button { padding:9px 14px; border:1px solid rgba(222,190,126,.35); border-radius:10px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
+    .sw-actions a { color:#0a0a0a; background:var(--gold-soft); }
+    .sw-actions button { color:var(--gold-soft); background:transparent; }
+    .sw-pass { display:grid; gap:6px; }
+    .sw-pass input { box-sizing:border-box; padding:10px 12px; color:#f7f3ea; border:1px solid rgba(222,190,126,.24); border-radius:10px; background:#15161a; font:inherit; font-size:13px; outline:none; }
+    .api-card .connection-actions .sw-add { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
+    .sw-advanced { border:1px solid rgba(222,190,126,.18); border-radius:12px; padding:10px 13px; }
+    .sw-advanced summary { cursor:pointer; color:var(--gold-soft); font-size:12px; }
+    .sw-advanced label { display:block; margin-top:9px; }
+    .sw-hint { margin:8px 0 0; color:var(--muted); font-size:11px; line-height:1.55; }
     .sync-status { color:var(--muted); font-size:12px; }
     .sync-status.ok { color:var(--gold-soft); }
     .sync-status.ko { color:var(--amber); }
@@ -764,6 +783,25 @@
         </div>
       </div>
       <div class="panel sync-panel" style="margin-top:16px">
+        <div class="sync-toolbar"><div><h3>I miei software</h3><p>Aggiungi qui gli altri tuoi programmi: restano a portata di mano e, se tengono i dati su Supabase, il centro operativo ne legge il riepilogo. Si salva su tutti i dispositivi.</p></div></div>
+        <div id="softwareList"></div>
+        <form id="softwareAddForm" class="api-card" style="margin-top:14px">
+          <label>Nome del software<input id="swName" type="text" autocomplete="off" placeholder="Es. SB Beauty" required></label>
+          <label>Indirizzo per aprirlo<input id="swUrl" type="url" autocomplete="off" placeholder="https://..."></label>
+          <details class="sw-advanced">
+            <summary>Collegare anche i dati (facoltativo)</summary>
+            <p class="sw-hint">Serve solo se quel programma tiene i dati su Supabase. Senza questi campi resta comunque un collegamento rapido per aprirlo.</p>
+            <label>Indirizzo del progetto Supabase<input id="swDbUrl" type="url" autocomplete="off" placeholder="https://xxxxxxxx.supabase.co"></label>
+            <label>Chiave anon<input id="swDbKey" type="password" autocomplete="new-password" placeholder="incolla qui la chiave"></label>
+            <label>Tabella da leggere<input id="swDbTable" type="text" autocomplete="off" placeholder="es. invoices"></label>
+            <label>E-mail del login<input id="swDbEmail" type="email" autocomplete="off" placeholder="la stessa con cui entri lì"></label>
+          </details>
+          <div class="connection-actions"><button class="sw-add" type="submit">Aggiungi software</button></div>
+          <p id="swFeedback" class="api-feedback">Nessun software aggiunto.</p>
+        </form>
+      </div>
+
+      <div class="panel sync-panel" style="margin-top:16px">
         <h3>Chiavi API</h3>
         <p class="accounting-note">Endpoint, utente e chiave restano su questo computer nel file <code>data/store.json</code>. La chiave non torna mai al browser: dopo il salvataggio vedi soltanto le ultime quattro cifre. “Verifica” esegue una chiamata reale all’endpoint e riporta la risposta del portale.</p>
         <div class="api-readiness">
@@ -971,6 +1009,7 @@
       earningsMode: null,   // incasso o netto
       accounting: null,     // indirizzo, tabella, chiave ed e-mail della contabilita
       manualBookings: null, // prenotazioni scritte a mano, accanto a quelle dei calendari
+      software: null,       // gli altri programmi collegati dall'utente
       rev: 0                // quando e' stato scritto: serve a non farsi sovrascrivere
     });
     let sharedState = statoDiSerie();
@@ -1381,6 +1420,211 @@
       if (document.hidden) salvaInSospeso({ keepalive: true });
     });
 
+    /* ================= i miei software =================
+       Collegare a mano ogni programma nuovo richiedeva una modifica al codice.
+       Qui invece li aggiunge l'utente: nome e indirizzo bastano per avere il
+       collegamento rapido, e se quel programma tiene i dati su Supabase basta
+       aggiungere progetto, chiave e tabella per vederne il riepilogo.
+       La lettura e' generica — conta le righe e somma le colonne numeriche —
+       quindi funziona con qualsiasi tabella, senza sapere com'e' fatta.
+       La password resta sul dispositivo dove la scrivi, come per la
+       contabilita': viaggia solo il riepilogo gia' calcolato. */
+    const elencoSoftware = () => Array.isArray(sharedState.software) ? sharedState.software : [];
+    const clientiSoftware = {};
+
+    const riassumiRighe = (righe) => {
+      const numeri = {};
+      let ultimo = null;
+      righe.forEach((riga) => {
+        Object.entries(riga || {}).forEach(([campo, valore]) => {
+          if (typeof valore === 'number' && Number.isFinite(valore)) {
+            numeri[campo] = (numeri[campo] || 0) + valore;
+          } else if (typeof valore === 'string' && /^\d{4}-\d{2}-\d{2}/.test(valore)) {
+            if (!ultimo || valore > ultimo) ultimo = valore;
+          }
+        });
+      });
+      // Teniamo le tre colonne numeriche piu' grosse: sono quelle che dicono qualcosa.
+      const principali = Object.entries(numeri)
+        .filter(([campo]) => !/^id$|_id$/i.test(campo))
+        .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+        .slice(0, 3)
+        .map(([campo, somma]) => ({ campo, somma }));
+      return { righe: righe.length, principali, ultimo, lettoIl: new Date().toISOString() };
+    };
+
+    const leggiSoftware = async (voce, password, esito) => {
+      if (!voce.db || !voce.db.url || !voce.db.key || !voce.db.table) {
+        setNote(esito, 'Manca qualcosa nel collegamento dati: indirizzo, chiave o tabella.', 'ko');
+        return;
+      }
+      if (!window.supabase) { setNote(esito, 'Libreria di lettura non disponibile: ricarica la pagina.', 'ko'); return; }
+      setNote(esito, 'Lettura in corso…');
+      try {
+        if (!clientiSoftware[voce.id]) {
+          clientiSoftware[voce.id] = window.supabase.createClient(voce.db.url, voce.db.key, {
+            auth: { persistSession: true, autoRefreshToken: true, storageKey: 'centroOperativoSw-' + voce.id }
+          });
+        }
+        const client = clientiSoftware[voce.id];
+        if (voce.db.email && password) {
+          const { error } = await client.auth.signInWithPassword({ email: voce.db.email, password });
+          if (error) throw new Error('Login non riuscito: ' + error.message);
+        }
+        const { data: sessione } = await client.auth.getSession();
+        if (voce.db.email && !sessione?.session) {
+          setNote(esito, 'Serve la password di questo software su questo dispositivo: scrivila qui sotto e premi Leggi.', 'ko');
+          return;
+        }
+        const { data: righe, error } = await client.from(voce.db.table).select('*').limit(1000);
+        if (error) throw new Error(error.message);
+        voce.lettura = riassumiRighe(righe || []);
+        renderSoftware();
+        salvaOra(voce.nome + ' aggiornato');
+        setNote(esito, (righe || []).length + ((righe || []).length === 1 ? ' riga letta' : ' righe lette'), 'ok');
+      } catch (errore) {
+        setNote(esito, errore.message || 'Lettura non riuscita.', 'ko');
+      }
+    };
+
+    const renderSoftware = () => {
+      const lista = document.getElementById('softwareList');
+      if (!lista) return;
+      lista.replaceChildren();
+      const voci = elencoSoftware();
+      if (!voci.length) {
+        const vuoto = document.createElement('div');
+        vuoto.className = 'empty-tasks';
+        vuoto.textContent = 'Nessun software aggiunto. Usa il modulo qui sotto.';
+        lista.append(vuoto);
+        return;
+      }
+      voci.forEach((voce) => {
+        const card = document.createElement('div');
+        card.className = 'sw-card';
+
+        const testa = document.createElement('div');
+        testa.className = 'sw-head';
+        const nome = document.createElement('strong');
+        nome.textContent = voce.nome;
+        testa.append(nome);
+        if (voce.lettura?.ultimo) {
+          const quando = document.createElement('span');
+          quando.className = 'sw-meta';
+          // Formattiamo qui: formatDate e' definita piu' avanti nel file.
+          quando.textContent = 'dato più recente: ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', year:'numeric' })
+            .format(new Date(voce.lettura.ultimo.slice(0, 10) + 'T12:00:00'));
+          testa.append(quando);
+        }
+        card.append(testa);
+
+        const meta = document.createElement('p');
+        meta.className = 'sw-meta';
+        meta.textContent = voce.db?.table
+          ? 'Dati collegati · tabella ' + voce.db.table
+          : 'Solo collegamento rapido: questo software non tiene dati su Supabase.';
+        card.append(meta);
+
+        if (voce.lettura) {
+          const numeri = document.createElement('div');
+          numeri.className = 'sw-nums';
+          const righe = document.createElement('span');
+          righe.className = 'sw-num';
+          righe.innerHTML = '';
+          righe.append(document.createTextNode('righe '));
+          const b = document.createElement('b'); b.textContent = String(voce.lettura.righe);
+          righe.append(b);
+          numeri.append(righe);
+          (voce.lettura.principali || []).forEach((n) => {
+            const el = document.createElement('span');
+            el.className = 'sw-num';
+            el.append(document.createTextNode(n.campo + ' '));
+            const v = document.createElement('b');
+            v.textContent = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2 }).format(n.somma);
+            el.append(v);
+            numeri.append(el);
+          });
+          card.append(numeri);
+          const letto = document.createElement('p');
+          letto.className = 'sw-meta';
+          letto.textContent = 'riepilogo letto il ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(voce.lettura.lettoIl));
+          card.append(letto);
+        }
+
+        const azioni = document.createElement('div');
+        azioni.className = 'sw-actions';
+        if (voce.url) {
+          const apri = document.createElement('a');
+          apri.href = voce.url; apri.target = '_blank'; apri.rel = 'noopener noreferrer';
+          apri.textContent = 'Apri';
+          azioni.append(apri);
+        }
+        const esito = document.createElement('span');
+        esito.className = 'api-feedback';
+
+        let campoPassword = null;
+        if (voce.db?.table) {
+          const leggi = document.createElement('button');
+          leggi.type = 'button'; leggi.textContent = 'Leggi ora';
+          leggi.addEventListener('click', () => {
+            leggi.disabled = true;
+            leggiSoftware(voce, campoPassword ? campoPassword.value : '', esito)
+              .finally(() => { leggi.disabled = false; if (campoPassword) campoPassword.value = ''; });
+          });
+          azioni.append(leggi);
+        }
+        const via = document.createElement('button');
+        via.type = 'button'; via.textContent = 'Togli';
+        via.addEventListener('click', () => {
+          sharedState.software = elencoSoftware().filter(x => x.id !== voce.id);
+          renderSoftware();
+          salvaOra('Software tolto');
+        });
+        azioni.append(via);
+        card.append(azioni);
+
+        if (voce.db?.email) {
+          const blocco = document.createElement('div');
+          blocco.className = 'sw-pass';
+          campoPassword = document.createElement('input');
+          campoPassword.type = 'password';
+          campoPassword.autocomplete = 'new-password';
+          campoPassword.placeholder = 'password di ' + voce.nome + ' (resta su questo dispositivo)';
+          campoPassword.setAttribute('aria-label', 'Password di ' + voce.nome);
+          blocco.append(campoPassword);
+          card.append(blocco);
+        }
+
+        card.append(esito);
+        lista.append(card);
+      });
+    };
+
+    const formSoftware = document.getElementById('softwareAddForm');
+    if (formSoftware) {
+      formSoftware.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const nome = document.getElementById('swName').value.trim();
+        if (!nome) return;
+        const dbUrl = document.getElementById('swDbUrl').value.trim();
+        const dbKey = document.getElementById('swDbKey').value.trim();
+        const dbTable = document.getElementById('swDbTable').value.trim();
+        const dbEmail = document.getElementById('swDbEmail').value.trim();
+        sharedState.software = [...elencoSoftware(), {
+          id: 'sw-' + Date.now(),
+          nome,
+          url: document.getElementById('swUrl').value.trim(),
+          db: (dbUrl && dbKey && dbTable) ? { url: dbUrl, key: dbKey, table: dbTable, email: dbEmail } : null,
+          lettura: null
+        }];
+        renderSoftware();
+        salvaOra('Software aggiunto');
+        setNote(document.getElementById('swFeedback'), nome + ' aggiunto e salvato su tutti i dispositivi.', 'ok');
+        event.target.reset();
+      });
+    }
+    renderSoftware();
+
     /* ================= chiavi API ================= */
     // Alcune modalita di autenticazione hanno campi diversi: mostriamo solo quelli utili.
     const applySchemeFields = (card) => {
@@ -1537,10 +1781,19 @@
     }));
 
     /* ================= azioni sulle chiavi API ================= */
-    document.querySelectorAll('.api-scheme').forEach((select) => select.addEventListener('change', () => applySchemeFields(select.closest('.api-card'))));
+    document.querySelectorAll('.api-scheme').forEach((select) => select.addEventListener('change', () => {
+      const card = select.closest('.api-card');
+      if (card) applySchemeFields(card);
+    }));
 
+    /* La classe .api-save serve anche fuori dalle schede delle chiavi API — il
+       pulsante Collega della contabilita' e quello dei software — dove non
+       esiste nessuna .api-card attorno. Senza questo controllo ogni clic li'
+       sollevava un errore in pagina: il salvataggio andava avanti lo stesso,
+       col suo gestore, ma l'errore restava. */
     document.querySelectorAll('.api-save').forEach((button) => button.addEventListener('click', async () => {
       const card = button.closest('.api-card');
+      if (!card) return;
       const feedback = card.querySelector('.api-feedback');
       button.disabled = true;
       try {
@@ -3362,6 +3615,7 @@
         renderReservationMirror();
         applyDashboard();
       }
+      if (typeof renderSoftware === 'function') renderSoftware();
       if (typeof disegnaWorkflow === 'function') disegnaWorkflow();
       if (sharedState.accountingSnapshot && !directAccounting) applyEarnings(null);
       if (sharedState.accounting && !accountingConfig) {

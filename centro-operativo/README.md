@@ -432,3 +432,48 @@ In fondo al dettaglio c'è una riga in più:
 È la cifra che trovi là alla riga del mese — solo prenotazioni, senza pacchetti,
 perché là i pacchetti non entrano in quella riga. Se i due numeri non
 corrispondono lo vedi subito, senza doverli confrontare a mano.
+
+## I miei software: collegare gli altri programmi senza toccare il codice
+
+Prima, collegare un programma nuovo voleva dire modificare il codice. Ora c'è
+una sezione in **Collegamenti → I miei software** dove li aggiungi tu.
+
+Per ogni programma:
+
+- **Nome** e **indirizzo** → bastano per avere il pulsante **Apri**, e funzionano
+  con qualsiasi software, anche quelli senza dati sul server;
+- **collegamento dati** (facoltativo): indirizzo Supabase, chiave anon, tabella
+  ed e-mail. Se li compili, il centro operativo legge quella tabella e mostra
+  **quante righe** ci sono, le **somme delle colonne numeriche** principali e la
+  **data più recente** trovata.
+
+La lettura è generica — conta le righe e somma i numeri — quindi funziona con
+qualunque tabella senza sapere com'è fatta.
+
+Tutto si salva nello stato condiviso: i software aggiunti e i loro riepiloghi si
+ritrovano **su ogni dispositivo** che apre il link, e il centro operativo resta
+online e modificabile come sempre.
+
+La **password** di ciascun programma resta sul dispositivo dove la scrivi, come
+per la contabilità: fra i dispositivi viaggia solo il riepilogo già calcolato.
+
+### Cosa si può collegare e cosa no
+
+Ho guardato gli altri software pubblicati:
+
+| software | dati sul server | cosa si può fare |
+|---|---|---|
+| Software contabilità | Supabase (`app_data`) | già collegato a parte, con la sua sezione |
+| SB Beauty — Gestione Aziendale | Supabase (`invoices`, `products`, `members`, `movements`…) | collegamento dati completo |
+| Barometro BTC | solo `localStorage` | solo collegamento rapido |
+| Le landing page del Rustico | nessuno | solo collegamento rapido |
+
+Dove i dati vivono solo nel browser di quel programma (`localStorage`) non c'è
+niente da leggere da fuori: lì il collegamento resta una scorciatoia per aprirlo.
+
+### Un errore che c'era già
+
+La classe `.api-save` è usata anche fuori dalle schede delle chiavi API. Un
+vecchio gestore cercava la scheda `.api-card` attorno al pulsante e, non
+trovandola, sollevava un errore in pagina a ogni clic. Il salvataggio andava
+avanti lo stesso col suo gestore, ma l'errore restava: ora c'è il controllo.
