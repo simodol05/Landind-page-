@@ -389,3 +389,46 @@ Il dettaglio «vedi le voci contate» elenca ogni riga con il suo stato
 (*Ricevuto* / *Da ricevere*), divisa in prenotazioni del mese, righe senza data
 e pacchetti, e chiude con il totale: **i gruppi sommati fanno esattamente il
 numero in home**, in entrambe le colonne incasso e netto.
+
+
+## Correzione: nel mese ci sta ciò che ha una data nel mese
+
+La versione precedente metteva nel totale anche le **righe senza data**, e il
+numero risultava più alto di quello del software contabilità.
+
+La regola giusta è quella del software contabilità stesso, che per costruire i
+suoi mesi salta le righe senza data (`if (!b.startDate) return;`). Quindi nel
+totale di settembre entra **solo ciò che ha una data di settembre**:
+
+| voce | nel totale |
+|---|---|
+| prenotazioni con data in settembre (*Ricevuto* e *Da ricevere*) | sì |
+| pacchetti con data in settembre (*Ricevuto* e *Da ricevere*) | sì |
+| righe **senza data** | **no** |
+| altri mesi | no |
+
+Le righe senza data restano visibili in un gruppo a parte, dichiarato e in
+ambra: sono soldi attesi e non devono sparire dalla vista, ma non entrano nel
+conto. Appena metti la data nel software contabilità rientrano da sole.
+
+### Un solo calcolo per il numero grande e per il dettaglio
+
+Cambiando la regola è emerso un difetto di transizione: una fotografia salvata
+da un dispositivo non ancora aggiornato porta un totale calcolato **alla
+vecchia maniera**, e il numero in alto diceva una cosa (771,25) mentre le righe
+sotto ne dicevano un'altra (695,99).
+
+Ora i totali — numero in home, riga *Totale del mese*, ripartizione
+ricevuti/attesi, conteggi — si ricavano tutti **dalle stesse voci**, in un punto
+solo. Discordare è diventato impossibile, anche mentre i dispositivi si
+aggiornano.
+
+### Confronto diretto col software contabilità
+
+In fondo al dettaglio c'è una riga in più:
+
+> Nel software contabilità, alla riga del mese: **650,00 €**
+
+È la cifra che trovi là alla riga del mese — solo prenotazioni, senza pacchetti,
+perché là i pacchetti non entrano in quella riga. Se i due numeri non
+corrispondono lo vedi subito, senza doverli confrontare a mano.

@@ -1637,33 +1637,29 @@
          trattiamo come ancora da incassare. */
       const incassato = (riga) => String(riga.status || '').trim().toLowerCase() === 'ricevuto';
 
-      /* Il mese comprende sia gli importi gia' ricevuti sia quelli da
-         ricevere. Le righe senza data non appartengono a nessun mese nel
-         software contabilita' (li' vengono saltate), ma sono i pagamenti in
-         arrivo: qui entrano nel mese corrente fra quelli "da ricevere", e nel
-         dettaglio hanno un gruppo tutto loro perche' si vedano. */
+      /* NEL MESE CI STA CIO' CHE HA UNA DATA NEL MESE.
+         E' la stessa regola del software contabilita', che per costruire i
+         suoi mesi salta le righe senza data (if (!b.startDate) return;).
+         Le righe senza data restano fuori dal totale: non appartengono a
+         settembre ne' a nessun altro mese. Le mostriamo lo stesso, a parte e
+         dichiarate, perche' sono soldi attesi e non devono sparire dalla
+         vista, ma non entrano nel conto. */
       const prenotazioni = bookings.filter(b => haData(b) && meseCorrente(b.startDate));
-      const senzaData = bookings.filter(b => !haData(b));
       const pacchettiMese = packages.filter(p => p.date && meseCorrente(p.date));
+      const senzaData = bookings.filter(b => !haData(b));
       const pacchettiSenzaData = packages.filter(p => !p.date);
 
       const somma = (righe, campo) => righe.reduce((s, r) => s + (Number(r[campo]) || 0), 0);
       // Netto come nella tabella del software contabilita': incasso meno pulizie ed extra.
       const nettoDi = (b) => (Number(b.revenue) || 0) - (Number(b.cleaning) || 0) - (Number(b.extra) || 0);
 
-      const conData = prenotazioni;
-      const tutteLeRighe = [...conData, ...senzaData];
-      const pacchettiTutti = [...pacchettiMese, ...pacchettiSenzaData];
+      const incassiPren = somma(prenotazioni, 'revenue');
+      const nettiPren = prenotazioni.reduce((s, b) => s + nettoDi(b), 0);
+      const incassiPacchetti = somma(pacchettiMese, 'amount');
 
-      const incassiPren = somma(tutteLeRighe, 'revenue');
-      const nettiPren = tutteLeRighe.reduce((s, b) => s + nettoDi(b), 0);
-      const incassiPacchetti = somma(pacchettiTutti, 'amount');
-
-      // Ripartizione fra gia' incassato e ancora atteso, sull'intero perimetro.
-      const ricevutoPren = somma(tutteLeRighe.filter(incassato), 'revenue');
-      const ricevutoPacchetti = somma(pacchettiTutti.filter(incassato), 'amount');
-      const attesoPren = incassiPren - ricevutoPren;
-      const attesoPacchetti = incassiPacchetti - ricevutoPacchetti;
+      // Ripartizione fra gia' incassato e ancora atteso, dentro il mese.
+      const ricevutoPren = somma(prenotazioni.filter(incassato), 'revenue');
+      const ricevutoPacchetti = somma(pacchettiMese.filter(incassato), 'amount');
 
       const nome = (b) => (b.guest || 'Prenotazione') + (b.platform ? ' · ' + b.platform : '');
       const stato = (r) => incassato(r) ? 'Ricevuto' : 'Da ricevere';
@@ -1679,30 +1675,33 @@
 
       return {
         configured: true,
-        schema: 2,                       // i pacchetti sono gia' dentro "total"
+        schema: 3,                       // pacchetti dentro "total", righe senza data fuori
         monthLabel: etichettaMese(),
-        // Il numero in home: tutto quello che il mese porta, incassato o atteso.
+        // Il numero in home: prenotazioni del mese piu' pacchetti del mese.
         total: Math.round((incassiPren + incassiPacchetti) * 100),
         totalNet: Math.round((nettiPren + incassiPacchetti) * 100),
         receivedTotal: Math.round((ricevutoPren + ricevutoPacchetti) * 100),
-        pendingTotal: Math.round((attesoPren + attesoPacchetti) * 100),
-        count: tutteLeRighe.length,
+        pendingTotal: Math.round((incassiPren + incassiPacchetti - ricevutoPren - ricevutoPacchetti) * 100),
+        /* La cifra che il software contabilita' mostra alla riga del mese:
+           solo le prenotazioni, senza pacchetti. Serve per il confronto a
+           colpo d'occhio, cosi' una differenza si vede subito. */
+        contabilitaMese: Math.round(incassiPren * 100),
+        count: prenotazioni.length,
         bookingsTotal: Math.round(incassiPren * 100),
         bookingsNetTotal: Math.round(nettiPren * 100),
-        bookingsCount: tutteLeRighe.length,
-        datedCount: conData.length,
+        bookingsCount: prenotazioni.length,
         packagesTotal: Math.round(incassiPacchetti * 100),
-        packagesCount: pacchettiTutti.length,
-        undatedTotal: Math.round(somma(senzaData, 'revenue') * 100),
-        undatedCount: senzaData.length,
-        voci: conData.map(rigaPren).sort(perData),
-        vociSenzaData: senzaData.map(rigaPren),
-        vociPacchetti: pacchettiTutti.map(rigaPacco).sort(perData),
+        packagesCount: pacchettiMese.length,
+        // Fuori dal totale, ma da tenere sott'occhio.
+        undatedTotal: Math.round((somma(senzaData, 'revenue') + somma(pacchettiSenzaData, 'amount')) * 100),
+        undatedCount: senzaData.length + pacchettiSenzaData.length,
+        voci: prenotazioni.map(rigaPren).sort(perData),
+        vociSenzaData: [...senzaData.map(rigaPren), ...pacchettiSenzaData.map(rigaPacco)],
+        vociPacchetti: pacchettiMese.map(rigaPacco).sort(perData),
         readAt: new Date().toISOString(),
         dataUpdatedAt: blob?.__updatedAt || null
       };
-    };
-    /* Il software contabilita' pubblica le sue modifiche su Supabase Realtime:
+    };    /* Il software contabilita' pubblica le sue modifiche su Supabase Realtime:
        ci mettiamo in ascolto, cosi' il totale in home cambia nell'istante in
        cui aggiungi una prenotazione, senza aspettare il giro di rilettura. */
     let accountingChannel = null;
@@ -2623,6 +2622,34 @@
     /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
        cosa e' stato contato, con la data: se un importo non torna si vede
        subito quale voce lo causa e a che data e' registrata. */
+    /* UN SOLO CALCOLO PER IL NUMERO GRANDE E PER IL DETTAGLIO.
+       Quando c'e' l'elenco delle voci i totali si ricavano da quello, non dal
+       campo "total" della fotografia: una fotografia salvata da un dispositivo
+       non ancora aggiornato porta un totale calcolato con la regola vecchia, e
+       il numero in alto direbbe una cosa diversa dalle righe sotto. Derivandoli
+       tutti e due dalle stesse voci, discordare e' impossibile. */
+    const totaliMostrati = (info) => {
+      const voci = Array.isArray(info.voci) ? info.voci : null;
+      const pacchi = Array.isArray(info.vociPacchetti) ? info.vociPacchetti : [];
+      if (voci) {
+        const lordo = voci.reduce((s, v) => s + (v.cents || 0), 0)
+          + pacchi.reduce((s, v) => s + (v.cents || 0), 0);
+        const netto = voci.reduce((s, v) => s + (typeof v.netCents === 'number' ? v.netCents : (v.cents || 0)), 0)
+          + pacchi.reduce((s, v) => s + (v.cents || 0), 0);
+        return { lordo, netto, daVoci: true };
+      }
+      // Nessun elenco: ci fidiamo dei totali, aggiustando le fotografie vecchie.
+      const pacchetti = info.packagesTotal || 0;
+      const vecchia = info.schema !== 3;
+      return {
+        lordo: (info.total || 0) + (vecchia ? pacchetti : 0),
+        netto: typeof info.totalNet === 'number'
+          ? info.totalNet
+          : (info.bookingsNetTotal || 0) + (vecchia ? pacchetti : 0),
+        daVoci: false
+      };
+    };
+
     const renderBreakdown = (info) => {
       const box = document.getElementById('earningsBreakdown');
       const lista = document.getElementById('earningsBreakdownList');
@@ -2674,8 +2701,9 @@
       if (vociNoData.length) {
         gruppo(vociNoData.length + (vociNoData.length === 1 ? ' riga senza data' : ' righe senza data')
           + ' · ' + euro(sommaVoci(vociNoData))
-          + ' — fuori dai mesi nel software contabilità: qui contano fra quelle da ricevere');
-        vociNoData.forEach((voce) => lista.append(riga(voce, true)));
+          + ' — FUORI dal totale: senza data non appartengono a nessun mese, come nel software contabilità.'
+          + ' Mettici la data là e rientrano qui.', 'attenzione');
+        vociNoData.forEach((voce) => lista.append(riga(voce, false)));
       }
 
       if (vociPacchi.length) {
@@ -2684,10 +2712,22 @@
         vociPacchi.forEach((voce) => lista.append(riga(voce, true)));
       }
 
-      const totale = sommaVoci(vociPren) + sommaVoci(vociNoData) + sommaVoci(vociPacchi);
+      /* Le righe senza data non entrano. Il totale lo chiediamo allo stesso
+         punto che alimenta il numero grande, cosi' i due non possono differire. */
+      const totali = totaliMostrati(info);
+      const totale = conNetto ? totali.netto : totali.lordo;
       gruppo('Totale del mese · ' + euro(totale));
-      if (typeof info.receivedTotal === 'number' && !conNetto) {
-        gruppo('di cui ' + euro(info.receivedTotal) + ' ricevuti · ' + euro(info.pendingTotal) + ' da ricevere');
+      if (!conNetto) {
+        const dentro = [...vociPren, ...vociPacchi];
+        const ricevuti = dentro.filter(v => v.status === 'Ricevuto').reduce((s, v) => s + (v.cents || 0), 0);
+        gruppo('di cui ' + euro(ricevuti) + ' ricevuti · ' + euro(totale - ricevuti) + ' da ricevere');
+      }
+      /* Il numero che trovi alla riga del mese nel software contabilita':
+         solo prenotazioni, senza pacchetti. Se i due non coincidono, si vede
+         subito qui invece di doverlo scoprire confrontando a mano. */
+      if (typeof info.contabilitaMese === 'number' && !conNetto) {
+        gruppo('Nel software contabilità, alla riga del mese: ' + euro(info.contabilitaMese)
+          + (info.packagesCount ? ' (là i pacchetti non entrano nella riga del mese)' : ''));
       }
     };    // Il riquadro in home legge il totale calcolato dal servizio sul software contabilita.
     const applyEarnings = (accounting) => {
@@ -2711,25 +2751,16 @@
       // Con la lettura diretta abbiamo tutte e due le colonne: mostriamo quella scelta.
       const netto = typeof info.bookingsNetTotal === 'number';
       const pacchetti = info.packagesTotal || 0;
-      /* Dalla versione con schema 2 i pacchetti sono gia' dentro "total" e
-         "totalNet". Le fotografie piu' vecchie, arrivate da un dispositivo non
-         ancora aggiornato, li tengono fuori: solo per quelle li sommiamo qui,
-         altrimenti li conteremmo due volte. */
-      const vecchiaFotografia = info.schema !== 2;
-      const mostrato = earningsMode === 'netto' && netto
-        ? (typeof info.totalNet === 'number' ? info.totalNet : info.bookingsNetTotal + (vecchiaFotografia ? pacchetti : 0))
-        : (info.total || 0) + (vecchiaFotografia ? pacchetti : 0);
+      // Stessi totali del dettaglio: li calcola un punto solo.
+      const totali = totaliMostrati(info);
+      const mostrato = earningsMode === 'netto' && netto ? totali.netto : totali.lordo;
       updateEarningsChart(info.configured ? mostrato : null);
       const altra = document.getElementById('earningsModeNote');
       if (altra) {
-        const lordo = (info.total || 0) + (vecchiaFotografia ? pacchetti : 0);
-        const netTot = typeof info.totalNet === 'number'
-          ? info.totalNet
-          : info.bookingsNetTotal + (vecchiaFotografia ? pacchetti : 0);
         altra.textContent = netto
           ? (earningsMode === 'netto'
-              ? 'incasso ' + euro(lordo) + ' meno pulizie ed extra'
-              : 'netto ' + euro(netTot) + ' togliendo pulizie ed extra')
+              ? 'incasso ' + euro(totali.lordo) + ' meno pulizie ed extra'
+              : 'netto ' + euro(totali.netto) + ' togliendo pulizie ed extra')
           : '';
       }
       if (!info.configured) {
@@ -2761,24 +2792,34 @@
       const vecchia = (minutiFa !== null && minutiFa >= 30)
         ? ' · attenzione: fotografia di ' + (minutiFa >= 120 ? Math.round(minutiFa / 60) + ' ore fa' : minutiFa + ' minuti fa')
         : '';
-      const conPacchetti = info.packagesCount
-        ? ' e ' + info.packagesCount + (info.packagesCount === 1 ? ' pacchetto' : ' pacchetti')
+      const quantiPacchi = Array.isArray(info.vociPacchetti) ? info.vociPacchetti.length : (info.packagesCount || 0);
+      const conPacchetti = quantiPacchi
+        ? ' e ' + quantiPacchi + (quantiPacchi === 1 ? ' pacchetto' : ' pacchetti')
         : '';
       /* La ripartizione fra incassato e atteso e' la prima cosa da sapere:
          il totale del mese li comprende tutti e due. */
-      const ripartizione = typeof info.receivedTotal === 'number'
-        ? ' · ' + euro(info.receivedTotal) + ' ricevuti e ' + euro(info.pendingTotal) + ' da ricevere'
-        : '';
-      // Le righe senza data nel software contabilita' sono contate fra quelle da ricevere: va detto.
+      /* Ricavata dalle voci come tutto il resto: cosi' resta coerente anche con
+         una fotografia vecchia, dove receivedTotal seguiva un'altra regola. */
+      const tutteLeVoci = [...(info.voci || []), ...(info.vociPacchetti || [])];
+      const ricevuti = tutteLeVoci.filter(v => v.status === 'Ricevuto').reduce((s, v) => s + (v.cents || 0), 0);
+      const ripartizione = tutteLeVoci.length
+        ? ' · ' + euro(ricevuti) + ' ricevuti e ' + euro(totali.lordo - ricevuti) + ' da ricevere'
+        : (typeof info.receivedTotal === 'number'
+            ? ' · ' + euro(info.receivedTotal) + ' ricevuti e ' + euro(info.pendingTotal) + ' da ricevere'
+            : '');
+      /* Le righe senza data restano FUORI dal totale, come nel software
+         contabilita'. Vanno comunque dette: sono soldi attesi, e se non le
+         nominassimo sembrerebbe che manchino dal conto per errore. */
       const nonDatate = info.undatedCount
-        ? ' · ' + info.undatedCount + ' senza data, fra quelle da ricevere'
+        ? ' · fuori dal mese: ' + info.undatedCount + ' senza data per ' + euro(info.undatedTotal)
         : '';
       /* Quando e' stata modificata la scheda della contabilita': se premi
          Aggiorna e questa data non si muove, il dato la' non e' cambiato. */
       const schedaDel = info.dataUpdatedAt
         ? ' · scheda ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(info.dataUpdatedAt))
         : '';
-      note.textContent = info.bookingsCount + (info.bookingsCount === 1 ? ' prenotazione' : ' prenotazioni')
+      const quantePren = Array.isArray(info.voci) ? info.voci.length : (info.bookingsCount || 0);
+      note.textContent = quantePren + (quantePren === 1 ? ' prenotazione' : ' prenotazioni')
         + conPacchetti
         + ' nel mese'
         + ripartizione
