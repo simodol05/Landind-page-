@@ -477,3 +477,43 @@ La classe `.api-save` è usata anche fuori dalle schede delle chiavi API. Un
 vecchio gestore cercava la scheda `.api-card` attorno al pulsante e, non
 trovandola, sollevava un errore in pagina a ogni clic. Il salvataggio andava
 avanti lo stesso col suo gestore, ma l'errore restava: ora c'è il controllo.
+
+## Righe senza data: la scelta è tua, e la differenza è visibile
+
+Lo scarto segnalato — **1246 invece di ~1500**, circa **254 €** — corrisponde
+alle righe che nel software contabilità **non hanno una data**.
+
+Non esiste una risposta oggettiva su dove vadano: per il software contabilità
+non appartengono a nessun mese (le salta), ma sono soldi attesi e nella testa di
+chi gestisce la struttura fanno parte del mese in corso. Invece di decidere al
+posto di chi usa l'app — e di cambiare idea a ogni giro — ora c'è una casella
+sotto il riquadro del guadagno:
+
+> ☐ **Conta anche le righe senza data del software contabilità** — 254,00 €
+
+Compare **solo se esistono davvero** righe senza data, e mostra sempre quanto
+valgono: la differenza fra i due modi di contare è un numero sotto gli occhi.
+La scelta si salva su tutti i dispositivi.
+
+Verificato: casella non spuntata → **1.246,00 €**; spuntata → **1.500,00 €**;
+differenza **254,00 €**, esattamente il valore delle righe senza data.
+
+## Diagnostica della lettura
+
+In **Collegamenti → Software contabilità** c'è il pulsante **Diagnostica**.
+Mostra la scheda com'è davvero:
+
+- quante righe ci sono nella tabella e **quale è stata letta** (la tua o, se non
+  ce n'è una intestata a te, la prima disponibile) e quando è stata modificata;
+- una tabella **mese per mese**: quante prenotazioni, quanto valgono, quanti
+  pacchetti e quanto valgono, col mese in corso evidenziato;
+- quante righe sono **senza data** e quanto valgono;
+- il totale di **tutte** le prenotazioni e i pacchetti, senza filtro di mese.
+
+Serve a rispondere in un colpo d'occhio alla domanda che prima richiedeva un
+giro di messaggi:
+
+- il numero atteso compare alla riga *«tutte le prenotazioni»* ma non a quella
+  del mese → è una questione di **date**;
+- non compare da nessuna parte → la lettura sta prendendo una **scheda diversa**
+  da quella che guardi.

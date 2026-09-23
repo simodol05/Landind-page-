@@ -316,6 +316,23 @@
     .earnings-mode button { padding:7px 14px; border:1px solid rgba(222,190,126,.3); border-radius:999px; color:var(--gold-soft); background:transparent; cursor:pointer; font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
     .earnings-mode button[aria-pressed="true"] { color:#0a0a0a; background:var(--gold-soft); font-weight:700; }
     #earningsModeNote { color:var(--muted); font-size:12px; }
+    /* Le righe senza data non appartengono a nessun mese: la scelta se contarle
+       o no e' di chi usa l'app, non una decisione da prendere al posto suo. */
+    .earnings-undated { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:11px; color:var(--muted); font-size:12px; cursor:pointer; }
+    .earnings-undated input { width:17px; height:17px; accent-color:var(--gold); cursor:pointer; flex:none; }
+    .earnings-undated span { flex:1; min-width:160px; line-height:1.5; }
+    .earnings-undated b { color:var(--gold-soft); font-variant-numeric:tabular-nums; }
+    .earnings-undated.hidden { display:none; }
+    /* Diagnostica della lettura: il contenuto grezzo della scheda contabilita'. */
+    .acct-diag { margin-top:12px; padding:13px 15px; border:1px solid rgba(222,190,126,.28); border-radius:13px; background:rgba(201,168,106,.06); font-size:12px; line-height:1.6; }
+    .acct-diag.hidden { display:none; }
+    .acct-diag h4 { margin:0 0 7px; font:500 15px Georgia,serif; color:var(--gold-soft); }
+    .acct-diag table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .acct-diag th, .acct-diag td { padding:5px 6px; text-align:left; border-bottom:1px solid rgba(230,213,175,.1); }
+    .acct-diag th { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
+    .acct-diag td.n { text-align:right; font-variant-numeric:tabular-nums; }
+    .acct-diag tr.mese-corrente td { color:var(--gold-soft); font-weight:600; }
+    .acct-diag .diag-nota { margin:9px 0 0; color:var(--muted); font-size:11px; }
     .earnings-breakdown { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
     .earnings-breakdown summary { color:var(--gold-soft); font-size:11px; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; }
     .breakdown-list { margin-top:11px; display:flex; flex-direction:column; gap:1px; }
@@ -689,6 +706,7 @@
           <button type="button" data-mode="netto" aria-pressed="false">Netto</button>
           <span id="earningsModeNote"></span>
         </div>
+        <label class="earnings-undated"><input id="includeUndated" type="checkbox"> <span>Conta anche le righe senza data del software contabilità</span><b id="undatedAmount"></b></label>
         <svg class="earnings-chart" viewBox="0 0 900 120" preserveAspectRatio="none" aria-label="Andamento animato del guadagno mensile">
           <defs><linearGradient id="goldLine" x1="0" x2="1"><stop stop-color="#8f672f"/><stop offset=".5" stop-color="#f0d59e"/><stop offset="1" stop-color="#c0954d"/></linearGradient><linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dcb56a" stop-opacity=".45"/><stop offset="1" stop-color="#dcb56a" stop-opacity="0"/></linearGradient></defs>
           <path d="M0 104 L900 104" stroke="rgba(230,213,175,.12)"/>
@@ -769,7 +787,8 @@
         <div class="sync-toolbar"><div><h3>Sincronizzazione fra dispositivi</h3><p id="deviceSyncStatus">Controllo in corso…</p></div><button id="deviceSyncCheck" class="outline-button" type="button">Ricontrolla</button></div>
       </div>
       <div class="panel sync-panel" style="margin-top:16px">
-        <div class="sync-toolbar"><div><h3>Software contabilità</h3><p id="accountingStatus">Non collegato.</p></div><button id="accountingRefresh" class="primary-button" type="button">Aggiorna ora</button></div>
+        <div class="sync-toolbar"><div><h3>Software contabilità</h3><p id="accountingStatus">Non collegato.</p></div><div class="connection-actions" style="margin:0"><button id="accountingRefresh" class="primary-button" type="button">Aggiorna ora</button><button id="accountingDiagBtn" type="button">Diagnostica</button></div></div>
+        <div id="accountingDiag" class="acct-diag hidden"></div>
         <p class="accounting-note">Collegamento in <strong>sola lettura</strong>: leggiamo la stessa scheda che apre il tuo software contabilità e sommiamo il guadagno del mese in corso per il riquadro in home. Il software contabilità non viene mai modificato. Indirizzo e tabella sono gia compilati: servono la chiave <strong>anon public</strong> (app.supabase.com &gt; il tuo progetto &gt; Settings &gt; API) e le <strong>stesse e-mail e password con cui entri nel software contabilità</strong>: senza login il database non mostra nulla e il totale resta a zero. La password serve solo per accedere e non viene salvata da nessuna parte.</p>
         <div class="api-card" style="margin-top:14px">
           <label>Indirizzo del progetto<input id="accountingUrl" type="url" autocomplete="off" value="https://qgeqksuplsagwzkyiqhx.supabase.co" placeholder="https://xxxxxxxx.supabase.co"></label>
@@ -1010,6 +1029,7 @@
       accounting: null,     // indirizzo, tabella, chiave ed e-mail della contabilita
       manualBookings: null, // prenotazioni scritte a mano, accanto a quelle dei calendari
       software: null,       // gli altri programmi collegati dall'utente
+      contaSenzaData: null, // se contare nel mese le righe senza data
       rev: 0                // quando e' stato scritto: serve a non farsi sovrascrivere
     });
     let sharedState = statoDiSerie();
@@ -2174,6 +2194,111 @@
 
     document.getElementById('accountingRefresh').addEventListener('click', () => refreshAccounting(true));
 
+    /* DIAGNOSTICA DELLA LETTURA.
+       Quando il totale non torna, il totale da solo non lo spiega. Qui si vede
+       la scheda com'e': quante prenotazioni ci sono davvero, come si dividono
+       fra i mesi, quante sono senza data, e quanto fa tutto insieme. Se il
+       numero che ti aspetti compare alla riga "tutte le prenotazioni" ma non
+       alla riga del mese, il problema e' nelle date; se non compare da nessuna
+       parte, la lettura sta prendendo una scheda diversa da quella che guardi. */
+    const diagnosticaContabilita = async () => {
+      const box = document.getElementById('accountingDiag');
+      if (!box) return;
+      box.classList.remove('hidden');
+      box.replaceChildren();
+      const titolo = document.createElement('h4');
+      titolo.textContent = 'Cosa legge il centro operativo';
+      box.append(titolo);
+      const dimmi = (testo, classe) => {
+        const p = document.createElement('p');
+        p.className = classe || 'diag-nota';
+        p.textContent = testo;
+        box.append(p);
+        return p;
+      };
+      if (!accountingConfig) { dimmi('Contabilità non collegata su questo dispositivo.'); return; }
+      if (!accountingClient) accountingClient = buildAccountingClient(accountingConfig);
+      if (!accountingClient) { dimmi('Libreria di lettura non disponibile: ricarica la pagina.'); return; }
+      const attesa = dimmi('Lettura in corso…');
+      try {
+        const { data: sessione } = await accountingClient.auth.getSession();
+        const utente = sessione?.session?.user?.id || null;
+        const tabella = accountingConfig.table || 'app_data';
+        const { data: righe, error } = await accountingClient.from(tabella)
+          .select('user_id, data, updated_at');
+        if (error) throw new Error(error.message);
+        const tutte = righe || [];
+        const mia = utente ? tutte.find(r => r.user_id === utente) : null;
+        const usata = mia || tutte[0] || null;
+        attesa.remove();
+
+        dimmi('Righe presenti nella tabella ' + tabella + ': ' + tutte.length
+          + (tutte.length > 1 ? ' — più di una: leggo quella intestata a questo login.' : '')
+          + (utente ? '' : ' · nessuna sessione attiva: serve la password.'));
+        if (!usata) { dimmi('Nessuna scheda leggibile con questo login.'); return; }
+        dimmi('Scheda usata: ' + (mia ? 'la tua' : 'la prima disponibile (nessuna intestata a te)')
+          + (usata.updated_at ? ' · modificata il ' + new Intl.DateTimeFormat('it-IT', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }).format(new Date(usata.updated_at)) : ''));
+
+        const blob = usata.data || {};
+        const prenotazioni = Array.isArray(blob.bookings) ? blob.bookings : [];
+        const pacchetti = Array.isArray(blob.packages) ? blob.packages : [];
+        const perMese = {};
+        let senzaData = { n: 0, somma: 0 };
+        const aggiungi = (chiave, valore) => {
+          perMese[chiave] = perMese[chiave] || { n: 0, somma: 0, pac: 0, sommaPac: 0 };
+          perMese[chiave].n += 1; perMese[chiave].somma += valore;
+        };
+        prenotazioni.forEach((b) => {
+          const valore = Number(b.revenue) || 0;
+          if (haData(b)) aggiungi(b.startDate.slice(0, 7), valore);
+          else { senzaData.n += 1; senzaData.somma += valore; }
+        });
+        pacchetti.forEach((pk) => {
+          const valore = Number(pk.amount) || 0;
+          if (pk.date) {
+            const k = String(pk.date).slice(0, 7);
+            perMese[k] = perMese[k] || { n: 0, somma: 0, pac: 0, sommaPac: 0 };
+            perMese[k].pac += 1; perMese[k].sommaPac += valore;
+          } else { senzaData.n += 1; senzaData.somma += valore; }
+        });
+
+        const tabellaEl = document.createElement('table');
+        const testa = document.createElement('tr');
+        ['mese', 'prenotazioni', 'importo', 'pacchetti', 'importo'].forEach((t) => {
+          const th = document.createElement('th'); th.textContent = t; testa.append(th);
+        });
+        tabellaEl.append(testa);
+        const soldi = (v) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(v);
+        Object.keys(perMese).sort().forEach((chiave) => {
+          const m = perMese[chiave];
+          const tr = document.createElement('tr');
+          if (chiave === meseChiave()) tr.className = 'mese-corrente';
+          const celle = [chiave, String(m.n), soldi(m.somma), String(m.pac), soldi(m.sommaPac)];
+          celle.forEach((t, i) => { const td = document.createElement('td'); if (i) td.className = 'n'; td.textContent = t; tr.append(td); });
+          tabellaEl.append(tr);
+        });
+        if (senzaData.n) {
+          const tr = document.createElement('tr');
+          const celle = ['senza data', String(senzaData.n), soldi(senzaData.somma), '', ''];
+          celle.forEach((t, i) => { const td = document.createElement('td'); if (i) td.className = 'n'; td.textContent = t; tr.append(td); });
+          tabellaEl.append(tr);
+        }
+        box.append(tabellaEl);
+
+        const totaleTutte = prenotazioni.reduce((s, b) => s + (Number(b.revenue) || 0), 0)
+          + pacchetti.reduce((s, pk) => s + (Number(pk.amount) || 0), 0);
+        dimmi('Tutte le prenotazioni e i pacchetti della scheda, senza filtro di mese: ' + soldi(totaleTutte)
+          + ' · ' + prenotazioni.length + ' prenotazioni e ' + pacchetti.length + ' pacchetti in totale.');
+        const mese = perMese[meseChiave()] || { n:0, somma:0, pac:0, sommaPac:0 };
+        dimmi('Il mese in corso (' + meseChiave() + '): ' + soldi(mese.somma + mese.sommaPac)
+          + (senzaData.n ? ' · più ' + soldi(senzaData.somma) + ' senza data, che entrano solo se spunti la casella in home.' : ''));
+      } catch (errore) {
+        attesa.remove();
+        dimmi('Lettura non riuscita: ' + (errore.message || 'errore sconosciuto'));
+      }
+    };
+    document.getElementById('accountingDiagBtn').addEventListener('click', () => diagnosticaContabilita());
+
     document.getElementById('accountingClear').addEventListener('click', async () => {
       smettiDiSeguire();
       try { await accountingClient?.auth?.signOut(); } catch { /* sessione gia chiusa */ }
@@ -2872,6 +2997,18 @@
       saveShared('Scelta salvata');
     }));
 
+    // La casella delle righe senza data: la scelta vale su tutti i dispositivi.
+    const casellaSenzaData = document.getElementById('includeUndated');
+    if (casellaSenzaData) {
+      casellaSenzaData.addEventListener('change', () => {
+        sharedState.contaSenzaData = casellaSenzaData.checked;
+        applyEarnings(null);
+        salvaOra(casellaSenzaData.checked
+          ? 'Righe senza data contate nel mese'
+          : 'Righe senza data escluse dal mese');
+      });
+    }
+
     /* Il totale da solo non si puo' controllare. Qui elenchiamo riga per riga
        cosa e' stato contato, con la data: se un importo non torna si vede
        subito quale voce lo causa e a che data e' registrata. */
@@ -2881,13 +3018,18 @@
        non ancora aggiornato porta un totale calcolato con la regola vecchia, e
        il numero in alto direbbe una cosa diversa dalle righe sotto. Derivandoli
        tutti e due dalle stesse voci, discordare e' impossibile. */
+    // Le righe senza data entrano nel conto solo se l'utente lo ha chiesto.
+    const contaSenzaData = () => sharedState.contaSenzaData === true;
+
     const totaliMostrati = (info) => {
       const voci = Array.isArray(info.voci) ? info.voci : null;
       const pacchi = Array.isArray(info.vociPacchetti) ? info.vociPacchetti : [];
+      const senza = contaSenzaData() && Array.isArray(info.vociSenzaData) ? info.vociSenzaData : [];
       if (voci) {
-        const lordo = voci.reduce((s, v) => s + (v.cents || 0), 0)
+        const dentro = [...voci, ...senza];
+        const lordo = dentro.reduce((s, v) => s + (v.cents || 0), 0)
           + pacchi.reduce((s, v) => s + (v.cents || 0), 0);
-        const netto = voci.reduce((s, v) => s + (typeof v.netCents === 'number' ? v.netCents : (v.cents || 0)), 0)
+        const netto = dentro.reduce((s, v) => s + (typeof v.netCents === 'number' ? v.netCents : (v.cents || 0)), 0)
           + pacchi.reduce((s, v) => s + (v.cents || 0), 0);
         return { lordo, netto, daVoci: true };
       }
@@ -2952,11 +3094,14 @@
       vociPren.forEach((voce) => lista.append(riga(voce, true)));
 
       if (vociNoData.length) {
+        const dentro = contaSenzaData();
         gruppo(vociNoData.length + (vociNoData.length === 1 ? ' riga senza data' : ' righe senza data')
           + ' · ' + euro(sommaVoci(vociNoData))
-          + ' — FUORI dal totale: senza data non appartengono a nessun mese, come nel software contabilità.'
-          + ' Mettici la data là e rientrano qui.', 'attenzione');
-        vociNoData.forEach((voce) => lista.append(riga(voce, false)));
+          + (dentro
+              ? ' — contate nel totale per tua scelta. Nel software contabilità non appartengono a nessun mese.'
+              : ' — FUORI dal totale, come nel software contabilità. Spunta la casella sopra per contarle.'),
+          dentro ? '' : 'attenzione');
+        vociNoData.forEach((voce) => lista.append(riga(voce, contaSenzaData())));
       }
 
       if (vociPacchi.length) {
@@ -2971,7 +3116,7 @@
       const totale = conNetto ? totali.netto : totali.lordo;
       gruppo('Totale del mese · ' + euro(totale));
       if (!conNetto) {
-        const dentro = [...vociPren, ...vociPacchi];
+        const dentro = [...vociPren, ...vociPacchi, ...(contaSenzaData() ? vociNoData : [])];
         const ricevuti = dentro.filter(v => v.status === 'Ricevuto').reduce((s, v) => s + (v.cents || 0), 0);
         gruppo('di cui ' + euro(ricevuti) + ' ricevuti · ' + euro(totale - ricevuti) + ' da ricevere');
       }
@@ -3036,6 +3181,19 @@
       }
       renderBreakdown(info);
 
+      /* La casella compare solo quando serve, cioe' quando esistono davvero
+         righe senza data, e dice quanto valgono: cosi' la differenza fra i due
+         modi di contare e' un numero sotto gli occhi, non un mistero. */
+      const casella = document.getElementById('includeUndated');
+      const riga = casella ? casella.closest('.earnings-undated') : null;
+      if (riga) {
+        const quante = info.undatedCount || 0;
+        riga.classList.toggle('hidden', !quante);
+        casella.checked = contaSenzaData();
+        const importoSenza = document.getElementById('undatedAmount');
+        if (importoSenza) importoSenza.textContent = quante ? euro(info.undatedTotal || 0) : '';
+      }
+
       const letto = info.readAt ? new Date(info.readAt) : null;
       const quando = letto
         ? ' · letto ' + new Intl.DateTimeFormat('it-IT', { hour:'2-digit', minute:'2-digit' }).format(letto)
@@ -3064,7 +3222,8 @@
          contabilita'. Vanno comunque dette: sono soldi attesi, e se non le
          nominassimo sembrerebbe che manchino dal conto per errore. */
       const nonDatate = info.undatedCount
-        ? ' · fuori dal mese: ' + info.undatedCount + ' senza data per ' + euro(info.undatedTotal)
+        ? ' · ' + info.undatedCount + ' senza data per ' + euro(info.undatedTotal)
+          + (contaSenzaData() ? ' (contate)' : ' (non contate)')
         : '';
       /* Quando e' stata modificata la scheda della contabilita': se premi
          Aggiorna e questa data non si muove, il dato la' non e' cambiato. */
