@@ -549,3 +549,38 @@ Adesso la scheda lo dice: *«NON collegato su questo dispositivo: incolla chiave
 e password e premi Collega»*, la chiave dichiara di stare sul servizio e di
 dover essere reincollata, e il conteggio del servizio non viene più presentato
 come buono ma accompagnato dall'avvertenza e da cosa fare.
+
+## Collegare la contabilità una volta sola
+
+La chiave anon era già salvata e sincronizzata. A costringere a ricollegare era
+la **password**: `signInWithPassword` lascia una sessione Supabase che prima o
+poi scade, e da quel momento la lettura diretta si ferma e il totale in home
+ricade sul conteggio del servizio, quello che con questo formato dati sbaglia.
+
+Ora nel modulo c'è una casella, già spuntata:
+
+> ☑ **Ricorda la password su questo dispositivo**, così non devo più
+> ricollegarla: premendo *Aggiorna* rientra da solo. Resta in questo browser,
+> non viene mandata agli altri dispositivi. Non spuntarla su un computer
+> condiviso.
+
+Quando la sessione è scaduta e una password è ricordata, la lettura **rientra da
+sola** prima di leggere: *Aggiorna* non chiede più nulla.
+
+Tre dettagli che rendono la cosa onesta invece che comoda e basta:
+
+- la password vive **solo in quel browser** (`localStorage`), non entra nello
+  stato condiviso e non raggiunge gli altri dispositivi — su ognuno la scrivi
+  una volta, se vuoi;
+- **Scollega** la cancella insieme al resto;
+- se la password non è più valida (cambiata nel software contabilità) viene
+  **dimenticata subito** invece di riprovare all'infinito, e la scheda te lo
+  dice.
+
+Lo stato della scheda lo dichiara sempre: *«password ricordata, non serve
+ricollegare»* quando la lettura è attiva, *«password ricordata: rientro
+automatico, premi Aggiorna»* quando la sessione è appena scaduta.
+
+Il compromesso, detto chiaro: chi ha accesso a quel browser può leggere quella
+password. Se il dispositivo è condiviso, togli la spunta e continua a inserirla
+a mano.

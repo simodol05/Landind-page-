@@ -333,6 +333,10 @@
     .acct-diag td.n { text-align:right; font-variant-numeric:tabular-nums; }
     .acct-diag tr.mese-corrente td { color:var(--gold-soft); font-weight:600; }
     .acct-diag .diag-nota { margin:9px 0 0; color:var(--muted); font-size:11px; }
+    .ricorda-pw { display:flex !important; flex-direction:row !important; align-items:flex-start; gap:9px; text-transform:none !important; letter-spacing:normal !important; font-size:11px !important; line-height:1.55; }
+    .ricorda-pw input { width:17px !important; height:17px; accent-color:var(--gold); cursor:pointer; flex:none; margin-top:1px; }
+    .ricorda-pw span { color:var(--muted); }
+    .ricorda-pw b { color:var(--gold-soft); font-weight:600; }
     .earnings-breakdown { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
     .earnings-breakdown summary { color:var(--gold-soft); font-size:11px; text-transform:uppercase; letter-spacing:.12em; cursor:pointer; }
     .breakdown-list { margin-top:11px; display:flex; flex-direction:column; gap:1px; }
@@ -797,6 +801,7 @@
           <p class="accounting-note" style="margin:2px 0 0">Se dopo il collegamento l'importo resta 0, il tuo database mostra i dati solo dopo il login: aggiungi qui l'e-mail e la password con cui accedi al software contabilità.</p>
           <label>E-mail del software contabilità<input id="accountingEmail" type="email" autocomplete="off" placeholder="la stessa del login contabilità"></label>
           <label>Password del software contabilità<input id="accountingPassword" type="password" autocomplete="new-password" placeholder="quella del login contabilità"></label>
+          <label class="ricorda-pw"><input id="rememberPassword" type="checkbox" checked> <span>Ricorda la password su questo dispositivo, così non devo più ricollegarla: premendo <b>Aggiorna</b> rientra da solo. Resta in questo browser, non viene mandata agli altri dispositivi. Non spuntarla su un computer condiviso.</span></label>
           <div class="connection-actions"><button id="accountingSave" class="api-save" type="button">Collega</button><button id="accountingClear" type="button">Scollega</button></div>
           <p id="accountingFeedback" class="api-feedback">Nessun collegamento salvato.</p>
         </div>
@@ -1873,6 +1878,20 @@
        Qui leggiamo la stessa riga che legge il software contabilita, con lo
        stesso login, e sommiamo come fa lui. */
     const ACCOUNTING_KEY = 'centroOperativoContabilita';
+    /* La password del software contabilita', se l'utente sceglie di ricordarla.
+       Vive SOLO in questo browser: non entra nello stato condiviso e non
+       raggiunge gli altri dispositivi. Serve a rientrare da soli quando la
+       sessione di Supabase scade, cosi' "Aggiorna" non chiede piu' niente. */
+    const ACCOUNTING_PW_KEY = 'centroOperativoContabilitaPw';
+    const passwordRicordata = () => {
+      try { return localStorage.getItem(ACCOUNTING_PW_KEY) || ''; } catch { return ''; }
+    };
+    const ricordaPassword = (password) => {
+      try {
+        if (password) localStorage.setItem(ACCOUNTING_PW_KEY, password);
+        else localStorage.removeItem(ACCOUNTING_PW_KEY);
+      } catch { /* modalita privata */ }
+    };
     let accountingClient = null;
     let accountingConfig = null;
     let directAccounting = null;
@@ -2037,7 +2056,20 @@
       if (!accountingConfig) return { ok:false, message:'Contabilità non ancora collegata.' };
       if (!accountingClient) accountingClient = buildAccountingClient(accountingConfig);
       if (!accountingClient) return { ok:false, message:'Libreria di lettura non disponibile: ricarica la pagina.' };
-      const { data: sessione } = await accountingClient.auth.getSession();
+      let { data: sessione } = await accountingClient.auth.getSession();
+      /* Sessione scaduta ma password ricordata: rientriamo da soli, senza
+         chiedere niente. E' questo che rende "Aggiorna" autosufficiente. */
+      if (!sessione?.session && accountingConfig.email && passwordRicordata()) {
+        const { error } = await accountingClient.auth.signInWithPassword({
+          email: accountingConfig.email, password: passwordRicordata()
+        });
+        if (error) {
+          // Password non più valida: meglio dimenticarla che riprovare all'infinito.
+          ricordaPassword('');
+          return { ok:false, servePassword:true, message:'La password salvata non è più valida (cambiata nel software contabilità?). Inseriscila di nuovo qui sotto e premi Collega.' };
+        }
+        ({ data: sessione } = await accountingClient.auth.getSession());
+      }
       if (!sessione?.session) return { ok:false, servePassword:true, message:'Indirizzo, tabella e chiave anon sono già arrivati dagli altri dispositivi: manca solo la password del software contabilità. Inseriscila qui sotto e premi Collega per leggere in diretta anche da qui.' };
       const tabella = accountingConfig.table || 'app_data';
       /* IL PUNTO DOVE L'AGGIORNAMENTO NON ARRIVAVA.
@@ -2097,11 +2129,20 @@
     const renderAccountingStatus = () => {
       const status = document.getElementById('accountingStatus');
       if (!status) return;
+      // La casella riflette la realta': se una password e' ricordata, e' spuntata.
+      const ricorda = document.getElementById('rememberPassword');
+      if (ricorda && passwordRicordata() && document.activeElement !== ricorda) ricorda.checked = true;
       if (!accountingConfig) { status.textContent = 'Non collegato.'; return; }
       status.textContent = accountingConfig.url.replace('https://', '')
         + ' · tabella ' + (accountingConfig.table || 'app_data')
         + (accountingConfig.email ? ' · login ' + accountingConfig.email : '')
-        + (directAccounting ? ' · lettura diretta attiva' : ' · chiave anon collegata, manca solo la password');
+        /* Con la password ricordata non manca niente: il rientro e' automatico.
+           Dire le due cose insieme si contraddiceva. */
+        + (directAccounting
+            ? ' · lettura diretta attiva' + (passwordRicordata() ? ' · password ricordata, non serve ricollegare' : '')
+            : (passwordRicordata()
+                ? ' · password ricordata: rientro automatico, premi Aggiorna'
+                : ' · chiave anon collegata, manca solo la password'));
     };
     const renderAccounting = (state) => {
       const source = state.accountingSource;
@@ -2149,7 +2190,11 @@
       status.textContent = source.url.replace('https://', '') + ' · tabella ' + source.table
         + (source.email ? ' · login ' + source.email : '')
         + (quiCollegato
-            ? (directAccounting ? ' · lettura diretta attiva' : ' · chiave anon collegata, manca solo la password')
+            ? (directAccounting
+                ? ' · lettura diretta attiva' + (passwordRicordata() ? ' · password ricordata, non serve ricollegare' : '')
+                : (passwordRicordata()
+                    ? ' · password ricordata: rientro automatico, premi Aggiorna'
+                    : ' · chiave anon collegata, manca solo la password'))
             : ' · NON collegato su questo dispositivo: incolla chiave e password e premi Collega');
       if (!quiCollegato) {
         setNote(feedback, 'Il collegamento è salvato sul servizio, ma la lettura diretta su questo dispositivo non è mai partita: finché non lo fai, il totale in home viene dal conteggio del servizio, che con questo formato dati non è attendibile. Incolla qui la chiave anon e la password e premi Collega.', 'ko');
@@ -2188,7 +2233,11 @@
         const esito = await leggiContabilita();
         setNote(feedback, esito.message, esito.ok ? 'ok' : 'ko');
         if (esito.ok) {
-          // La password non viene salvata: resta solo la sessione gestita da Supabase.
+          /* La password si conserva solo se l'utente lo ha chiesto con la
+             casella: altrimenti resta la sola sessione gestita da Supabase,
+             che pero' prima o poi scade e costringe a ricollegare. */
+          const ricorda = document.getElementById('rememberPassword');
+          if (password) ricordaPassword(ricorda && ricorda.checked ? password : '');
           try { localStorage.setItem(ACCOUNTING_KEY, JSON.stringify(accountingConfig)); } catch { /* modalita privata */ }
           // Indirizzo, tabella, chiave ed e-mail viaggiano con lo stato condiviso:
           // sugli altri dispositivi restera' da inserire solo la password.
@@ -2324,6 +2373,7 @@
     document.getElementById('accountingClear').addEventListener('click', async () => {
       smettiDiSeguire();
       try { await accountingClient?.auth?.signOut(); } catch { /* sessione gia chiusa */ }
+      ricordaPassword('');   // scollegare deve togliere anche la password ricordata
       try { localStorage.removeItem(ACCOUNTING_KEY); } catch { /* modalita privata */ }
       accountingConfig = null;
       accountingClient = null;
