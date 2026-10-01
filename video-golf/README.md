@@ -29,7 +29,7 @@ I testi restano fuori da 250 px in alto, 350 px in basso e dalla colonna dei com
 
 ## Rigenerare il video
 
-1. Copia i video originali in `video-golf/sorgenti/` con i nomi `IMG_6308.mov`,
+1. Copia i video originali in `video-golf/sorgenti/` con i nomi `IMG_6308.mov`, `IMG_8019.mov` (intro vetro),
    `IMG_6398.mov`, `IMG_6399.mov` (la cartella è esclusa dal repository).
 2. `pip install pillow numpy` (serve anche `ffmpeg`).
 3. `python3 video-golf/build_video.py`
@@ -56,17 +56,19 @@ tabelle `SEGMENTI`, `DISSOLVENZE` e `TESTI` all'inizio di `build_video.py`.
 
 ## Intro alternativa «pallina contro lo schermo + vetro rotto»
 
-`intro_vetro.py` crea un'intro di 5 s da montare a mano prima della suite:
-la mazza colpisce la pallina verso chi guarda (clip `materiali/golf-verso-schermo.mp4`,
-Kling 3.0 via Higgsfield, versione D), la pallina riempie lo schermo, il vetro si incrina
-a ragnatela e le schegge 3D cadono verso lo spettatore scoprendo lo sfondo.
+`intro_vetro.py` crea `Il_Rustico_Intro_Vetro.mp4` (6,6 s, 1080×1920, H.264, audio muto):
 
-| File | Uso |
-|---|---|
-| `Il_Rustico_Intro_Vetro_chroma_blu.mp4` | Sfondo blu pieno: in CapCut/InShot metti la suite sotto e usa «Chroma key» sul blu |
-| `Il_Rustico_Intro_Vetro_anteprima.mp4` | Anteprima con la camera del Rustico già dietro il vetro (usabile anche così) |
-| `Il_Rustico_Intro_Vetro_trasparente.mov` | ProRes 4444 con trasparenza per Premiere/Final Cut/DaVinci (247 MB, non nel repository: si rigenera con lo script) |
+1. **0–2,1 s** — swing e lancio in un unico movimento (`materiali/golf-lancio.mp4`, Kling 3.0 via
+   Higgsfield con primo e ultimo fotogramma fissati). Ogni fotogramma del clip a 24 fps è mostrato
+   una sola volta a 30 fps; il backswing scorre a passo 2; i fotogrammi 53–67, in cui la mazza restava
+   ferma contro la pallina, sono saltati: la discesa entra direttamente nel lancio.
+2. **2,1 s** — la pallina riempie lo schermo e colpisce il vetro nel punto (560, 880): lampo, tremolio,
+   crepe a ragnatela frastagliate in 0,16 s.
+3. **2,1–2,56 s** — vetro incrinato; tra le crepe filtra già la sala sauna.
+4. **2,56–3,8 s** — le schegge 3D cadono verso lo spettatore e scoprono `IMG_8019` (sala sauna,
+   HDR convertito in SDR, 60 fps riportati a 30 fps a velocità reale), che parte ingrandito a 1,12×
+   e si apre fino a 1,0× in 1,8 s, come se si entrasse oltre lo schermo.
+5. **fino a 6,6 s** — il video della sala sauna prosegue fino all'inquadratura della sauna.
 
-Tempi: swing ×1,25 fino a 1,2 s, poi volo in accelerazione; impatto a 2,95 s nel punto (560, 880);
-crepe 0,16 s, vetro incrinato 0,30 s, caduta schegge 1,25 s, sfondo libero 0,35 s.
-Testi del gancio come nella versione approvata; le info evento escono a 2,3 s, prima che la pallina ci passi sotto.
+Testi del gancio come nella versione approvata (titolo a 0,10 s e 0,45 s, info evento da 0,85 s):
+restano sul vetro e si rompono con lui.

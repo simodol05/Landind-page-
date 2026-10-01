@@ -2,18 +2,12 @@
 """
 Il Rustico - Intro «colpo verso lo schermo + vetro rotto 3D».
 
-La mazza colpisce la pallina verso chi guarda; all'impatto lo schermo si
-incrina a ragnatela e le schegge si staccano in prospettiva, cadendo verso
-lo spettatore. Dietro il vetro resta uno sfondo da sostituire con la suite.
+La mazza colpisce la pallina verso chi guarda in un unico movimento fluido;
+all'impatto lo schermo si incrina a ragnatela e le schegge 3D cadono verso lo
+spettatore, scoprendo la sala sauna del Rustico (IMG_8019) che continua a
+scorrere con un leggero avvicinamento, come se si entrasse oltre lo schermo.
 
-Esporta in video-golf/:
-    Il_Rustico_Intro_Vetro_chroma_blu.mp4   sfondo blu pieno: in CapCut/InShot
-                                            usa «Chroma key» sul blu e metti
-                                            sotto il video della suite
-    Il_Rustico_Intro_Vetro_trasparente.mov  ProRes 4444 con canale alfa
-                                            (Premiere, Final Cut, DaVinci)
-    Il_Rustico_Intro_Vetro_anteprima.mp4    anteprima con la camera del Rustico
-                                            dietro il vetro
+Esporta: video-golf/Il_Rustico_Intro_Vetro.mp4
 
 Uso:
     python3 video-golf/intro_vetro.py
@@ -40,44 +34,43 @@ W, H, FPS = bv.W, bv.H, bv.FPS
 # ---------------------------------------------------------------------------
 # PARAMETRI
 # ---------------------------------------------------------------------------
-CLIP = "materiali/golf-verso-schermo.mp4"   # colpo verso la camera (Kling 3.0, versione D)
-# Tempo del clip: swing a velocita' x1,25 fino a T_ACCEL, poi il volo della
-# pallina accelera dolcemente fino a S_IMPATTO (pallina che riempie lo schermo).
-T_ACCEL = 1.20         # s dell'intro in cui il volo inizia ad accelerare
-S_IMPATTO = 4.65       # s del clip in cui la pallina "tocca" lo schermo
-VEL0 = 1.25            # velocita' iniziale (24 fps letti a 30 fps)
-T_IMPATTO = 2.95       # s dell'intro in cui avviene l'impatto
+CLIP = "materiali/golf-lancio.mp4"   # swing e lancio verso la camera (Kling 3.0, primo e ultimo fotogramma fissati)
+# Fotogrammi del clip (24 fps) mostrati uno per uno a 30 fps: (da, a, passo).
+# Il backswing scorre piu' veloce (passo 2); nel clip la mazza restava ferma contro
+# la pallina tra i fotogrammi 53 e 67: vengono saltati, cosi' la discesa entra
+# direttamente nel lancio con la stessa velocita'.
+SEQUENZA = [(0, 36, 2), (37, 52, 1), (68, 96, 1)]
+FOTOGRAMMI = [i for a, b, p in SEQUENZA for i in range(a, b + 1, p)]
+T_IMPATTO = (len(FOTOGRAMMI) - 1) / FPS   # la pallina "tocca" lo schermo sull'ultimo fotogramma
 IMPATTO = (560, 880)   # punto d'impatto sullo schermo (px), centro della pallina
 T_CREPA = 0.16         # durata della propagazione delle crepe
 T_TENUTA = 0.30        # vetro incrinato fermo prima di cedere
 T_CADUTA = 1.25        # caduta delle schegge
-CODA = 0.35            # sfondo libero alla fine
+FONDO = "IMG_8019.mov" # sala sauna dietro il vetro (HDR, 60 fps -> 30 fps a velocita' reale)
+FONDO_DURATA = 4.50    # s del video di fondo dopo l'impatto
+ZOOM0, T_ZOOM = 1.12, 1.8   # il fondo parte ingrandito e si apre mentre il vetro cade
 SEME = 7
-
-CHROMA = np.array([0, 40, 255], np.float32) / 255.0   # blu chroma key
 
 FOCALE = 1500.0        # prospettiva: distanza della «camera» dal vetro (px)
 GRAVITA = 3400.0       # px/s^2
 
-OUT_BLU = ROOT / "Il_Rustico_Intro_Vetro_chroma_blu.mp4"
-OUT_ALFA = ROOT / "Il_Rustico_Intro_Vetro_trasparente.mov"
-OUT_PREV = ROOT / "Il_Rustico_Intro_Vetro_anteprima.mp4"
+OUT = ROOT / "Il_Rustico_Intro_Vetro.mp4"
 
 # Testi del gancio (approvati): compaiono sul colpo e si rompono con il vetro.
-# Le info evento escono prima che la pallina bianca ci passi sotto.
+# L'impatto arriva a 2,1 s: anche le info evento restano e si rompono con il vetro.
 TESTI = [
     dict(t_in=0.10, x=bv.X0, y=262, righe=[
         ("Alla Mandria", bv.SERIF, 118, bv.IVORY, 0),
         ("per il golf", bv.SERIF, 118, bv.IVORY, 0)]),
-    dict(t_in=0.55, x=bv.X0, y=508, righe=[
+    dict(t_in=0.45, x=bv.X0, y=508, righe=[
         ("e non sai dove", bv.SERIF, 118, bv.IVORY, 0),
         ("soggiornare?", bv.SERIF, 118, bv.IVORY, 0)]),
-    dict(t_in=1.05, t_out=2.30, x=bv.X0 + 4, y=772, filetto=150),
-    dict(t_in=1.15, t_out=2.30, x=bv.X0 + 2, y=806, interlinea=1.42, righe=[
+    dict(t_in=0.75, x=bv.X0 + 4, y=772, filetto=150),
+    dict(t_in=0.85, x=bv.X0 + 2, y=806, interlinea=1.42, righe=[
         ("International Cup EDGA", bv.SANS_B, 40, bv.IVORY, 1),
         ("1–2 ottobre 2026", bv.SANS_B, 40, bv.CHAMPAGNE, 1),
         ("Golf Torino – La Mandria", bv.SANS, 40, bv.IVORY, 1)]),
-    dict(t_in=1.35, t_out=2.30, x=bv.X0 + 2, y=1004, opacita=0.70, righe=[
+    dict(t_in=1.05, x=bv.X0 + 2, y=1004, opacita=0.70, righe=[
         ("Animazione illustrativa (IA)", bv.SANS, 24, bv.IVORY, 1)]),
 ]
 
@@ -285,14 +278,27 @@ def componi_schegge(sch, tau):
 # ---------------------------------------------------------------------------
 # Sequenza
 # ---------------------------------------------------------------------------
-def tempo_clip(t):
-    """Secondo del clip mostrato al secondo t dell'intro (swing x1,25, poi volo in accelerazione)."""
-    if t <= T_ACCEL:
-        return VEL0 * t
-    u, U = t - T_ACCEL, T_IMPATTO - T_ACCEL
-    s0 = VEL0 * T_ACCEL
-    k = (S_IMPATTO - s0 - VEL0 * U) / (U * U)
-    return s0 + VEL0 * u + k * u * u
+class LettoreFondo:
+    """Video della suite dietro il vetro: tone mapping HDR, 30 fps, zoom che si apre."""
+
+    def __init__(self, n):
+        self.dw, self.dh = round(W * ZOOM0 / 2) * 2, round(H * ZOOM0 / 2) * 2
+        vf = (f"scale={self.dw}:{self.dh}:flags=lanczos,{bv.TONEMAP},"
+              "eq=gamma=1.06:saturation=1.06,fps=30,format=rgb24")
+        cmd = ["ffmpeg", "-v", "error", "-i", str(bv.SRC / FONDO), "-an", "-vf", vf,
+               "-frames:v", str(n), "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:"]
+        raw = subprocess.run(cmd, capture_output=True, check=True).stdout
+        self.f = np.frombuffer(raw, np.uint8).reshape(-1, self.dh, self.dw, 3)
+
+    def frame(self, i):
+        src = self.f[min(i, len(self.f) - 1)]
+        p = min(i / FPS / T_ZOOM, 1.0)
+        z = ZOOM0 + (1.0 - ZOOM0) * (1 - (1 - p) ** 3)   # da 1,12 a 1,0, rallentando
+        sc = z / ZOOM0
+        M = np.float32([[sc, 0, W / 2 - sc * self.dw / 2], [0, sc, H / 2 - sc * self.dh / 2]])
+        out = cv2.warpAffine(src, M, (W, H), flags=cv2.INTER_AREA if sc < 1 else cv2.INTER_LINEAR,
+                             borderMode=cv2.BORDER_REFLECT)
+        return out.astype(np.float32) / 255.0
 
 
 class LettoreRemap:
@@ -306,6 +312,9 @@ class LettoreRemap:
                f"scale={W}:{H}:flags=lanczos,format=rgb24", "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:"]
         raw = subprocess.run(cmd, capture_output=True, check=True).stdout
         self.f = np.frombuffer(raw, np.uint8).reshape(-1, H, W, 3)
+
+    def indice(self, i):
+        return self.f[min(i, len(self.f) - 1)].astype(np.float32) / 255
 
     def at(self, s):
         x = min(max(s * self.fps, 0), len(self.f) - 1)
@@ -329,12 +338,10 @@ def scuoti(img, t):
 
 
 def genera(tempi=None):
-    durata = T_IMPATTO + T_CREPA + T_TENUTA + T_CADUTA + CODA
-    n = int(round(durata * FPS))
     f_imp = int(round(T_IMPATTO * FPS))
+    n = f_imp + int(round(FONDO_DURATA * FPS))
     t_caduta0 = f_imp / FPS + T_CREPA + T_TENUTA
 
-    blocchi = []
     bak = list(bv.TESTI)
     bv.TESTI[:] = TESTI
     try:
@@ -347,89 +354,70 @@ def genera(tempi=None):
 
     golf = LettoreRemap(CLIP)
     m_vel, c_vel = bv.velatura("golf")   # velo verde in alto, come approvato
-    suite = bv.LettoreClip(dict(file="IMG_6308.mov", src_in=3.15, zoom=1.15, ancora=(0.0, 0.5),
-                                hdr=False, eq="contrast=1.03:saturation=1.02"),
-                           n - f_imp + 5, 0)
+    fondo = LettoreFondo(n - f_imp + 2)
 
     frames = range(n) if tempi is None else [int(round(t * FPS)) for t in tempi]
-    uscite = []
-    if tempi is None:
-        uscite = [apri_uscita(OUT_BLU, "blu"), apri_uscita(OUT_ALFA, "alfa"), apri_uscita(OUT_PREV, "prev")]
+    enc = apri_uscita(OUT) if tempi is None else None
 
     tex = None
     pieno = np.ones((H, W, 1), np.float32)
+    t_fine_caduta = t_caduta0 + T_CADUTA
     for f in frames:
         t = f / FPS
         if f <= f_imp:
-            img = golf.at(tempo_clip(t)) * (1 - m_vel) + c_vel
+            img = golf.indice(FOTOGRAMMI[f]) * (1 - m_vel) + c_vel
             bv.componi_testi(img, t, blocchi)
             if f == f_imp:
                 tex = img.copy()
         elif tex is None:  # anteprima di un istante dopo l'impatto
-            img = golf.at(S_IMPATTO) * (1 - m_vel) + c_vel
-            bv.componi_testi(img, T_IMPATTO, blocchi)
+            img = golf.indice(FOTOGRAMMI[f_imp]) * (1 - m_vel) + c_vel
+            bv.componi_testi(img, f_imp / FPS, blocchi)
             tex = img.copy()
-        premolt = t >= t_caduta0
         if f < f_imp:
-            vetro_rgb, vetro_a = img, pieno
-        elif not premolt:
-            # vetro incrinato: crepe che si propagano, lampo e tremolio
-            tc = (f - f_imp) / FPS
-            pr = min(max(tc / T_CREPA, 0.0), 1.0)
-            img = disegna_crepe(tex.copy(), P, pr ** 0.6, poligoni)
-            if pr >= 1.0:  # frammenti appena inclinati sopra il vetro incrinato
+            out = img
+        else:
+            sotto = fondo.frame(f - f_imp)
+            if t < t_caduta0:
+                # vetro incrinato: crepe che si propagano, lampo e tremolio
+                tc = (f - f_imp) / FPS
+                pr = min(max(tc / T_CREPA, 0.0), 1.0)
+                img = disegna_crepe(tex.copy(), P, pr ** 0.6, poligoni)
+                if pr >= 1.0:  # frammenti appena inclinati: tra le crepe filtra la suite
+                    if "crop" not in sch[0]:
+                        prepara_texture(sch, disegna_crepe(tex.copy(), P, 1.0, poligoni))
+                    v_rgb, v_a = componi_schegge(sch, 0.0)
+                    img = v_rgb + sotto * (1 - v_a)
+                img = img + (1 - img) * max(0.0, 1 - tc / 0.10) * 0.35
+                out = scuoti(img, tc)
+            elif t < t_fine_caduta + 0.3:
                 if "crop" not in sch[0]:
                     prepara_texture(sch, disegna_crepe(tex.copy(), P, 1.0, poligoni))
-                v_rgb, v_a = componi_schegge(sch, 0.0)
-                img = v_rgb + img * (1 - v_a)
-            img = img + (1 - img) * max(0.0, 1 - tc / 0.10) * 0.35
-            vetro_rgb, vetro_a = scuoti(img, tc), pieno
-        else:
-            if "crop" not in sch[0]:
-                prepara_texture(sch, disegna_crepe(tex.copy(), P, 1.0, poligoni))
-            vetro_rgb, vetro_a = componi_schegge(sch, t - t_caduta0)
-        sotto = suite.frame(f - f_imp) if f >= f_imp else None
-        blu = composita(vetro_rgb, vetro_a, np.broadcast_to(CHROMA, (H, W, 3)), premolt)
-        prev = composita(vetro_rgb, vetro_a, sotto, premolt) if sotto is not None else blu
+                v_rgb, v_a = componi_schegge(sch, t - t_caduta0)
+                out = v_rgb + sotto * (1 - v_a)
+            else:
+                out = sotto
         if tempi is not None:
-            for nome, im in (("anteprima", prev), ("blu", blu)):
-                p = ROOT / f"vetro_{nome}_{t:05.2f}.png"
-                cv2.imwrite(str(p), cv2.cvtColor(bv.a_uint8(im), cv2.COLOR_RGB2BGR))
+            p = ROOT / f"vetro_{t:05.2f}.png"
+            cv2.imwrite(str(p), cv2.cvtColor(bv.a_uint8(out), cv2.COLOR_RGB2BGR))
             continue
-        rgb_dritto = np.clip(vetro_rgb / np.maximum(vetro_a, 1e-4), 0, 1) if premolt else vetro_rgb
-        alfa = np.dstack([rgb_dritto, vetro_a])
-        uscite[0].stdin.write(bv.a_uint8(blu).tobytes())
-        uscite[1].stdin.write((np.clip(alfa, 0, 1) * 255 + 0.5).astype(np.uint8).tobytes())
-        uscite[2].stdin.write(bv.a_uint8(prev).tobytes())
+        enc.stdin.write(bv.a_uint8(out).tobytes())
         if f % 15 == 0:
             print(f"  fotogramma {f}/{n}", flush=True)
-    for u in uscite:
-        u.stdin.close()
-        u.wait()
-    if tempi is None:
-        for p in (OUT_BLU, OUT_ALFA, OUT_PREV):
-            print("Creato", p)
+    if enc:
+        enc.stdin.close()
+        if enc.wait() != 0:
+            sys.exit("Errore nella codifica")
+        print("Creato", OUT)
 
 
-def composita(rgb, a, fondo, premolt):
-    if premolt:
-        return rgb + fondo * (1 - a)
-    return rgb * a + fondo * (1 - a)
-
-
-def apri_uscita(path, tipo):
-    base = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-s", f"{W}x{H}", "-r", str(FPS)]
-    if tipo == "alfa":
-        cmd = base + ["-pix_fmt", "rgba", "-i", "pipe:", "-c:v", "prores_ks", "-profile:v", "4444",
-                      "-pix_fmt", "yuva444p10le", "-vendor", "apl0", str(path)]
-    else:
-        cmd = base + ["-pix_fmt", "rgb24", "-i", "pipe:",
-                      "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-map", "0:v", "-map", "1:a",
-                      "-shortest", "-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
-                      "-c:v", "libx264", "-preset", "slow", "-crf", "15", "-profile:v", "high",
-                      "-level", "4.1", "-colorspace", "bt709", "-color_primaries", "bt709",
-                      "-color_trc", "bt709", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart",
-                      str(path)]
+def apri_uscita(path):
+    cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+           "-r", str(FPS), "-i", "pipe:", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+           "-map", "0:v", "-map", "1:a", "-shortest",
+           "-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
+           "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-profile:v", "high", "-level", "4.1",
+           "-maxrate", "14M", "-bufsize", "28M", "-colorspace", "bt709", "-color_primaries", "bt709",
+           "-color_trc", "bt709", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", str(path)]
     return subprocess.Popen(cmd, stdin=subprocess.PIPE)
 
 

@@ -8,5 +8,4 @@ video-golf/sorgenti/
 video-golf/anteprima_*.png
 video-golf/RealESRGAN_x4.pth
 __pycache__/
-video-golf/Il_Rustico_Intro_Vetro_trasparente.mov
 video-golf/vetro_*.png
