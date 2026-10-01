@@ -53,3 +53,20 @@ tabelle `SEGMENTI`, `DISSOLVENZE` e `TESTI` all'inizio di `build_video.py`.
 - Camera, sauna, esperienza: opacità 0,42, sfumatura da y 1000 (nullo) a y 1500 (pieno).
 - Finale con invito: opacità 0,50, sfumatura da y 900 a y 1400.
 - La copertina usa lo stesso velo della camera.
+
+## Intro alternativa «pallina contro lo schermo + vetro rotto»
+
+`intro_vetro.py` crea un'intro di 5 s da montare a mano prima della suite:
+la mazza colpisce la pallina verso chi guarda (clip `materiali/golf-verso-schermo.mp4`,
+Kling 3.0 via Higgsfield, versione D), la pallina riempie lo schermo, il vetro si incrina
+a ragnatela e le schegge 3D cadono verso lo spettatore scoprendo lo sfondo.
+
+| File | Uso |
+|---|---|
+| `Il_Rustico_Intro_Vetro_chroma_blu.mp4` | Sfondo blu pieno: in CapCut/InShot metti la suite sotto e usa «Chroma key» sul blu |
+| `Il_Rustico_Intro_Vetro_anteprima.mp4` | Anteprima con la camera del Rustico già dietro il vetro (usabile anche così) |
+| `Il_Rustico_Intro_Vetro_trasparente.mov` | ProRes 4444 con trasparenza per Premiere/Final Cut/DaVinci (247 MB, non nel repository: si rigenera con lo script) |
+
+Tempi: swing ×1,25 fino a 1,2 s, poi volo in accelerazione; impatto a 2,95 s nel punto (560, 880);
+crepe 0,16 s, vetro incrinato 0,30 s, caduta schegge 1,25 s, sfondo libero 0,35 s.
+Testi del gancio come nella versione approvata; le info evento escono a 2,3 s, prima che la pallina ci passi sotto.
