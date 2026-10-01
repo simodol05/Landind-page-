@@ -15,7 +15,7 @@ File attesi:
     video-golf/sorgenti/IMG_6308.mov   camera (59.94 fps, SDR)
     video-golf/sorgenti/IMG_6399.mov   sauna, avvicinamento (HDR HLG)
     video-golf/sorgenti/IMG_6398.mov   sala sauna, panoramica (HDR HLG)
-    video-golf/materiali/golf-dettaglio-x4.jpg   (creato da upscale_golf.py)
+    video-golf/materiali/golf-colpo.mp4          (colpo animato con IA dal dettaglio golf)
 
 Per modificare testi, tempi o tagli basta intervenire sulle tabelle
 SEGMENTI e TESTI qui sotto e rilanciare lo script.
@@ -52,7 +52,10 @@ SAFE_LEFT, SAFE_RIGHT = 70, 930
 # a 60 fps, quindi risulta rallentato al 50% senza fotogrammi duplicati.
 # ---------------------------------------------------------------------------
 SEGMENTI = [
-    dict(nome="golf",       tipo="still",                         inizio=0.0,  fine=3.5),
+    # Colpo di golf animato con IA (Kling 3.0) a partire dal dettaglio della grafica:
+    # girato a 24 fps, ogni fotogramma diventa un fotogramma a 30 fps (azione x1,25).
+    dict(nome="golf",       percorso="materiali/golf-colpo.mp4", src_in=0.50,
+         inizio=0.0,  fine=3.5, hdr=False),
     dict(nome="camera",     file="IMG_6308.mov", src_in=3.15,     inizio=3.5,  fine=7.0,
          zoom=1.15, ancora=(0.0, 0.5), hdr=False, eq="contrast=1.03:saturation=1.02"),
     dict(nome="sauna",      file="IMG_6399.mov", src_in=0.30,     inizio=7.0,  fine=11.0,
@@ -100,13 +103,13 @@ TESTI = [
     dict(t_in=0.55, t_out=3.28, x=X0, y=508, righe=[
         ("e non sai dove", SERIF, 118, IVORY, 0),
         ("soggiornare?", SERIF, 118, IVORY, 0)]),
-    dict(t_in=1.20, t_out=3.28, x=X0 + 4, y=772, filetto=150),
-    dict(t_in=1.30, t_out=3.28, x=X0 + 2, y=806, interlinea=1.42, righe=[
+    dict(t_in=1.65, t_out=3.28, x=X0 + 4, y=772, filetto=150),
+    dict(t_in=1.75, t_out=3.28, x=X0 + 2, y=806, interlinea=1.42, righe=[
         ("International Cup EDGA", SANS_B, 40, IVORY, 1),
         ("1–2 ottobre 2026", SANS_B, 40, CHAMPAGNE, 1),
         ("Golf Torino – La Mandria", SANS, 40, IVORY, 1)]),
-    dict(t_in=1.60, t_out=3.28, x=X0 + 2, y=1004, opacita=0.70, righe=[
-        ("Immagine illustrativa", SANS, 24, IVORY, 1)]),
+    dict(t_in=1.95, t_out=3.28, x=X0 + 2, y=1004, opacita=0.70, righe=[
+        ("Animazione illustrativa (IA)", SANS, 24, IVORY, 1)]),
 
     # 3.5 - 7  CAMERA
     dict(t_in=3.80, t_out=6.78, x=X0, y=1268, righe=[
@@ -295,7 +298,7 @@ class LettoreClip:
     """Legge i fotogrammi di un segmento video, uno alla volta, come float RGB."""
 
     def __init__(self, seg, n_frames, pad_in):
-        path = SRC / seg["file"]
+        path = ROOT / seg["percorso"] if "percorso" in seg else SRC / seg["file"]
         fps_src = info_fps(path)
         ss = max(seg["src_in"] - pad_in / fps_src, 0)
         # le sorgenti sono in 4K: un leggero zoom resta comunque un ridimensionamento

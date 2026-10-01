@@ -10,14 +10,15 @@ Circolo Golf Torino – La Mandria).
 | `Il_Rustico_Golf_Mandria_copertina.jpg` | Copertina verticale 1080×1920 |
 | `build_video.py` | Script di montaggio: tagli, testi, tempi, colori |
 | `upscale_golf.py` | Ritaglio e ingrandimento del dettaglio golf dalla grafica |
-| `materiali/golf-dettaglio-x4.jpg` | Dettaglio golf già ingrandito |
+| `materiali/golf-dettaglio-x4.jpg` | Dettaglio golf già ingrandito (fotogramma di partenza dell'animazione) |
+| `materiali/golf-colpo.mp4` | Colpo di golf animato con IA (Higgsfield · Kling 3.0) dal dettaglio golf |
 | `fonts/` | Cormorant Garamond e Montserrat (licenza SIL OFL) |
 
 ## Sequenza
 
 | Tempo | Ripresa | Testo |
 |---|---|---|
-| 0–3,5 s | Dettaglio golf dalla grafica (illustrativo), lento avvicinamento | Alla Mandria per il golf / e non sai dove soggiornare? · International Cup EDGA, 1–2 ottobre 2026, Golf Torino – La Mandria |
+| 0–3,5 s | Colpo di golf animato con IA a partire dalla grafica (illustrativo, con dicitura «Animazione illustrativa (IA)») | Alla Mandria per il golf / e non sai dove soggiornare? · International Cup EDGA, 1–2 ottobre 2026, Golf Torino – La Mandria |
 | 3,5–7 s | IMG_6308, testiera e cuscini (girato a 60 fps → rallentato al 50%) | Scopri Il Rustico · Suite per due · Ciriè |
 | 7–11 s | IMG_6399, avvicinamento alla sauna accesa | Dopo il green, / una sauna tutta vostra. |
 | 11–14 s | IMG_6308, letto con asciugamani e petali (rallentato al 50%) | Trasforma la trasferta / in una pausa per due. |
