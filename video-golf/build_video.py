@@ -68,13 +68,14 @@ SEGMENTI = [
 # Brevi dissolvenze (in fotogrammi) sui soli tagli indicati; gli altri sono netti.
 DISSOLVENZE = {3.5: 10, 14.0: 8}
 
-# Velatura per la leggibilita' dei testi: (lato, y senza velo, y velo pieno, opacita')
+# Velatura per la leggibilita' dei testi: (lato, y senza velo, y velo pieno, opacita', colore)
+# Approvato: golf invariato; sulla suite il velo in basso resta leggero (vedi README).
 VELATURE = {
     "golf":       ("top",    1250, 480, 0.80, (8, 22, 14)),
-    "camera":     ("bottom", 950,  1450, 0.80, (16, 10, 10)),
-    "sauna":      ("bottom", 950,  1450, 0.80, (10, 12, 16)),
-    "esperienza": ("bottom", 950,  1450, 0.80, (16, 10, 10)),
-    "finale":     ("bottom", 820,  1300, 0.86, (8, 14, 12)),
+    "camera":     ("bottom", 1000, 1500, 0.42, (16, 10, 10)),
+    "sauna":      ("bottom", 1000, 1500, 0.42, (10, 12, 16)),
+    "esperienza": ("bottom", 1000, 1500, 0.42, (16, 10, 10)),
+    "finale":     ("bottom", 900,  1400, 0.50, (8, 14, 12)),
 }
 
 

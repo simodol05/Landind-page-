@@ -39,3 +39,17 @@ Per provare una modifica senza esportare tutto:
 
 Testi, tempi di comparsa, punti di attacco delle riprese e dissolvenze sono nelle
 tabelle `SEGMENTI`, `DISSOLVENZE` e `TESTI` all'inizio di `build_video.py`.
+
+## Parametri approvati (da mantenere nelle prossime modifiche)
+
+**Apertura golf — approvata così com'è, non modificare:**
+- Clip `materiali/golf-colpo.mp4` (Kling 3.0 via Higgsfield, versione B: la mazza colpisce la pallina con la faccia), partenza dal fotogramma `golf-dettaglio-x4.jpg`.
+- Attacco `src_in = 0.50` s, durata 0–3,5 s; clip a 24 fps letto fotogramma per fotogramma a 30 fps (azione ×1,25, impatto a circa 1,4 s).
+- Velo in alto verde scuro `(8, 22, 14)`, opacità 0,80, da y 480 (pieno) a y 1250 (nullo).
+- Testi: titolo a 0,10 s e 0,55 s; filetto 1,65 s; info evento 1,75 s; «Animazione illustrativa (IA)» 1,95 s; uscita 3,28 s.
+- Dissolvenza golf → camera di 10 fotogrammi.
+
+**Video della suite — velo in basso leggero:**
+- Camera, sauna, esperienza: opacità 0,42, sfumatura da y 1000 (nullo) a y 1500 (pieno).
+- Finale con invito: opacità 0,50, sfumatura da y 900 a y 1400.
+- La copertina usa lo stesso velo della camera.
