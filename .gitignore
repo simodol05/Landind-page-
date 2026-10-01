@@ -2,3 +2,10 @@
 Thumbs.db
 node_modules/
 *.log
+
+# Video originali (pesanti): restano fuori dal repository
+video-golf/sorgenti/
+video-golf/anteprima_*.png
+video-golf/RealESRGAN_x4.pth
+__pycache__/
+video-golf/vetro_*.png
