@@ -72,3 +72,16 @@ tabelle `SEGMENTI`, `DISSOLVENZE` e `TESTI` all'inizio di `build_video.py`.
 
 Testi del gancio come nella versione approvata (titolo a 0,10 s e 0,45 s, info evento da 0,85 s):
 restano sul vetro e si rompono con lui.
+
+## Reel pubblicato su Instagram, ripulito in HD
+
+`Il_Rustico_Reel_HD.mp4` (1080×1920, 13,47 s, 30 fps, audio originale con dissolvenza finale) nasce dal reel
+scaricato da Instagram (720×1280) con `pulisci_reel.py`:
+
+- tagliato prima del finale con il logo Instagram (da 13,5 s);
+- filigrana (icona + @ILRUSTICO_SUITEESAUNA) tolta con LaMa: in alto a destra fino al fotogramma 266,
+  in basso a sinistra dal 272;
+- portato in 1080p con Topaz Video (Higgsfield);
+- primi 2,5 s (fotogrammi 0–75, la parte che coincide con l'intro accelerata ×1,2) sostituiti con i
+  fotogrammi originali di `Il_Rustico_Intro_Vetro.mp4`;
+- un fotogramma nero isolato del montaggio (7,57 s) sostituito con il precedente.

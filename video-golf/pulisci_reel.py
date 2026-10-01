@@ -93,6 +93,11 @@ def finale():
     # nel reel l'intro scorre a x1,2: fotogramma k del reel = fotogramma round(1,2 k) dell'intro
     for k in range(FINE_INTRO + 1):
         hd[k] = intro[min(int(round(k * 1.2)), len(intro) - 1)]
+    # nel montaggio originale c'era un fotogramma nero isolato (7,57 s): lo sostituisce il precedente
+    for k in range(1, n - 1):
+        if hd[k].mean() < 8 and hd[k - 1].mean() > 20 and hd[k + 1].mean() > 20:
+            print(f"  fotogramma nero {k} sostituito")
+            hd[k] = hd[k - 1]
     dur = n / 30
     cmd = ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
            "-r", "30", "-i", "pipe:", "-i", str(INTER), "-map", "0:v", "-map", "1:a", "-t", f"{dur}",
