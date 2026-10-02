@@ -1,0 +1,161 @@
+{
+  "_nota": "Tempi in secondi. Condiviso fra la ripresa dello schermo (capture/screen.mjs) e il montaggio (Remotion).",
+  "fps": 30,
+  "total": 26,
+  "screenCaptureUntil": 21.6,
+  "scroll": [
+    [
+      0,
+      0
+    ],
+    [
+      4.7,
+      50
+    ],
+    [
+      5.3,
+      50
+    ],
+    [
+      6.5,
+      1040
+    ],
+    [
+      9.8,
+      1060
+    ],
+    [
+      10.2,
+      1060
+    ],
+    [
+      11.0,
+      2439
+    ],
+    [
+      12.4,
+      2439
+    ],
+    [
+      13.2,
+      1040
+    ],
+    [
+      14.4,
+      1040
+    ],
+    [
+      15.2,
+      260
+    ],
+    [
+      16.8,
+      260
+    ],
+    [
+      20.6,
+      1060
+    ]
+  ],
+  "titles": [
+    {
+      "from": 0.25,
+      "to": 4.75,
+      "lines": [
+        "Hai un B&B?",
+        "Dai più valore a ogni soggiorno."
+      ]
+    },
+    {
+      "from": 5.0,
+      "to": 9.85,
+      "lines": [
+        "I tuoi servizi extra.",
+        "In un’unica pagina."
+      ]
+    },
+    {
+      "from": 10.05,
+      "to": 16.9,
+      "lines": [
+        "Un soggiorno,",
+        "più possibilità."
+      ]
+    },
+    {
+      "from": 17.1,
+      "to": 20.75,
+      "lines": [
+        "Fai scoprire agli ospiti",
+        "tutto ciò che puoi offrire."
+      ]
+    },
+    {
+      "from": 21.0,
+      "to": 99,
+      "lines": [
+        "Una landing su misura",
+        "per la tua struttura."
+      ]
+    }
+  ],
+  "cards": {
+    "momento": {
+      "rect": [
+        457,
+        1075,
+        365,
+        894
+      ],
+      "out": 6.75,
+      "back": 9.5
+    },
+    "colazione": {
+      "rect": [
+        68,
+        2524,
+        1144,
+        484
+      ],
+      "out": 11.15,
+      "recede": 13.0,
+      "gone": 15.25,
+      "caption": "Colazioni per due"
+    },
+    "essenza": {
+      "rect": [
+        70,
+        1094,
+        365,
+        872
+      ],
+      "out": 13.3,
+      "recede": 15.05,
+      "back": 16.9,
+      "caption": "Sorprese romantiche"
+    },
+    "orari": {
+      "rect": [
+        204,
+        319,
+        872,
+        688
+      ],
+      "out": 15.35,
+      "back": 17.05,
+      "caption": "Orari flessibili"
+    }
+  },
+  "logo": {
+    "screenOff": 20.85,
+    "logoIn": 21.3,
+    "cta": 22.0,
+    "firma": 22.5
+  },
+  "cta": {
+    "pre": "Scrivici ",
+    "key": "‘EXTRA’",
+    "post": " in DM",
+    "firma": "Progetto: Il Rustico Romantic Suite & Sauna"
+  }
+}

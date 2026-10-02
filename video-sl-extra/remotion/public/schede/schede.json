@@ -1,0 +1,22 @@
+{
+  "momento": {
+    "w": 404,
+    "h": 399,
+    "radius": 10
+  },
+  "colazione": {
+    "w": 404,
+    "h": 468,
+    "radius": 10
+  },
+  "essenza": {
+    "w": 404,
+    "h": 452,
+    "radius": 10
+  },
+  "orari": {
+    "w": 384,
+    "h": 555,
+    "radius": 24
+  }
+}
