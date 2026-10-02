@@ -1,0 +1,20 @@
+{
+  "name": "sl-video-abyssa",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Video SL INNOVA 4:5 (26 s): sito ABYSSA (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts SLAbyssa ../out/video_muto.mp4 --codec=h264 --crf=14 --muted"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.532",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.532"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}
