@@ -12,15 +12,33 @@ const fontsReady = delayRender('font');
 new FontFace('Catamaran', `url(${staticFile('fonts/catamaran-latin.woff2')}) format('woff2')`, { weight: '100 900' })
   .load().then((f) => { document.fonts.add(f); continueRender(fontsReady); });
 
-// ---------------------------------------------------------------- formato 4:5 (1080x1350)
-// Stesso ambiente del video SL "servizi extra" (1080x1920), inquadrato da y=230.
-const Y0 = 230;
-const SCREEN = { x: 42, y: 699 - Y0, w: 992, h: 494 }; // area attiva dello schermo (bordo interno del monitor)
-const ANCHOR = { x: 540, y: SCREEN.y + SCREEN.h / 2 };
-const BOX = { w: 860, h: 660, cx: 540, cy: 792 }; // pannelli in primo piano
-const TITLE_TOP = 112;
-const SHADE = 'linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.14) 26%, rgba(0,0,0,0) 36%)';
-const CSS2PX = SCREEN.w / 1280; // viewport della ripresa: 1280x637 nello schermo largo 992 px
+// ---------------------------------------------------------------- formati
+// Stesso ambiente del video SL "servizi extra" (1080x1920).
+// 4:5 (feed): inquadrato da y=230, 1080x1350.
+// 9:16 (TikTok / Reel): inquadratura intera; testi dentro le zone sicure delle app
+// (niente testi nei ~250 px in alto, nei ~460 px in basso e nella colonna delle icone a destra).
+export type Format = '4x5' | '9x16';
+type Layout = {
+  y0: number; screen: { x: number; y: number; w: number; h: number }; anchor: { x: number; y: number };
+  box: { w: number; h: number; cx: number; cy: number }; titleTop: number; shade: string;
+  closing: { top: number; ctaTop: number; ctaSide: number }; lift: [number, number][];
+};
+function layoutFor(format: Format): Layout {
+  const y0 = format === '4x5' ? 230 : 0;
+  const screen = { x: 42, y: 699 - y0, w: 992, h: 494 }; // area attiva dello schermo (bordo interno del monitor)
+  const anchor = { x: 540, y: screen.y + screen.h / 2 };
+  return format === '4x5'
+    ? { y0, screen, anchor, box: { w: 860, h: 660, cx: 540, cy: 792 }, titleTop: 112,
+        shade: 'linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.14) 26%, rgba(0,0,0,0) 36%)',
+        closing: { top: 58, ctaTop: 1124, ctaSide: 110 },
+        // la scena scende: piu' parete sopra il monitor
+        lift: [[0, 0], [21.3, 0], [23.6, 92], [26, 100]] }
+    : { y0, screen, anchor, box: { w: 860, h: 660, cx: 540, cy: 1010 }, titleTop: 300,
+        shade: 'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.16) 24%, rgba(0,0,0,0) 32%)',
+        closing: { top: 262, ctaTop: 1284, ctaSide: 120 },
+        lift: [[0, 0], [26, 0]] }; // inquadratura gia' intera: nessuno spazio sopra da scoprire
+}
+const CSS2PX = 992 / 1280; // viewport della ripresa: 1280x637 nello schermo largo 992 px
 
 const FONT = "'Catamaran', sans-serif";
 const WHITE = '#F4EFE8';
@@ -43,47 +61,48 @@ const ramp = (t: number, a: number, b: number, easing = easeIO) => interpolate(t
 const ZOOM: [number, number][] = [
   [0, 1.13], [3.0, 1.03], [6.9, 1.1], [8.6, 1.06], [11.8, 1.075], [16.9, 1.1], [19.0, 1.0], [21.3, 1.015], [23.5, 1.0], [26, 1.0],
 ];
-const LIFT_Y: [number, number][] = [[0, 0], [21.3, 0], [23.6, 92], [26, 100]]; // la scena scende: piu' parete sopra il monitor
 
 // ---------------------------------------------------------------- pannelli (finestre reali del sito)
 type CardName = keyof typeof TL.cards;
 type CardCfg = { origin: number[]; fixed: boolean; out: number; back: number };
 type Pose = { x: number; y: number; s: number; rx: number };
 
-function cardSize(name: CardName) {
+function cardSize(L: Layout, name: CardName) {
+  const BOX = L.box;
   const m = (SCHEDE as Record<string, { w: number; h: number; radius: number }>)[name];
   const s = Math.min(BOX.w / m.w, BOX.h / m.h);
   return { w: m.w * s, h: m.h * s, r: m.radius * s };
 }
 // posizione dell'elemento d'origine dentro lo schermo all'istante t
-function originPose(name: CardName, t: number): Pose {
+function originPose(L: Layout, name: CardName, t: number): Pose {
+  const SCREEN = L.screen;
   const c = TL.cards[name] as CardCfg;
-  const { w } = cardSize(name);
+  const { w } = cardSize(L, name);
   const [rx, ry, rw, rh] = c.origin;
   const top = c.fixed ? ry : ry - scrollAt(t);
   return { x: SCREEN.x + (rx + rw / 2) * CSS2PX, y: SCREEN.y + (top + rh / 2) * CSS2PX, s: (rw * CSS2PX) / w, rx: 12 };
 }
-const FRONT: Pose = { x: BOX.cx, y: BOX.cy, s: 1, rx: 0 };
+const FRONT = (L: Layout): Pose => ({ x: L.box.cx, y: L.box.cy, s: 1, rx: 0 });
 const mix = (a: Pose, b: Pose, p: number): Pose => ({
   x: a.x + (b.x - a.x) * p, y: a.y + (b.y - a.y) * p, s: a.s + (b.s - a.s) * p, rx: a.rx + (b.rx - a.rx) * p,
 });
 const LIFT = 1.0; // uscita dallo schermo
 const BACK = 0.75; // rientro
 
-const Card: React.FC<{ name: CardName; t: number }> = ({ name, t }) => {
+const Card: React.FC<{ L: Layout; name: CardName; t: number }> = ({ L, name, t }) => {
   const c = TL.cards[name] as CardCfg;
   if (t < c.out || t > c.back + BACK) return null;
   const pOut = ramp(t, c.out, c.out + LIFT, easeOut);
-  let pose = mix(originPose(name, c.out), FRONT, pOut);
+  let pose = mix(originPose(L, name, c.out), FRONT(L), pOut);
   let opacity = interpolate(pOut, [0, 0.22], [0, 1], clamp);
   let shadow = pOut;
   if (t >= c.back) {
     const p = ramp(t, c.back, c.back + BACK, Easing.bezier(0.55, 0, 0.45, 1));
-    pose = mix(FRONT, originPose(name, c.back + BACK), p);
+    pose = mix(FRONT(L), originPose(L, name, c.back + BACK), p);
     opacity = interpolate(p, [0.4, 0.9], [1, 0], clamp);
     shadow = 1 - p;
   }
-  const { w, h, r } = cardSize(name);
+  const { w, h, r } = cardSize(L, name);
   return (
     <div style={{
       position: 'absolute', left: pose.x - w / 2, top: pose.y - h / 2, width: w, height: h, zIndex: 10,
@@ -100,7 +119,7 @@ const Card: React.FC<{ name: CardName; t: number }> = ({ name, t }) => {
 };
 
 // ---------------------------------------------------------------- schermo
-const Screen: React.FC<{ t: number }> = ({ t }) => {
+const Screen: React.FC<{ SCREEN: Layout['screen']; t: number }> = ({ SCREEN, t }) => {
   const m = TL.cards.mondo; const v = TL.cards.visita; const C = TL.closing;
   // velatura mentre un pannello e' in primo piano, poi in chiusura (il sito resta visibile)
   const dim = interpolate(t,
@@ -128,12 +147,12 @@ const exitStyle = (t: number, to: number): React.CSSProperties => {
   return { opacity: 1 - out, filter: `blur(${out * 6}px)`, transform: `translateY(${-10 * out}px)` };
 };
 
-const Title: React.FC<{ t: number; from: number; to: number; lines: string[]; sub?: string }> = ({ t, from, to, lines, sub }) => {
+const Title: React.FC<{ top: number; t: number; from: number; to: number; lines: string[]; sub?: string }> = ({ top, t, from, to, lines, sub }) => {
   if (t < from - 0.01 || t > to + 0.05) return null;
   let k = 0;
   const subIn = ramp(t, from + 0.55, from + 1.05, easeOut);
   return (
-    <div style={{ position: 'absolute', left: 84, right: 60, top: TITLE_TOP, fontFamily: FONT, ...exitStyle(t, to) }}>
+    <div style={{ position: 'absolute', left: 84, right: 60, top, fontFamily: FONT, ...exitStyle(t, to) }}>
       <div style={{ fontWeight: 600, fontSize: TITLE_SIZE, lineHeight: 1.08, letterSpacing: '-0.012em' }}>
         {lines.map((line, li) => (
           <div key={li} style={{ whiteSpace: 'nowrap' }}>
@@ -157,11 +176,11 @@ const Title: React.FC<{ t: number; from: number; to: number; lines: string[]; su
 };
 
 // ---------------------------------------------------------------- funzionalita': callout in sequenza
-const Callouts: React.FC<{ t: number }> = ({ t }) => {
+const Callouts: React.FC<{ top: number; t: number }> = ({ top, t }) => {
   const C = TL.callouts;
   if (t < C.from[0] - 0.01 || t > C.to + 0.05) return null;
   return (
-    <div style={{ position: 'absolute', left: 84, right: 60, top: TITLE_TOP + 4, fontFamily: FONT, ...exitStyle(t, C.to) }}>
+    <div style={{ position: 'absolute', left: 84, right: 60, top: top + 4, fontFamily: FONT, ...exitStyle(t, C.to) }}>
       {C.items.map((item, i) => {
         const from = C.from[i];
         const p = ramp(t, from, from + 0.55, easeOut);
@@ -185,7 +204,7 @@ const Callouts: React.FC<{ t: number }> = ({ t }) => {
 };
 
 // ---------------------------------------------------------------- chiusura SL INNOVA
-const Closing: React.FC<{ t: number }> = ({ t }) => {
+const Closing: React.FC<{ pos: Layout['closing']; t: number }> = ({ pos, t }) => {
   const C = TL.closing;
   if (t < C.logoIn) return null;
   const logo = ramp(t, C.logoIn, C.logoIn + 0.9, easeOut);
@@ -199,7 +218,7 @@ const Closing: React.FC<{ t: number }> = ({ t }) => {
     <AbsoluteFill style={{ fontFamily: FONT }}>
       {/* velo morbido in alto, per staccare il marchio dalla parete */}
       <AbsoluteFill style={{ background: 'radial-gradient(ellipse 70% 34% at 50% 18%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)', opacity: logo }} />
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 58, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: pos.top, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ position: 'relative', width: LOGO, height: LOGO, opacity: logo, transform: `scale(${0.9 + 0.1 * logo})`, filter: `blur(${(1 - logo) * 6}px)` }}>
           <Img src={staticFile('logo-sl.png')} style={{ width: LOGO, height: LOGO }} />
           <div style={{
@@ -220,7 +239,7 @@ const Closing: React.FC<{ t: number }> = ({ t }) => {
       </div>
       {panel > 0 && (
         <div style={{
-          position: 'absolute', left: 110, right: 110, top: 1124, height: 150, borderRadius: 24,
+          position: 'absolute', left: pos.ctaSide, right: pos.ctaSide, top: pos.ctaTop, height: 150, borderRadius: 24,
           background: 'rgba(18,16,14,0.62)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.10)',
           opacity: panel, transform: `translateY(${(1 - panel) * 18}px)`, textAlign: 'center',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -235,28 +254,30 @@ const Closing: React.FC<{ t: number }> = ({ t }) => {
 };
 
 // ---------------------------------------------------------------- composizione
-export const SLAbyssa: React.FC = () => {
+export const SLAbyssa: React.FC<{ format: Format }> = ({ format }) => {
+  const L = layoutFor(format);
+  const { anchor: ANCHOR } = L;
   const frame = useCurrentFrame();
   const t = frame / TL.fps;
   const z = keyed(t, ZOOM);
-  const lift = keyed(t, LIFT_Y);
+  const lift = keyed(t, L.lift);
   const fadeIn = 1 - ramp(t, 0, 0.5);
   const shade = 1 - ramp(t, TL.closing.logoIn - 0.2, TL.closing.logoIn + 0.6) * 0.4;
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
       <AbsoluteFill style={{ transformOrigin: `${ANCHOR.x}px ${ANCHOR.y}px`, transform: `translateY(${lift}px) scale(${z})` }}>
-        <Img src={staticFile('ambiente.png')} style={{ position: 'absolute', left: 0, top: -Y0, width: 1080, height: 1920 }} />
-        <Screen t={t} />
+        <Img src={staticFile('ambiente.png')} style={{ position: 'absolute', left: 0, top: -L.y0, width: 1080, height: 1920 }} />
+        <Screen SCREEN={L.screen} t={t} />
         <AbsoluteFill style={{ perspective: 1700, perspectiveOrigin: `${ANCHOR.x}px ${ANCHOR.y}px` }}>
-          <Card name="mondo" t={t} />
-          <Card name="visita" t={t} />
+          <Card L={L} name="mondo" t={t} />
+          <Card L={L} name="visita" t={t} />
         </AbsoluteFill>
       </AbsoluteFill>
       {/* leggera ombra in alto per la leggibilita' dei titoli, come nel riferimento */}
-      <AbsoluteFill style={{ background: SHADE, opacity: shade }} />
-      {TL.titles.map((ti, i) => <Title key={i} t={t} {...ti} />)}
-      <Callouts t={t} />
-      <Closing t={t} />
+      <AbsoluteFill style={{ background: L.shade, opacity: shade }} />
+      {TL.titles.map((ti, i) => <Title key={i} top={L.titleTop} t={t} {...ti} />)}
+      <Callouts top={L.titleTop} t={t} />
+      <Closing pos={L.closing} t={t} />
       <AbsoluteFill style={{ background: '#000', opacity: fadeIn }} />
     </AbsoluteFill>
   );

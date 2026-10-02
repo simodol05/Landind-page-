@@ -1,7 +1,14 @@
 # SL INNOVA — Video "ABYSSA" (sito per un acquario immersivo)
 
-**File finale:** `SL_INNOVA_Abyssa_26s_4x5.mp4` — 1080×1350 (4:5), 30 fps, 26 s esatti (780 fotogrammi),
-H.264 High yuv420p BT.709, AAC stereo 48 kHz, faststart. Per feed Instagram e TikTok.
+**File finali** (30 fps, 26 s esatti = 780 fotogrammi, H.264 High yuv420p BT.709, AAC stereo 48 kHz, faststart):
+| File | Formato | Dove |
+|---|---|---|
+| `SL_INNOVA_Abyssa_26s_4x5.mp4` | 1080×1350 (4:5) | feed Instagram |
+| `SL_INNOVA_Abyssa_26s_9x16.mp4` | 1080×1920 (9:16) | TikTok, Reel Instagram |
+
+Nella versione 9:16 l'inquadratura è quella intera dell'ambiente. Titoli, callout, marchio e invito finale restano
+nelle zone sicure delle app: niente testi nei primi ~250 px, negli ultimi ~460 px (didascalia, audio, nome utente)
+e nella colonna delle icone a destra.
 
 Nuovo episodio della serie SL (stessa scrivania, stessa camera, stessi titoli del video
 "servizi extra" sul ramo `claude/sl-video-extra-rustico`), dedicato al sito
@@ -37,10 +44,10 @@ Leggibilità: ogni frase resta ferma almeno 2 s; una frase nuova entra solo dopo
 | `capture/page-setup.mjs` | Apertura della pagina, WebGL software, tempo delle animazioni (requestAnimationFrame e CSS) controllato fotogramma per fotogramma |
 | `capture/screen.mjs` | Ripresa dello schermo del monitor (viewport 1280×637, 2x, 26 s) con scorrimento, puntatore sul modello 3D e clic sul filtro |
 | `capture/cards.mjs` | Pannelli in primo piano: le due finestre reali del sito fotografate a 2x |
-| `remotion/` | Montaggio (Remotion 4): `src/SLAbyssa.tsx` grafica e animazioni, `src/timeline.json` testi e tempi |
+| `remotion/` | Montaggio (Remotion 4): `src/SLAbyssa.tsx` grafica, animazioni e i due formati (composizioni `SLAbyssa` 4:5 e `SLAbyssa916` 9:16), `src/timeline.json` testi e tempi |
 | `remotion/public/ambiente.png`, `logo-sl.png` | Ambiente e logo della serie SL, gli stessi del video di riferimento (logo non ridisegnato) |
 | `assets/audio/traccia-riferimento.m4a` | Traccia audio della serie, la stessa del video di riferimento |
-| `build.sh` | `./build.sh [prova]`: render finale + audio, oppure anteprima a metà risoluzione |
+| `build.sh` | `./build.sh [4x5\|9x16] [prova]`: render finale + audio, oppure anteprima a metà risoluzione |
 | `verifica.sh` | Formato, durata, loudness e provino con un fotogramma ogni 0,5 s |
 
 ## Rigenerare
@@ -48,9 +55,10 @@ Leggibilità: ogni frase resta ferma almeno 2 s; una frase nuova entra solo dopo
 cd remotion && npm install && cd ..
 cd capture && python3 -m http.server 8766 --directory sito-locale &   # copia locale
 node screen.mjs && node cards.mjs && cd ..                           # solo se cambiano scorrimento o pannelli
-./build.sh prova   # controllo veloce
-./build.sh         # file finale
-./verifica.sh
+./build.sh 4x5 prova  # controllo veloce
+./build.sh 4x5        # feed Instagram
+./build.sh 9x16       # TikTok / Reel
+./verifica.sh SL_INNOVA_Abyssa_26s_9x16.mp4
 ```
 Per cambiare un testo o un tempo: `remotion/src/timeline.json`. Se cambi `scroll` o `events`, rifai `node screen.mjs`.
 
