@@ -12,18 +12,32 @@ const fontsReady = delayRender('font');
 new FontFace('Catamaran', `url(${staticFile('fonts/catamaran-latin.woff2')}) format('woff2')`, { weight: '100 900' })
   .load().then((f) => { document.fonts.add(f); continueRender(fontsReady); });
 
-// ---------------------------------------------------------------- costanti di scena
-// Ambiente: fotogramma pulito del video KnowledgeDesk (1080x1920), inquadrato in 4:5 da y=230.
-const Y0 = 230;
-// Area attiva dello schermo nel fotogramma 4:5 (bordo interno del monitor).
-const SCREEN = { x: 42, y: 699 - Y0, w: 992, h: 494 };
-const CSS2PX = SCREEN.w / 1280; // viewport della ripresa: 1280x637
-const ANCHOR = { x: 540, y: SCREEN.y + SCREEN.h / 2 };
+// ---------------------------------------------------------------- formati
+// Ambiente: fotogramma pulito del video KnowledgeDesk (1080x1920).
+// 4:5 (feed Instagram / LinkedIn): inquadrato da y=230, 1080x1350.
+// 9:16 (TikTok / Reel): inquadratura intera, titoli e invito dentro le zone sicure delle app
+// (niente testi nei ~250 px in alto, nei ~460 px in basso e a ridosso del bordo destro).
+export type Format = '4x5' | '9x16';
+type Layout = {
+  y0: number; screen: { x: number; y: number; w: number; h: number }; anchor: { x: number; y: number };
+  box: { w: number; h: number; cx: number; cy: number }; titleTop: number; captionTop: number;
+  cta: { top: number; side: number }; shade: string;
+};
+function layoutFor(format: Format): Layout {
+  const y0 = format === '4x5' ? 230 : 0;
+  const screen = { x: 42, y: 699 - y0, w: 992, h: 494 }; // area attiva dello schermo (bordo interno del monitor)
+  const anchor = { x: 540, y: screen.y + screen.h / 2 };
+  return format === '4x5'
+    ? { y0, screen, anchor, box: { w: 660, h: 720, cx: 540, cy: 772 }, titleTop: 112, captionTop: 1162,
+        cta: { top: 1028, side: 96 }, shade: 'linear-gradient(180deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 26%, rgba(0,0,0,0) 36%)' }
+    : { y0, screen, anchor, box: { w: 660, h: 720, cx: 540, cy: 1000 }, titleTop: 300, captionTop: 1392,
+        cta: { top: 1252, side: 120 }, shade: 'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.14) 24%, rgba(0,0,0,0) 32%)' };
+}
+const CSS2PX = 992 / 1280; // viewport della ripresa: 1280x637 nello schermo largo 992 px
 
 const FONT = "'Catamaran', sans-serif";
 const WHITE = '#F4EFE8';
 const GOLD = 'linear-gradient(180deg, #EFD9B0 0%, #D8B985 55%, #C49E66 100%)';
-const GOLD_FLAT = '#DDBF8E';
 
 const easeIO = Easing.bezier(0.45, 0, 0.2, 1);
 const easeOut = Easing.bezier(0.16, 1, 0.3, 1);
@@ -42,31 +56,31 @@ const CAM: [number, number][] = [[0, 1.065], [3.2, 1.02], [10, 1.034], [16.5, 1.
 type CardName = keyof typeof TL.cards;
 type CardCfg = { rect: number[]; out: number; back?: number; recede?: number; gone?: number; caption?: string };
 
-const BOX = { w: 660, h: 720, cx: 540, cy: 772 };
-function cardSize(name: CardName) {
+function cardSize(name: CardName, BOX: Layout['box']) {
   const m = (SCHEDE as Record<string, { w: number; h: number; radius: number }>)[name];
   const s = Math.min(BOX.w / m.w, BOX.h / m.h);
   return { w: m.w * s, h: m.h * s, r: m.radius * s };
 }
 
 // posizione della scheda dentro lo schermo (coordinate del fotogramma) all'istante t
-function originPose(name: CardName, t: number) {
+function originPose(L: Layout, name: CardName, t: number) {
+  const SCREEN = L.screen;
   const c = TL.cards[name] as CardCfg;
-  const { w } = cardSize(name);
+  const { w } = cardSize(name, L.box);
   const [rx, ry, rw] = c.rect;
   const ox = SCREEN.x + rx * CSS2PX;
   const oy = SCREEN.y + (ry - scrollAt(t)) * CSS2PX;
   const ow = rw * CSS2PX;
   const s = Math.min(ow / w, 0.6);
-  const { h } = cardSize(name);
+  const { h } = cardSize(name, L.box);
   const top = Math.max(oy, SCREEN.y + 6);
   const cy = Math.min(top + (h * s) / 2, SCREEN.y + SCREEN.h - (h * s) / 2 + 30);
   return { x: ox + ow / 2, y: cy, s, rx: 14, ry: 0, light: 1 };
 }
 
 type Pose = { x: number; y: number; s: number; rx: number; ry: number; light: number };
-const FRONT = (): Pose => ({ x: BOX.cx, y: BOX.cy, s: 1, rx: 0, ry: 0, light: 1 });
-const SIDE = (dir: -1 | 1): Pose => ({ x: BOX.cx + dir * 318, y: BOX.cy + 10, s: 0.6, rx: 0, ry: -dir * 24, light: 0.5 });
+const FRONT = (L: Layout): Pose => ({ x: L.box.cx, y: L.box.cy, s: 1, rx: 0, ry: 0, light: 1 });
+const SIDE = (L: Layout, dir: -1 | 1): Pose => ({ x: L.box.cx + dir * 318, y: L.box.cy + 10, s: 0.6, rx: 0, ry: -dir * 24, light: 0.5 });
 const mix = (a: Pose, b: Pose, p: number): Pose => ({
   x: a.x + (b.x - a.x) * p, y: a.y + (b.y - a.y) * p, s: a.s + (b.s - a.s) * p,
   rx: a.rx + (b.rx - a.rx) * p, ry: a.ry + (b.ry - a.ry) * p, light: a.light + (b.light - a.light) * p,
@@ -76,29 +90,29 @@ const LIFT = 1.0; // durata dell'uscita dallo schermo
 const BACK = 0.75; // durata del rientro
 const SIDE_DUR = 0.8;
 
-function cardState(name: CardName, t: number, side: -1 | 1) {
+function cardState(L: Layout, name: CardName, t: number, side: -1 | 1) {
   const c = TL.cards[name] as CardCfg;
   if (t < c.out) return null;
   let pose: Pose; let opacity = 1; let z = 10; let shadow = 1;
   const pOut = ramp(t, c.out, c.out + LIFT, easeOut);
-  pose = mix(originPose(name, c.out), FRONT(), pOut);
+  pose = mix(originPose(L, name, c.out), FRONT(L), pOut);
   opacity = interpolate(pOut, [0, 0.22], [0, 1], clamp);
   shadow = pOut;
   if (c.recede !== undefined && t >= c.recede) {
     const p = ramp(t, c.recede, c.recede + SIDE_DUR);
-    pose = mix(FRONT(), SIDE(side), p);
+    pose = mix(FRONT(L), SIDE(L, side), p);
     z = 5;
   }
   if (c.gone !== undefined && t >= c.gone) {
     const p = ramp(t, c.gone, c.gone + 0.7);
-    pose = mix(SIDE(side), { ...SIDE(side), x: BOX.cx + side * 560, s: 0.5 }, p);
+    pose = mix(SIDE(L, side), { ...SIDE(L, side), x: L.box.cx + side * 560, s: 0.5 }, p);
     opacity = 1 - p;
     z = 2;
   }
   if (c.back !== undefined && t >= c.back) {
-    const from = c.recede !== undefined && t >= c.recede ? SIDE(side) : FRONT();
+    const from = c.recede !== undefined && t >= c.recede ? SIDE(L, side) : FRONT(L);
     const p = ramp(t, c.back, c.back + BACK, Easing.bezier(0.55, 0, 0.45, 1));
-    pose = mix(from, originPose(name, c.back + BACK), p);
+    pose = mix(from, originPose(L, name, c.back + BACK), p);
     opacity = interpolate(p, name === 'orari' ? [0.3, 0.68] : [0.45, 0.9], [opacity, 0], clamp);
     shadow = 1 - p;
     if (p >= 1) return null;
@@ -106,10 +120,10 @@ function cardState(name: CardName, t: number, side: -1 | 1) {
   return { pose, opacity, z, shadow };
 }
 
-const Card: React.FC<{ name: CardName; t: number; side: -1 | 1 }> = ({ name, t, side }) => {
-  const st = cardState(name, t, side);
+const Card: React.FC<{ L: Layout; name: CardName; t: number; side: -1 | 1 }> = ({ L, name, t, side }) => {
+  const st = cardState(L, name, t, side);
   if (!st) return null;
-  const { w, h, r } = cardSize(name);
+  const { w, h, r } = cardSize(name, L.box);
   const { pose, opacity, z, shadow } = st;
   return (
     <div
@@ -130,7 +144,7 @@ const Card: React.FC<{ name: CardName; t: number; side: -1 | 1 }> = ({ name, t, 
 };
 
 // ---------------------------------------------------------------- schermo
-const Screen: React.FC<{ t: number }> = ({ t }) => {
+const Screen: React.FC<{ SCREEN: Layout['screen']; t: number }> = ({ SCREEN, t }) => {
   // velatura dello schermo mentre una scheda e' in primo piano (attenzione sulla scheda)
   const dim = interpolate(t, [6.85, 7.3, 9.6, 10.1, 11.25, 11.7, 17.1, 17.6], [0, 0.42, 0.42, 0, 0, 0.42, 0.42, 0], clamp);
   const L = TL.logo;
@@ -167,13 +181,13 @@ const Screen: React.FC<{ t: number }> = ({ t }) => {
 
 // ---------------------------------------------------------------- titoli
 const TITLE_SIZE = 68;
-const Title: React.FC<{ t: number; from: number; to: number; lines: string[] }> = ({ t, from, to, lines }) => {
+const Title: React.FC<{ top: number; t: number; from: number; to: number; lines: string[] }> = ({ top, t, from, to, lines }) => {
   if (t < from - 0.01 || t > to + 0.05) return null;
   const out = ramp(t, to - 0.4, to);
   let k = 0;
   return (
     <div style={{
-      position: 'absolute', left: 84, right: 60, top: 112, fontFamily: FONT, fontWeight: 600,
+      position: 'absolute', left: 84, right: 60, top, fontFamily: FONT, fontWeight: 600,
       fontSize: TITLE_SIZE, lineHeight: 1.08, letterSpacing: '-0.012em',
       opacity: 1 - out, filter: `blur(${out * 6}px)`, transform: `translateY(${-10 * out}px)`,
     }}>
@@ -198,12 +212,12 @@ const Title: React.FC<{ t: number; from: number; to: number; lines: string[] }> 
 };
 
 // ---------------------------------------------------------------- didascalie delle schede (8-13 s)
-const Caption: React.FC<{ t: number; text: string; from: number; to: number }> = ({ t, text, from, to }) => {
+const Caption: React.FC<{ top: number; t: number; text: string; from: number; to: number }> = ({ top, t, text, from, to }) => {
   const a = ramp(t, from, from + 0.45, easeOut) * (1 - ramp(t, to - 0.3, to));
   if (a <= 0) return null;
   return (
     <div style={{
-      position: 'absolute', left: 0, right: 0, top: 1162, textAlign: 'center', fontFamily: FONT, fontWeight: 600,
+      position: 'absolute', left: 0, right: 0, top, textAlign: 'center', fontFamily: FONT, fontWeight: 600,
       fontSize: 46, letterSpacing: '0.005em', color: WHITE, opacity: a, transform: `translateY(${(1 - ramp(t, from, from + 0.45, easeOut)) * 16}px)`,
       textShadow: '0 2px 6px rgba(0,0,0,0.85), 0 0 28px rgba(0,0,0,0.9)',
     }}>{text}</div>
@@ -211,7 +225,7 @@ const Caption: React.FC<{ t: number; text: string; from: number; to: number }> =
 };
 
 // ---------------------------------------------------------------- invito finale
-const Cta: React.FC<{ t: number }> = ({ t }) => {
+const Cta: React.FC<{ pos: Layout['cta']; t: number }> = ({ pos, t }) => {
   const L = TL.logo; const C = TL.cta;
   const panel = ramp(t, L.cta - 0.2, L.cta + 0.5, easeOut);
   const a = ramp(t, L.cta, L.cta + 0.55, easeOut);
@@ -219,7 +233,7 @@ const Cta: React.FC<{ t: number }> = ({ t }) => {
   if (panel <= 0) return null;
   return (
     <div style={{
-      position: 'absolute', left: 96, right: 96, top: 1028, height: 196, borderRadius: 24,
+      position: 'absolute', left: pos.side, right: pos.side, top: pos.top, height: 196, borderRadius: 24,
       background: 'rgba(18,16,14,0.58)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.09)',
       opacity: panel, transform: `translateY(${(1 - panel) * 18}px)`, fontFamily: FONT, textAlign: 'center',
       display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10,
@@ -233,7 +247,9 @@ const Cta: React.FC<{ t: number }> = ({ t }) => {
 };
 
 // ---------------------------------------------------------------- composizione
-export const SLExtra: React.FC = () => {
+export const SLExtra: React.FC<{ format: Format }> = ({ format }) => {
+  const L = layoutFor(format);
+  const { anchor: ANCHOR } = L;
   const frame = useCurrentFrame();
   const t = frame / TL.fps;
   const z = keyed(t, CAM);
@@ -242,22 +258,22 @@ export const SLExtra: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
       <AbsoluteFill style={{ transformOrigin: `${ANCHOR.x}px ${ANCHOR.y}px`, transform: `scale(${z})` }}>
-        <Img src={staticFile('ambiente.png')} style={{ position: 'absolute', left: 0, top: -Y0, width: 1080, height: 1920 }} />
-        <Screen t={t} />
+        <Img src={staticFile('ambiente.png')} style={{ position: 'absolute', left: 0, top: -L.y0, width: 1080, height: 1920 }} />
+        <Screen SCREEN={L.screen} t={t} />
         <AbsoluteFill style={{ perspective: 1700, perspectiveOrigin: `${ANCHOR.x}px ${ANCHOR.y}px` }}>
-          <Card name="momento" t={t} side={-1} />
-          <Card name="colazione" t={t} side={-1} />
-          <Card name="essenza" t={t} side={1} />
-          <Card name="orari" t={t} side={1} />
+          <Card L={L} name="momento" t={t} side={-1} />
+          <Card L={L} name="colazione" t={t} side={-1} />
+          <Card L={L} name="essenza" t={t} side={1} />
+          <Card L={L} name="orari" t={t} side={1} />
         </AbsoluteFill>
       </AbsoluteFill>
       {/* leggera ombra in alto per la leggibilita' dei titoli, come nel riferimento */}
-      <AbsoluteFill style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 26%, rgba(0,0,0,0) 36%)' }} />
-      {TL.titles.map((ti, i) => <Title key={i} t={t} {...ti} />)}
-      <Caption t={t} text={cards.colazione.caption} from={cards.colazione.out + 0.35} to={cards.colazione.recede} />
-      <Caption t={t} text={cards.essenza.caption} from={cards.essenza.out + 0.35} to={cards.essenza.recede} />
-      <Caption t={t} text={cards.orari.caption} from={cards.orari.out + 0.35} to={cards.orari.back} />
-      <Cta t={t} />
+      <AbsoluteFill style={{ background: L.shade }} />
+      {TL.titles.map((ti, i) => <Title key={i} top={L.titleTop} t={t} {...ti} />)}
+      <Caption top={L.captionTop} t={t} text={cards.colazione.caption} from={cards.colazione.out + 0.35} to={cards.colazione.recede} />
+      <Caption top={L.captionTop} t={t} text={cards.essenza.caption} from={cards.essenza.out + 0.35} to={cards.essenza.recede} />
+      <Caption top={L.captionTop} t={t} text={cards.orari.caption} from={cards.orari.out + 0.35} to={cards.orari.back} />
+      <Cta pos={L.cta} t={t} />
       <AbsoluteFill style={{ background: '#000', opacity: fadeIn }} />
     </AbsoluteFill>
   );
