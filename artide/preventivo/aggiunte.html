@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Artide · Le aggiunte al sito · SL Innova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 297mm 210mm; margin: 0; }
+  :root {
+    --navy: #0b1638;
+    --navy-deep: #060c22;
+    --gold: #d9bf8c;
+    --gold-strong: #e3c993;
+    --text: #eef0f6;
+    --muted: #a6aec4;
+    --card: rgba(255, 255, 255, .045);
+    --border: rgba(255, 255, 255, .13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: Figtree, sans-serif; color: var(--text); background: var(--navy-deep); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 297mm; height: 210mm; position: relative; overflow: hidden; page-break-after: always;
+    background: radial-gradient(120% 80% at 50% 0%, #17244d 0%, var(--navy) 45%, var(--navy-deep) 100%);
+    padding: 15mm 18mm 0; }
+  .slide:last-child { page-break-after: auto; }
+
+  .brand { position: absolute; top: 13mm; right: 18mm; text-align: right; }
+  .brand b { font-family: Fraunces, serif; font-weight: 400; font-size: 13pt; letter-spacing: .16em; display: block; }
+  .brand span { font-size: 5.6pt; letter-spacing: .22em; color: var(--muted); }
+  .foot { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; font-size: 6.6pt; color: var(--muted); }
+  .foot span:last-child { margin-left: auto; }
+
+  .kicker { font-size: 7.4pt; letter-spacing: .2em; color: var(--gold); font-weight: 600; display: flex; align-items: center; gap: 3.5mm; text-transform: uppercase; }
+  .kicker::before { content: ""; width: 9mm; height: 1px; background: var(--gold); }
+  h1, h2 { font-family: Fraunces, serif; font-weight: 400; letter-spacing: -.01em; }
+  h1 em, h2 em { color: var(--gold); font-style: italic; }
+  h2 { font-size: 27pt; line-height: 1.08; margin-top: 2.5mm; }
+  .lead { color: #c9cee0; font-size: 11pt; line-height: 1.45; margin-top: 3.5mm; }
+
+  /* copertina */
+  .cover { padding: 0; display: flex; }
+  .cover .left { width: 52%; padding: 0 0 0 18mm; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+  .cover .img { position: absolute; inset: 0; background: url(igloo.jpg) 72% center / cover; }
+  .cover .img::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,12,34,.96) 0%, rgba(8,16,44,.88) 30%, rgba(11,22,56,.45) 50%, rgba(11,22,56,0) 68%), linear-gradient(0deg, rgba(6,12,34,.55) 0%, rgba(6,12,34,0) 22%); }
+  .cover h1 { font-size: 38pt; line-height: 1.04; margin-top: 4mm; }
+  .cover .by { margin-top: 9mm; font-size: 7.6pt; letter-spacing: .22em; color: var(--muted); }
+  .cover .foot { z-index: 3; }
+
+  /* riepilogo */
+  .cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-top: 12mm; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 4mm; padding: 7mm 7mm 6mm; }
+  .card .num { font-family: Fraunces, serif; color: var(--gold); font-size: 26pt; line-height: 1; }
+  .card h3 { font-family: Fraunces, serif; font-weight: 400; font-size: 17pt; margin-top: 4mm; }
+  .card p { color: var(--muted); font-size: 9.6pt; line-height: 1.4; margin-top: 1.6mm; min-height: 11mm; }
+  .card .price { margin-top: 6mm; padding-top: 4mm; border-top: 1px solid var(--border); }
+  .card .price small { display: block; font-size: 6.4pt; letter-spacing: .18em; color: var(--muted); }
+  .card .price b { font-family: Fraunces, serif; font-weight: 400; font-size: 24pt; color: var(--gold-strong); }
+  .card .price b.inc { font-size: 19pt; }
+  .card .price i { font-style: normal; font-size: 8.4pt; color: var(--muted); display: block; margin-top: .6mm; }
+  .total { margin-top: 8mm; display: flex; align-items: center; gap: 6mm; border: 1px solid rgba(217,191,140,.55); border-radius: 4mm; padding: 5mm 7mm; background: rgba(217,191,140,.06); }
+  .total .eq { display: flex; align-items: baseline; gap: 5mm; font-size: 10.5pt; color: #c9cee0; }
+  .total .eq b { font-family: Fraunces, serif; font-weight: 400; font-size: 15pt; color: var(--text); }
+  .total .sum { margin-left: auto; text-align: right; }
+  .total .sum small { display: block; font-size: 6.4pt; letter-spacing: .18em; color: var(--gold); }
+  .total .sum b { font-family: Fraunces, serif; font-weight: 400; font-size: 28pt; color: var(--gold-strong); }
+
+  /* slide di dettaglio: testo a sinistra, esempio a destra */
+  .split { display: grid; grid-template-columns: 1.08fr .92fr; gap: 12mm; margin-top: 9mm; align-items: start; }
+  .tag { display: inline-block; margin-top: 4mm; background: var(--gold); color: #1a1a1a; font-weight: 700; font-size: 9pt; padding: 1.6mm 4.4mm; border-radius: 10mm; }
+  ul.points { list-style: none; margin-top: 6mm; }
+  ul.points li { display: flex; gap: 4mm; padding: 2.8mm 0; border-bottom: 1px solid var(--border); font-size: 10.4pt; line-height: 1.36; }
+  ul.points li:last-child { border-bottom: 0; }
+  ul.points li::before { content: ""; flex: none; width: 1.8mm; height: 1.8mm; border-radius: 50%; background: var(--gold); margin-top: 2mm; }
+  ul.points li b { color: #fff; font-weight: 600; }
+
+  .phone { width: 74mm; margin: 0 auto; background: #0e1530; border: 1.4mm solid #1c2547; border-radius: 9mm; padding: 5mm 4mm 6mm; box-shadow: none; }
+  .phone .bar { display: flex; align-items: center; gap: 2.5mm; padding-bottom: 3mm; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .phone .av { width: 7mm; height: 7mm; border-radius: 50%; background: var(--gold); color: #1a1a1a; font-family: Fraunces, serif; font-size: 9pt; display: flex; align-items: center; justify-content: center; }
+  .phone .bar b { font-size: 8.6pt; display: block; }
+  .phone .bar span { font-size: 6.4pt; color: var(--muted); }
+  .bubble { background: #1f5c4a; color: #f2f6f4; border-radius: 3mm 3mm .8mm 3mm; padding: 3.4mm 3.6mm; font-size: 7.8pt; line-height: 1.5; margin: 4mm 0 0 5mm; }
+  .bubble .t { font-size: 5.8pt; color: #b9d5cb; text-align: right; margin-top: 1mm; }
+  .send { margin-top: 4mm; text-align: center; background: var(--gold); color: #1a1a1a; font-weight: 700; font-size: 8pt; border-radius: 10mm; padding: 2.4mm; }
+  /* carrello: due telefoni affiancati, uno per passaggio */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .stepc .steplbl { display: flex; align-items: center; gap: 2mm; font-size: 8.6pt; font-weight: 600; margin-bottom: 2.6mm; }
+  .stepc .steplbl b { font-family: Fraunces, serif; font-weight: 400; color: var(--gold); font-size: 14pt; line-height: 1; }
+  .duo .phone { width: 100%; height: 98mm; border-radius: 7mm; }
+  .phone.shot { padding: 0; overflow: hidden; border-width: 1.2mm; }
+  .phone.shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .phone.chat { padding: 4mm 3mm 4mm; display: flex; flex-direction: column; }
+  .phone.chat .bubble { font-size: 7pt; margin: 4mm 0 0 2mm; }
+  .phone.chat .send { margin-top: auto; font-size: 7.4pt; }
+  .cap { text-align: center; font-size: 7pt; color: var(--muted); margin-top: 3mm; }
+
+  .mock { background: var(--card); border: 1px solid var(--border); border-radius: 4mm; padding: 6mm; }
+  .mock .mk { font-size: 6.4pt; letter-spacing: .2em; color: var(--gold); }
+  .mock h4 { font-family: Fraunces, serif; font-weight: 400; font-size: 16pt; margin-top: 1.5mm; }
+  .mock .rowp { display: flex; justify-content: space-between; padding: 2.6mm 0; border-bottom: 1px solid var(--border); font-size: 9pt; }
+  .mock .rowp span:last-child { color: var(--muted); }
+  .mock .btn { margin-top: 5mm; text-align: center; background: var(--gold); color: #1a1a1a; font-weight: 700; font-size: 8.6pt; border-radius: 10mm; padding: 2.6mm; }
+
+
+  /* social */
+  .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; margin-top: 10mm; }
+  .pack { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 4mm; padding: 7mm; }
+  .pack.reco { border-color: var(--gold); background: rgba(217,191,140,.05); }
+  .pack .badge { position: absolute; top: -2.6mm; left: 7mm; background: var(--gold); color: #1a1a1a; font-size: 6pt; letter-spacing: .16em; font-weight: 700; padding: .9mm 3mm; border-radius: 4mm; }
+  .pack .top { display: flex; align-items: center; gap: 3.5mm; }
+  .pack h3 { font-family: Fraunces, serif; font-weight: 400; font-size: 19pt; }
+  .pack .pp { margin-left: auto; font-family: Fraunces, serif; font-size: 25pt; color: var(--gold-strong); }
+  .pack .qty { display: flex; gap: 9mm; margin: 4mm 0 2mm; }
+  .pack .qty div { font-size: 8.6pt; color: var(--muted); }
+  .pack .qty b { display: block; font-family: Fraunces, serif; font-weight: 400; font-size: 26pt; color: var(--text); line-height: 1.05; }
+  .pack ul.points { margin-top: 2mm; }
+  .pack ul.points li { font-size: 9.4pt; padding: 1.8mm 0; }
+  .note { margin-top: 6mm; font-size: 8.8pt; color: var(--muted); }
+
+  /* casella da spuntare su fondo scuro */
+  .cb { display: inline-block; width: 5mm; height: 5mm; border: 1.3px solid var(--gold); border-radius: 1mm; flex: none; }
+
+  /* cosa ci serve */
+  .need { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-top: 8mm; }
+  .need .card { padding: 5mm 5.5mm; }
+  .need .head { display: flex; align-items: center; gap: 3mm; }
+  .need .head .n { font-family: Fraunces, serif; color: var(--gold); font-size: 17pt; line-height: 1; }
+  .need h3 { font-size: 12.5pt; margin-top: 0; flex: 1; }
+  .need p { font-size: 8.4pt; line-height: 1.42; min-height: 0; margin-top: 2.6mm; color: #c3c9da; }
+  .need p b { color: #fff; font-weight: 600; }
+  .need .eg { font-size: 7.6pt; color: var(--muted); margin-top: 2mm; padding-top: 2mm; border-top: 1px solid var(--border); }
+  .send-to { margin-top: 6mm; display: flex; align-items: center; gap: 4mm; font-size: 9.4pt; color: #c9cee0; }
+  .send-to b { color: #fff; }
+  .send-to .f { width: 40mm; height: 6.5mm; background: rgba(255,255,255,.07); border-bottom: 1px solid var(--gold); display: inline-block; }
+
+  /* pagamento */
+  .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; margin-top: 9mm; }
+  .pay .pack h3 { font-size: 16pt; }
+  .pay .lines { margin-top: 4mm; }
+  .pay .ln { display: flex; align-items: baseline; padding: 2.6mm 0; border-bottom: 1px solid var(--border); font-size: 10pt; color: #c9cee0; }
+  .pay .ln b { margin-left: auto; font-family: Fraunces, serif; font-weight: 400; font-size: 14pt; color: var(--text); }
+  .pay .ln.today { border-bottom: 0; padding-top: 4mm; }
+  .pay .ln.today span { color: var(--gold); font-weight: 600; letter-spacing: .02em; }
+  .pay .ln.today b { font-size: 26pt; color: var(--gold-strong); }
+  .pay .sub { font-size: 8.4pt; color: var(--muted); margin-top: 1mm; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin-top: 7mm; }
+  .steps div { border-top: 1px solid var(--gold); padding-top: 2.6mm; font-size: 9.2pt; line-height: 1.35; }
+  .steps b { display: block; font-family: Fraunces, serif; font-weight: 400; color: var(--gold); font-size: 15pt; }
+
+  /* firma e QR finale */
+  .center { display: flex; flex-direction: column; justify-content: center; height: 100%; padding-bottom: 20mm; }
+  .stats { display: flex; gap: 14mm; margin-top: 9mm; }
+  .stats b { display: block; font-family: Fraunces, serif; font-weight: 400; font-size: 32pt; color: var(--gold); line-height: 1; }
+  .stats span { font-size: 9pt; color: #c9cee0; }
+  .qrfinal { display: grid; grid-template-columns: 1.15fr .85fr; gap: 10mm; align-items: center; height: 100%; padding-bottom: 18mm; }
+  .qrcard { background: #fff; border-radius: 6mm; padding: 10mm; text-align: center; color: #1a1a1a; }
+  .qrcard img { width: 70mm; height: 70mm; }
+  .qrcard div { margin-top: 5mm; font-weight: 600; font-size: 10pt; }
+  .qrimg { height: 140mm; border-radius: 4mm; border: 1px solid rgba(217,191,140,.45); display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<!-- 1 · COPERTINA -->
+<section class="slide cover">
+  <div class="img"></div>
+  <div class="left">
+    <div class="kicker">Le aggiunte al sito</div>
+    <h1>Il sito di Artide,<br><em>più vicino</em> a chi<br>vi cerca.</h1>
+    <p class="lead">Pacchetto Avanzato e tre aggiunte · Via Stura 72, Ciriè</p>
+    <div class="by">PRESENTATE DA SL INNOVA</div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>01 / 12</span></div>
+</section>
+
+<!-- 2 · RIEPILOGO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="kicker">Il riepilogo</div>
+  <h2>Le tre <em>aggiunte</em>.</h2>
+  <div class="cards3">
+    <div class="card">
+      <div class="num">1</div>
+      <h3>Carrello WhatsApp</h3>
+      <p>Si ordina dal sito, si ritira in negozio.</p>
+      <div class="price"><small>PREZZO</small><b class="inc">Incluso</b><i>nel pacchetto Avanzato</i></div>
+    </div>
+    <div class="card">
+      <div class="num">2</div>
+      <h3>Sezione Ingrosso</h3>
+      <p>Bar, ristoranti e hotel trovano cosa offrite.</p>
+      <div class="price"><small>PREZZO</small><b>99,99 €</b><i>una volta sola</i></div>
+    </div>
+    <div class="card">
+      <div class="num">3</div>
+      <h3>QR da banco</h3>
+      <p>Chi entra in negozio scopre il sito.</p>
+      <div class="price"><small>PREZZO</small><b class="inc">Incluso</b><i>con la Sezione Ingrosso</i></div>
+    </div>
+  </div>
+  <div class="total">
+    <div class="eq"><span>Avanzato <b>2.000,00 €</b></span><span>+</span><span>Aggiunte <b>99,99 €</b></span></div>
+    <div class="sum"><small>TOTALE DEL SITO · PREZZO FINALE</small><b>2.099,99 €</b></div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>02 / 12</span></div>
+</section>
+
+<!-- 3 · CARRELLO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="split">
+    <div>
+      <div class="kicker">Aggiunta 1</div>
+      <h2>Si ordina dal sito,<br><em>si ritira</em> al banco.</h2>
+      <span class="tag">Incluso nell'Avanzato</span>
+      <ul class="points">
+        <li><span>Il <b>carrello in alto a destra</b>, su ogni pagina del sito.</span></li>
+        <li><span>Il cliente sceglie <b>prodotto, formato e gusti</b>: una torta, una vaschetta, due frutti realistici.</span></li>
+        <li><span>Indica <b>giorno e ora del ritiro</b>, con il preavviso che decidete voi.</span></li>
+        <li><span>Con un tocco parte il <b>messaggio WhatsApp già scritto</b>, con la lista pronta.</span></li>
+        <li><span>Il carrello <b>resta salvato</b> anche se il cliente chiude la pagina.</span></li>
+        <li><span><b>Allergeni</b> visibili per ogni prodotto, prima di ordinare.</span></li>
+        <li><span><b>Nessun pagamento online</b>: l'ordine vale quando lo confermate voi.</span></li>
+      </ul>
+    </div>
+    <div style="padding-top:4mm">
+      <div class="duo">
+        <div class="stepc">
+          <div class="steplbl"><b>1</b>Sceglie dal sito</div>
+          <div class="phone shot"><img src="carrello-sito.jpg" alt="Il sito di Artide con il carrello in alto a destra"></div>
+        </div>
+        <div class="stepc">
+          <div class="steplbl"><b>2</b>Invia su WhatsApp</div>
+          <div class="phone chat">
+            <div class="bar"><div class="av">A</div><div><b>Artide</b><span>Gelateria · Pasticceria</span></div></div>
+            <div class="bubble">Ciao Artide! Vorrei ritirare:<br>• 1 torta compleanno, 1 kg · pistacchio<br>• 1 vaschetta 750 g · fiordilatte, nocciola, fragola<br>• 2 frutti realistici · pesca, limone<br><br>Ritiro: sabato alle 16:00<br>Nome: Giulia<div class="t">16:02 ✓✓</div></div>
+            <div class="send">Invia su WhatsApp</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Esempio: il carrello sul sito e il messaggio che arriva in negozio</div>
+    </div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>03 / 12</span></div>
+</section>
+
+<!-- 4 · INGROSSO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="split">
+    <div>
+      <div class="kicker">Aggiunta 2</div>
+      <h2>Il vostro gelato<br><em>anche per chi</em> lo rivende.</h2>
+      <span class="tag">99,99 €</span>
+      <ul class="points">
+        <li><span>Una <b>pagina dedicata</b> a bar, ristoranti, hotel e catering.</span></li>
+        <li><span><b>Cosa offrite all'ingrosso</b>, diviso per categoria, con i formati.</span></li>
+        <li><span><b>Ordine minimo</b>, preavviso, ritiro in negozio o consegna.</span></li>
+        <li><span><b>Listino prezzi su richiesta</b> via WhatsApp: chi compra al banco non vede i prezzi all'ingrosso.</span></li>
+        <li><span>Un pulsante per <b>chiedere un ordine</b> o il listino, con il messaggio già scritto.</span></li>
+        <li><span>Pensata per farvi <b>trovare su Google</b> da chi cerca un fornitore in zona.</span></li>
+      </ul>
+    </div>
+    <div style="padding-top:12mm">
+      <div class="mock">
+        <div class="mk">INGROSSO</div>
+        <h4>Per bar, ristoranti e hotel</h4>
+        <div style="margin-top:3mm">
+          <div class="rowp"><span>Gelato in vaschetta</span><span>da 2,5 e 5 kg</span></div>
+          <div class="rowp"><span>Semifreddi e torte gelato</span><span>a pezzo</span></div>
+          <div class="rowp"><span>Pasticceria e mignon</span><span>a vassoio</span></div>
+          <div class="rowp"><span>Frutta realistica</span><span>a cartone</span></div>
+          <div class="rowp"><span>Ordine minimo</span><span>da definire</span></div>
+        </div>
+        <div class="btn">Chiedi il listino su WhatsApp</div>
+      </div>
+      <div class="cap">Esempio: prodotti e formati li indicate voi</div>
+    </div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>04 / 12</span></div>
+</section>
+
+<!-- 5 · QR DA BANCO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="split">
+    <div>
+      <div class="kicker">Aggiunta 3</div>
+      <h2>Dal banco al sito,<br><em>in un gesto</em>.</h2>
+      <span class="tag">Incluso nella Sezione Ingrosso</span>
+      <ul class="points">
+        <li><span><b>Espositore da banco stampato da noi</b>, con la grafica del sito.</span></li>
+        <li><span><b>QR fisso</b>: non scade mai e non dipende da servizi a pagamento.</span></li>
+        <li><span>Apre una <b>pagina di benvenuto</b> con tre pulsanti: Ordina · Seguici su Instagram · Lascia una recensione.</span></li>
+        <li><span>Un <b>piccolo premio</b> per chi scansiona, come un biscotto in regalo: le scansioni crescono.</span></li>
+        <li><span>Più recensioni su Google e più follower, <b>senza spendere in pubblicità</b>.</span></li>
+      </ul>
+    </div>
+    <div style="margin-top:5mm; text-align:center">
+      <img class="qrimg" src="qr-foto.jpg" alt="Gli omini di Artide sollevano il QR davanti all igloo">
+      <div class="cap">Esempio dell'espositore: il QR qui è finto, quello vero lo stampiamo noi</div>
+    </div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>05 / 12</span></div>
+</section>
+
+<!-- 6 · SOCIAL -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="kicker">Instagram e Facebook</div>
+  <h2>Due pacchetti, <em>una volta sola</em>.</h2>
+  <div class="packs">
+    <div class="pack">
+      <div class="top"><span class="cb" data-c="social_cono" data-ink="light"></span><h3>Base</h3><span class="pp">49,99 €</span></div>
+      <div class="qty"><div><b>2</b>video reel</div><div><b>3</b>foto</div></div>
+      <ul class="points">
+        <li><span>Pubblicazione su <b>Instagram e Facebook</b></span></li>
+        <li><span>Obiettivo: <b>sponsorizzare il nuovo sito web</b></span></li>
+      </ul>
+    </div>
+    <div class="pack reco">
+      <span class="badge">CONSIGLIATO</span>
+      <div class="top"><span class="cb" data-c="social_coppa" data-ink="light"></span><h3>Completo</h3><span class="pp">69,99 €</span></div>
+      <div class="qty"><div><b>4</b>video reel</div><div><b>5</b>foto</div></div>
+      <ul class="points">
+        <li><span>Pubblicazione su <b>Instagram e Facebook</b></span></li>
+        <li><span>Obiettivo: <b>sponsorizzare il nuovo sito web</b></span></li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">Prezzi finali, pagati una volta.</p>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>06 / 12</span></div>
+</section>
+
+<!-- 7 · COSA CI SERVE -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="kicker">Per partire</div>
+  <h2>Cosa ci serve <em>da voi</em>.</h2>
+  <div class="need">
+    <div class="card">
+      <div class="head"><span class="n">1</span><h3>Le vostre foto migliori</h3><span class="cb" data-c="ck_foto" data-ink="light"></span></div>
+      <p>Scegliete voi le <b>foto più belle</b> da mettere nel sito: il negozio fuori e dentro, il banco, il laboratorio e i prodotti (gelato, torte, frutta realistica). Ne bastano <b>15–25</b>.</p>
+      <div class="eg">Mandatele come <b>originali</b>: su WhatsApp con «Documento» o per email, non screenshot.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="n">2</span><h3>Listino al banco</h3><span class="cb" data-c="ck_listino" data-ink="light"></span></div>
+      <p>Tutto quello che si potrà ordinare dal carrello, <b>con il prezzo</b>: torte (gusti, formati, prezzo al kg o a porzione), vaschette, frutta realistica, pasticceria e mignon.</p>
+      <div class="eg">Va bene anche una foto del listino che avete già in negozio.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="n">3</span><h3>Le novità del momento</h3><span class="cb" data-c="ck_novita" data-ink="light"></span></div>
+      <p>I prodotti nuovi o di stagione da mettere in evidenza: per ognuno <b>nome, una foto e il prezzo</b>.</p>
+      <div class="eg">Dopo la consegna le cambiate voi dal telefono, come i gusti di oggi.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="n">4</span><h3>Gusti e allergeni</h3><span class="cb" data-c="ck_gusti" data-ink="light"></span></div>
+      <p>L'elenco dei <b>gusti fissi e di stagione</b>, con gli allergeni di ognuno. Segnate quelli vegani, senza lattosio o senza glutine.</p>
+      <div class="eg">Basta la tabella degli allergeni che tenete in negozio.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="n">5</span><h3>Listino ingrosso</h3><span class="cb" data-c="ck_ingrosso" data-ink="light"></span></div>
+      <p>Cosa vendete a bar, ristoranti e hotel: <b>prodotti, formati e prezzi</b>, l'ordine minimo e se fate la consegna (in quale zona).</p>
+      <div class="eg">I prezzi restano riservati: li mostriamo solo a chi li chiede.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="n">6</span><h3>Orari e ordini</h3><span class="cb" data-c="ck_orari" data-ink="light"></span></div>
+      <p><b>Orari di apertura</b> e giorno di chiusura, il <b>numero WhatsApp</b> che riceve gli ordini e quanto <b>preavviso</b> vi serve per una torta.</p>
+      <div class="eg">Meglio un numero WhatsApp Business con il nome Artide.</div>
+    </div>
+  </div>
+  <div class="send-to">Mandateci tutto su WhatsApp al <b>+39 388 988 6352</b> o a <b>info@slinnova.it</b> entro il <span class="f" data-f="entro_il" data-ink="light"></span></div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>07 / 12</span></div>
+</section>
+
+<!-- 8 · PAGAMENTO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="kicker">Il pagamento</div>
+  <h2>Oggi la metà, <em>entro due settimane</em> online.</h2>
+  <div class="pay">
+    <div class="pack">
+      <div class="top"><span class="cb" data-c="pay_avanzato" data-ink="light"></span><h3>Sito Avanzato</h3></div>
+      <p class="sub">Senza la Sezione Ingrosso</p>
+      <div class="lines">
+        <div class="ln"><span>Totale del sito</span><b>2.000,00 €</b></div>
+        <div class="ln"><span>Saldo, prima di andare online</span><b>1.000,00 €</b></div>
+        <div class="ln today"><span>OGGI, ALLA FIRMA · 50%</span><b>1.000,00 €</b></div>
+      </div>
+    </div>
+    <div class="pack reco">
+      <span class="badge">CONSIGLIATO</span>
+      <div class="top"><span class="cb" data-c="pay_ingrosso" data-ink="light"></span><h3>Avanzato + Ingrosso e QR</h3></div>
+      <p class="sub">Con la Sezione Ingrosso e il QR da banco stampato nello stile del sito</p>
+      <div class="lines">
+        <div class="ln"><span>Totale del sito</span><b>2.099,99 €</b></div>
+        <div class="ln"><span>Saldo, prima di andare online</span><b>1.049,99 €</b></div>
+        <div class="ln today"><span>OGGI, ALLA FIRMA · 50%</span><b>1.050,00 €</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div><b>1</b>Oggi: firma e pagamento del 50%</div>
+    <div><b>2</b>Creiamo il sito con i vostri materiali</div>
+    <div><b>3</b>Lo guardiamo insieme e pagate il saldo</div>
+    <div><b>4</b>Il sito è online, entro due settimane</div>
+  </div>
+  <p class="note">Prezzi finali. Le due settimane partono da quando abbiamo i materiali della slide precedente.</p>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>08 / 12</span></div>
+</section>
+
+<!-- 9 · FIRMA -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="center">
+    <div class="kicker">Il contratto</div>
+    <h2>Lo firmiamo <em>insieme</em>, qui.</h2>
+    <p class="lead">Il contratto è nelle due pagine che seguono: si compila e si firma direttamente su questo iPad.</p>
+    <div class="stats"><div><b>2</b><span>pagine</span></div><div><b>6</b><span>dati da scrivere</span></div><div><b>2</b><span>firme</span></div></div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>09 / 12</span></div>
+</section>
+
+<!-- 12 · QR DEL BONIFICO -->
+<section class="slide">
+  <div class="brand"><b>ARTIDE</b><span>GELATERIA · PASTICCERIA</span></div>
+  <div class="qrfinal">
+    <div>
+      <div class="kicker">Pagamento</div>
+      <h2>Il vostro sito <em>parte da qui</em>.</h2>
+      <p class="lead">Inquadrate il QR con il telefono: trovate i dati del bonifico pronti da copiare. Dopo il bonifico, mandateci la ricevuta su WhatsApp.</p>
+    </div>
+    <div class="qrcard"><img src="qr-bonifico.png" alt="QR dei dati del bonifico"><div>Dati del bonifico</div></div>
+  </div>
+  <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>12 / 12</span></div>
+</section>
+
+</body>
+</html>

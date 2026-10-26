@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Contratto per la realizzazione del sito web · SL Innova</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root { --ink: #1d1d1f; --muted: #6b6b70; --line: #d9d6cf; --gold: #a8844c; --field: #f2f0eb; --dark: #1b1b1d; --box: #f3f1ec; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; color: var(--ink); font-family: Inter, sans-serif; font-size: 8.2pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  b { font-weight: 700; }
+
+  .head { background: var(--dark); color: #fff; height: 23mm; padding: 0 12mm 0 11.5mm; display: flex; align-items: center; gap: 4.5mm; }
+  .head img { width: 16.5mm; height: 16.5mm; }
+  .head .brand { flex: 1; }
+  .head .kicker { font-size: 6.4pt; letter-spacing: .06em; color: #d4b37a; font-weight: 600; }
+  .head h1 { font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 16pt; margin-top: .6mm; }
+  .head .meta { display: grid; grid-template-columns: auto 33mm; gap: 2.4mm 3mm; align-items: center; font-size: 6.8pt; color: #d4b37a; }
+  .head .meta .f { background: #3a3a3e; height: 4.4mm; width: 33mm; }
+
+  .body { padding: 2mm 11.5mm 0; }
+  h2 { font-family: "Bodoni Moda", serif; font-weight: 600; font-size: 11.5pt; display: flex; align-items: baseline; gap: 3.4mm; padding-bottom: 1mm; border-bottom: 1px solid var(--line); margin: 4.6mm 0 2.4mm; }
+  h2 .n { font-family: Inter, sans-serif; font-size: 6.6pt; color: var(--gold); font-weight: 600; }
+  p { margin-bottom: 1.4mm; }
+  .muted { color: var(--muted); }
+  .small { font-size: 7pt; }
+
+  .f { display: inline-block; background: var(--field); height: 4.8mm; vertical-align: middle; }
+  .cb { display: inline-block; width: 3.6mm; height: 3.6mm; border: 1.2px solid #2a2a2d; vertical-align: middle; flex: none; background: #fff; }
+
+  .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 5mm; margin-top: 1.6mm; }
+  .parties .lbl { font-size: 6.2pt; color: var(--muted); margin-bottom: .4mm; }
+  .parties .f { width: 100%; }
+
+  table.packs { width: 100%; border-collapse: collapse; margin-top: 1mm; }
+  .packs th { font-size: 6.6pt; color: var(--muted); font-weight: 500; text-align: left; padding: 0 0 1.4mm; }
+  .packs td { padding: 1.5mm 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .packs td.c { width: 7mm; }
+  .packs td.n { width: 41mm; font-weight: 700; font-size: 8.6pt; }
+  .packs td.p { width: 47mm; }
+  .packs td.p .f { width: 35mm; }
+  .packs td.r { width: 31mm; }
+  .packs tr.add td { border-bottom: 1px solid var(--line); }
+  .packs tr.add .f.t { width: 100%; }
+  .packs tr.tot td { border-bottom: 2px solid var(--ink); padding: 2mm 0; }
+  .packs tr.tot td.n { font-size: 9pt; }
+  .packs .hint { font-size: 6.2pt; color: var(--muted); display: block; margin-bottom: .4mm; font-weight: 400; }
+
+  .opt { display: flex; align-items: center; gap: 2.4mm; margin: 1.2mm 0 1.2mm 2mm; }
+  .bank { display: flex; gap: 6mm; align-items: flex-start; }
+  .bank .txt { flex: 1; }
+  .bank .qr { text-align: center; font-size: 5.8pt; color: var(--muted); width: 28mm; }
+  .bank .qr img { width: 20mm; height: 20mm; display: block; margin: 0 auto 1mm; }
+
+  .place .lbl { font-size: 6.2pt; color: var(--muted); margin-bottom: .4mm; }
+  .place .f { width: 70mm; }
+  .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 13mm; }
+  .sign div { border-top: 1px solid var(--ink); padding-top: 1.4mm; font-size: 7pt; font-weight: 700; }
+
+  .steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.4mm; margin: 1mm 0 2.4mm; }
+  .steps div { background: var(--box); border-radius: 1.4mm; padding: 2mm 2.2mm; min-height: 19mm; font-size: 6.6pt; line-height: 1.3; }
+  .steps b { display: block; font-family: "Bodoni Moda", serif; font-weight: 600; color: var(--gold); font-size: 12pt; line-height: 1.1; margin-bottom: .8mm; }
+
+  .portfolio { display: flex; gap: 32mm; margin: 2mm 0 3mm 2mm; font-weight: 700; }
+  .portfolio label { display: flex; align-items: center; gap: 2.6mm; }
+
+  .foot { position: absolute; left: 11.5mm; right: 11.5mm; bottom: 6.5mm; display: flex; font-size: 6.2pt; color: var(--muted); }
+  .foot span:last-child { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGINA 1 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL INNOVA · SITI WEB E GESTIONALI</div>
+      <h1>Contratto per la realizzazione del sito web</h1>
+    </div>
+    <div class="meta">
+      <span>Incarico n.</span><span class="f" data-f="incarico" data-ink="light"></span>
+      <span>Data</span><span class="f" data-f="data" data-ink="light"></span>
+    </div>
+  </header>
+  <div class="body">
+    <h2><span class="n">1</span>Le parti</h2>
+    <p><b>Fornitore: SL Innova</b> · P. IVA 12885450010 · Torino (TO) · info@slinnova.it · +39 388 988 6352.</p>
+    <div class="parties">
+      <div><div class="lbl">Attività o ragione sociale</div><span class="f" data-f="cliente_attivita" data-v="AR.TI.DE. S.R.L.S. - Artide il buon gelato"></span></div>
+      <div><div class="lbl">Titolare o legale rappresentante</div><span class="f" data-f="cliente_titolare"></span></div>
+      <div><div class="lbl">Indirizzo della sede</div><span class="f" data-f="cliente_indirizzo" data-v="Via Stura 72, 10073 Ciriè (TO)"></span></div>
+      <div><div class="lbl">P. IVA o codice fiscale</div><span class="f" data-f="cliente_piva"></span></div>
+      <div><div class="lbl">Codice SDI o PEC (per la fattura)</div><span class="f" data-f="cliente_sdi" data-v="PEC: artidesrls@pec.it"></span></div>
+      <div><div class="lbl">Telefono / WhatsApp e email</div><span class="f" data-f="cliente_contatti"></span></div>
+    </div>
+
+    <h2><span class="n">2</span>Cosa realizza SL Innova</h2>
+    <p>SL Innova realizza il sito web dell'attività del Cliente nel pacchetto scelto al punto 3, con le aggiunte indicate allo stesso punto, come presentato nell'anteprima e nelle demo mostrate al Cliente. Sono comprese le funzioni previste per il pacchetto scelto e per le aggiunte: una funzione vista in una demo è compresa solo se fa parte di quel pacchetto o di un'aggiunta. Il sito funziona su telefono, tablet e computer e comprende la SEO di base (titoli, descrizioni e dati dell'attività per Google). <b>Non sono compresi</b>, salvo accordo scritto: ordini e pagamenti online, gestione dei social, pubblicità, servizio fotografico, altre lingue.</p>
+
+    <h2><span class="n">3</span>Pacchetto scelto</h2>
+    <p class="muted">Il Cliente spunta <b>un</b> pacchetto e, se previste, le aggiunte. Prezzo fisso e una tantum, senza canoni. Primo anno di dominio e hosting incluso.</p>
+    <table class="packs">
+      <tr><th></th><th>Pacchetto</th><th>Prezzo</th><th>Revisioni incluse</th><th>Assistenza tecnica</th></tr>
+      <tr><td class="c"><span class="cb" data-c="pack_base"></span></td><td class="n">Base</td><td class="p">€ <span class="f" data-f="prezzo_base" data-v="1.000,00"></span></td><td class="r">1</td><td>30 giorni</td></tr>
+      <tr><td class="c"><span class="cb" data-c="pack_intermedio"></span></td><td class="n">Intermedio</td><td class="p">€ <span class="f" data-f="prezzo_intermedio" data-v="1.500,00"></span></td><td class="r">2</td><td>60 giorni</td></tr>
+      <tr><td class="c"><span class="cb" data-c="pack_avanzato"></span></td><td class="n">Avanzato</td><td class="p">€ <span class="f" data-f="prezzo_avanzato" data-v="2.000,00"></span></td><td class="r">3</td><td>90 giorni</td></tr>
+      <tr class="add"><td class="c"><span class="cb" data-c="pack_aggiunte"></span></td><td class="n">Aggiunte</td><td class="p">€ <span class="f" data-f="prezzo_aggiunte"></span></td><td colspan="2"><span class="hint">Quali aggiunte</span><span class="f t" data-f="aggiunte_titolo"></span></td></tr>
+      <tr class="tot"><td class="c"></td><td class="n">Totale importo</td><td class="p">€ <span class="f" data-f="totale_importo"></span></td><td colspan="2"></td></tr>
+    </table>
+
+    <h2><span class="n">4</span>Pagamento</h2>
+    <p class="muted">Il Cliente spunta <b>una</b> modalità.</p>
+    <div class="opt"><span class="cb" data-c="pag_50"></span><span><b>50% alla firma</b> e 50% prima della pubblicazione online</span></div>
+    <div class="opt"><span class="cb" data-c="pag_totale"></span><span><b>Intero importo alla firma</b></span></div>
+    <p style="margin-top:1.6mm"><b>Come funziona.</b> La metà pagata alla firma è una <b>caparra confirmatoria</b> (art. 1385 c.c.): conferma l'impegno di entrambi e fa già parte del prezzo, non è un costo in più. Quando il sito è pronto lo guardiamo insieme: se va bene, il Cliente paga l'altra metà entro 7 giorni e poi il sito va online. Chi paga tutto alla firma, a fine lavoro non deve più nulla.</p>
+    <div class="bank">
+      <p class="txt"><b>Bonifico</b> · IBAN <b>IT34 P036 7401 6000 0077 5929 111</b> · causale «SL Innova, incarico n. ...». Intestatario e dati completi da copiare nella pagina del QR. Dopo ogni bonifico il Cliente invia la ricevuta su WhatsApp al +39 388 988 6352.</p>
+      <div class="qr"><img src="qr-bonifico.png" alt="QR dei dati del bonifico">Inquadra per i dati del bonifico</div>
+    </div>
+
+    <div class="place"><div class="lbl">Luogo e data</div><span class="f" data-f="luogo_data_p1"></span></div>
+    <div class="sign"><div>Firma del Cliente</div><div>Firma di SL Innova</div></div>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 1 di 2</span></footer>
+</section>
+
+<!-- ============ PAGINA 2 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL INNOVA · SITI WEB E GESTIONALI</div>
+      <h1>Contratto per la realizzazione del sito web</h1>
+    </div>
+    <div class="meta">
+      <span>Incarico n.</span><span class="f" data-f="incarico" data-ink="light"></span>
+      <span>Data</span><span class="f" data-f="data" data-ink="light"></span>
+    </div>
+  </header>
+  <div class="body">
+    <h2><span class="n">5</span>Come lavora SL Innova</h2>
+    <div class="steps">
+      <div><b>1</b>Firma e pagamento</div>
+      <div><b>2</b>Creazione del sito</div>
+      <div><b>3</b>Consegna del sito in anteprima e costi di dominio e hosting dal 2° anno</div>
+      <div><b>4</b>Pagamento del saldo</div>
+      <div><b>5</b>Pubblicazione online</div>
+      <div><b>6</b>Assistenza e revisioni</div>
+    </div>
+    <p>Il sito completo è pronto in anteprima entro <b>14</b> (Base), <b>21</b> (Intermedio) o <b>30</b> (Avanzato) giorni di calendario da quando SL Innova ha firma, pagamento e materiali. La pubblicazione avviene entro 2 giorni lavorativi dall'accredito del saldo.</p>
+
+    <h2><span class="n">6</span>Materiali, tempi e revisioni</h2>
+    <p>Il Cliente fornisce orari, prezzi, foto e i dati per intestargli dominio e hosting, e garantisce di poterli usare. SL Innova scrive i testi e ottimizza le immagini. Se il Cliente ritarda materiali o risposte, i tempi si spostano di altrettanti giorni, senza penali. Una revisione è un unico elenco di modifiche a parti già previste; le revisioni incluse non scadono. Revisioni extra e funzioni nuove si fanno solo con un preventivo approvato per iscritto. Gli errori rispetto a questo contratto si correggono gratis.</p>
+
+    <h2><span class="n">7</span>Verifica, pubblicazione e proprietà</h2>
+    <p>Il sito completo si controlla insieme in anteprima. Se il Cliente non segnala per iscritto difetti precisi entro 10 giorni, la verifica si considera positiva. Il sito va online solo dopo l'accredito del saldo. Con il pagamento completo il Cliente riceve file, accessi e manuale, e i diritti su quanto realizzato apposta per lui; i componenti di terzi mantengono le loro licenze. Restano sempre le garanzie di legge per i difetti.</p>
+
+    <h2><span class="n">8</span>Dominio e hosting</h2>
+    <p>Sono intestati al Cliente. Il primo anno è incluso nel prezzo. Dal secondo anno il Cliente paga direttamente i rinnovi: alla consegna SL Innova comunica per iscritto costi e scadenze. Nessun canone nascosto.</p>
+
+    <h2><span class="n">9</span>Interruzione e responsabilità</h2>
+    <p>Se il Cliente interrompe il lavoro senza colpa di SL Innova, paga il lavoro svolto, le spese e il mancato guadagno (art. 2227 c.c.), scalando quanto già versato. Per la caparra vale l'art. 1385 c.c.: se è inadempiente il Cliente, SL Innova può recedere e trattenerla; se è inadempiente SL Innova, il Cliente può recedere e chiedere il doppio. La responsabilità di SL Innova è limitata al prezzo dell'incarico, salvo dolo o colpa grave. Il Cliente firma per la propria attività di impresa o professionale. Ogni modifica vale solo se accettata per iscritto, anche via WhatsApp o email. Si applica la legge italiana.</p>
+
+    <h2><span class="n">10</span>Privacy e portfolio</h2>
+    <p>SL Innova (P. IVA 12885450010), titolare del trattamento, tratta i dati del Cliente per eseguire il contratto e per gli obblighi di legge (art. 6.1 b e c GDPR) e conserva i documenti fiscali per 10 anni; il Cliente esercita i suoi diritti scrivendo a info@slinnova.it e può rivolgersi al Garante. Per i dati che il sito raccoglie per conto del Cliente (ad esempio moduli di contatto o di prenotazione) SL Innova è responsabile del trattamento (art. 28 GDPR): li tratta solo per questo incarico, con misure di sicurezza adeguate, e li cancella alla fine del supporto.</p>
+    <p><b>Portfolio.</b> SL Innova può mostrare il sito realizzato nel proprio portfolio pubblico (sito e social di SL Innova), senza il nome e l'indirizzo dell'attività. La scelta è libera e non cambia prezzo o servizio. Il Cliente spunta una casella:</p>
+    <div class="portfolio">
+      <label><span class="cb" data-c="portfolio_si"></span>Acconsento</label>
+      <label><span class="cb" data-c="portfolio_no"></span>Non acconsento</label>
+    </div>
+    <p class="small muted"><b>Approvazione specifica</b> (artt. 1341 e 1342 c.c.). Il Cliente approva in modo specifico i punti 4 (caparra confirmatoria), 6 (spostamento dei tempi per ritardi del Cliente), 7 (verifica positiva in caso di silenzio e pubblicazione solo dopo il saldo) e 9 (interruzione e limite di responsabilità).</p>
+
+    <div class="sign" style="margin-top:12mm"><div>Firma del Cliente (anche per approvazione specifica)</div><div>Firma di SL Innova</div></div>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 2 di 2</span></footer>
+</section>
+
+</body>
+</html>
