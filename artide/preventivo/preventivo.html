@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Preventivo integrativo Artide · SL Innova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --ink: #1d1d1f;
+    --muted: #6b6b70;
+    --line: #d9d6cf;
+    --gold: #a8844c;
+    --gold-soft: #f4ecdf;
+    --field: #f2f0eb;
+    --dark: #1b1b1d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; color: var(--ink); font-family: Inter, sans-serif; font-size: 8.6pt; line-height: 1.42; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  /* intestazione come nel contratto */
+  .head { background: var(--dark); color: #fff; height: 25mm; padding: 0 12mm; display: flex; align-items: center; gap: 4.5mm; }
+  .head img { width: 17mm; height: 17mm; border-radius: 2px; }
+  .head .brand { flex: 1; }
+  .head .kicker { font-size: 6.6pt; letter-spacing: .09em; text-transform: uppercase; color: #d4b37a; font-weight: 600; }
+  .head .kicker span { color: #b9b9be; }
+  .head h1 { font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 17pt; letter-spacing: -.005em; margin-top: 1mm; }
+  .head .meta { display: grid; grid-template-columns: auto 34mm; gap: 2mm 3mm; align-items: center; font-size: 6.8pt; color: #d4b37a; }
+  .head .meta .f { background: #3a3a3e; height: 4.6mm; }
+
+  .body { padding: 6mm 12mm 0; }
+  h2 { font-family: "Bodoni Moda", serif; font-weight: 500; font-size: 12.5pt; display: flex; align-items: baseline; gap: 3mm; padding-bottom: 1.2mm; border-bottom: 1px solid var(--line); margin: 5mm 0 2.6mm; }
+  h2 .n { font-family: Inter, sans-serif; font-size: 7pt; color: var(--gold); font-weight: 600; }
+  h2 small { font-family: Inter, sans-serif; font-size: 7pt; color: var(--muted); font-weight: 400; margin-left: auto; }
+  h3 { font-size: 8.4pt; font-weight: 700; margin: 3mm 0 1.4mm; display: flex; align-items: center; gap: 2mm; }
+  h3 .tag { background: var(--gold); color: #fff; font-size: 6.6pt; width: 4.4mm; height: 4.4mm; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+  p { margin-bottom: 1.6mm; }
+  .muted { color: var(--muted); }
+  .small { font-size: 7.4pt; }
+  b, strong { font-weight: 600; }
+
+  /* campi compilabili: il riquadro e' disegnato qui, il campo PDF ci viene appoggiato sopra */
+  .f { display: inline-block; background: var(--field); height: 4.8mm; vertical-align: middle; border-radius: 1px; }
+  .f.area { display: block; height: auto; }
+  .cb { display: inline-block; width: 3.5mm; height: 3.5mm; border: 1.1px solid #3a3a3d; border-radius: .6px; vertical-align: -0.7mm; margin-right: 1.6mm; background: #fff; flex: none; }
+  label.o { display: inline-flex; align-items: center; margin-right: 4.2mm; white-space: nowrap; line-height: 5.4mm; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8mm 6mm; }
+  .lbl { font-size: 6.6pt; color: var(--muted); margin-bottom: .6mm; }
+  .fieldbox .f { width: 100%; }
+  .row { display: flex; align-items: center; gap: 2mm; margin: 1.1mm 0; flex-wrap: wrap; }
+  .row .k { width: 38mm; color: #3a3a3d; font-weight: 500; flex: none; }
+  .row .opts { flex: 1; display: flex; flex-wrap: wrap; align-items: center; }
+
+  /* tabella delle voci */
+  table { width: 100%; border-collapse: collapse; }
+  .items th { font-size: 6.6pt; color: var(--muted); font-weight: 500; text-align: left; padding: 0 0 1.4mm; border-bottom: 1px solid var(--line); }
+  .items td { padding: 2.6mm 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .items td.c { width: 7mm; padding-top: 2.9mm; }
+  .items td.t { padding-right: 5mm; }
+  .items td.t .name { font-weight: 700; font-size: 9pt; }
+  .items td.t .desc { color: #3f3f44; margin-top: .6mm; }
+  .items td.p { width: 38mm; text-align: right; white-space: nowrap; }
+  .items .list { font-size: 6.4pt; color: var(--muted); }
+  .items .list s { color: var(--muted); }
+  .price { display: inline-flex; align-items: center; gap: 1.2mm; margin-top: .8mm; font-weight: 600; }
+  .price .f { width: 22mm; }
+  .base { background: var(--gold-soft); border-radius: 2mm; padding: 3mm 4mm; display: flex; align-items: center; gap: 4mm; }
+  .base .name { font-family: "Bodoni Moda", serif; font-size: 13pt; }
+  .base .amount { margin-left: auto; font-family: "Bodoni Moda", serif; font-size: 15pt; font-weight: 500; }
+
+  /* pacchetti social */
+  .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 1mm; }
+  .pack { border: 1px solid var(--line); border-radius: 2.2mm; padding: 3.6mm 4mm; position: relative; }
+  .pack.reco { border-color: var(--gold); box-shadow: inset 0 0 0 .4px var(--gold); }
+  .pack .badge { position: absolute; top: -2.3mm; left: 4mm; background: var(--gold); color: #fff; font-size: 5.8pt; letter-spacing: .1em; font-weight: 600; padding: .5mm 2mm; border-radius: 3mm; }
+  .pack .top { display: flex; align-items: center; }
+  .pack .pname { font-family: "Bodoni Moda", serif; font-size: 13pt; }
+  .pack .pprice { margin-left: auto; font-family: "Bodoni Moda", serif; font-size: 15pt; font-weight: 500; }
+  .pack .pprice small { font-family: Inter, sans-serif; font-size: 6.8pt; color: var(--muted); font-weight: 400; }
+  .pack .qty { display: flex; gap: 5mm; margin: 2mm 0 1.4mm; }
+  .pack .qty div { font-size: 7.2pt; color: var(--muted); }
+  .pack .qty b { display: block; font-family: "Bodoni Moda", serif; font-size: 17pt; color: var(--ink); font-weight: 500; line-height: 1.1; }
+
+  ul.ticks { list-style: none; }
+  ul.ticks li { padding-left: 3.6mm; position: relative; margin: .5mm 0; }
+  ul.ticks li::before { content: ""; position: absolute; left: 0; top: 1.6mm; width: 1.4mm; height: 1.4mm; border-radius: 50%; background: var(--gold); }
+
+  .note { background: #f7f6f3; border-left: 2px solid var(--gold); padding: 2.4mm 3.2mm; font-size: 7.4pt; color: #3f3f44; margin-top: 2.4mm; }
+
+  /* riepilogo */
+  .sum td { padding: 2.1mm 0; border-bottom: 1px solid var(--line); }
+  .sum td.v { text-align: right; width: 48mm; }
+  .sum td.v .f { width: 30mm; }
+  .sum tr.tot td { border-bottom: 2px solid var(--ink); font-weight: 700; font-size: 9.6pt; }
+
+  .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; margin-top: 13mm; }
+  .sign div { border-top: 1px solid var(--ink); padding-top: 1.4mm; font-size: 7.2pt; font-weight: 600; }
+
+  /* checklist */
+  .check td { padding: 1.05mm 0; border-bottom: 1px solid #ebe8e2; vertical-align: middle; }
+  .check td.c { width: 6.5mm; }
+  .check td.w { width: 54mm; }
+  .check td.w .f { width: 100%; }
+  .check td.t { padding-right: 4mm; }
+  .check td.t .d { color: var(--muted); font-size: 7.1pt; }
+  .check th { font-size: 6.4pt; color: var(--muted); font-weight: 500; text-align: left; padding-bottom: 1mm; }
+  .group { font-size: 6.8pt; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); font-weight: 600; padding-top: 2.6mm !important; border-bottom: 1px solid var(--line) !important; }
+
+  .foot { position: absolute; left: 12mm; right: 12mm; bottom: 7mm; display: flex; font-size: 6.4pt; color: var(--muted); }
+  .foot span:last-child { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGINA 1 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL Innova <span>·</span> Siti web e gestionali</div>
+      <h1>Preventivo integrativo · Allegato A</h1>
+    </div>
+    <div class="meta">
+      <span>Incarico n.</span><span class="f" data-f="incarico"></span>
+      <span>Data</span><span class="f" data-f="data"></span>
+    </div>
+  </header>
+  <div class="body">
+    <h2><span class="n">1</span>Le parti e il contratto</h2>
+    <p><b>Fornitore: SL Innova</b> · P. IVA 12885450010 · Torino (TO) · info@slinnova.it · +39 388 988 6352.<br>
+    <b>Cliente: AR.TI.DE. S.R.L.S. – Artide il buon gelato</b> · Via Stura 72, 10073 Ciriè (TO) · PEC artidesrls@pec.it.</p>
+    <p class="muted">Questo allegato integra il <b>Contratto per la realizzazione del sito web</b> con lo stesso numero di incarico. Contiene le funzioni nuove concordate dopo l'anteprima, approvate per iscritto come previsto al punto 6 del contratto. Per tutto quello che qui non è scritto valgono le condizioni del contratto.</p>
+
+    <h2><span class="n">2</span>Il pacchetto scelto</h2>
+    <div class="base">
+      <div>
+        <div class="name">Avanzato</div>
+        <div class="small muted">Il viaggio dentro l'igloo, capitolo dopo capitolo · 3 revisioni · 90 giorni di assistenza</div>
+      </div>
+      <div class="amount">2.000,00 €</div>
+    </div>
+
+    <h2><span class="n">3</span>Le aggiunte al sito<small>Il Cliente spunta quelle che desidera</small></h2>
+    <table class="items">
+      <tr><th></th><th>Aggiunta</th><th style="text-align:right">Prezzo</th></tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="add_ingrosso"></span></td>
+        <td class="t">
+          <div class="name">A · Sezione Ingrosso</div>
+          <div class="desc">Una pagina dedicata a bar, ristoranti, hotel e rivenditori: cosa offre Artide all'ingrosso, formati, ordine minimo, ritiro o consegna e il listino prezzi (fino a 40 voci, divise per categoria). Pulsante per chiedere un ordine o il listino su WhatsApp.</div>
+        </td>
+        <td class="p"><div class="list">Listino <s>375,00 €</s></div><div class="price">€ <span class="f" data-f="prezzo_ingrosso" data-v="300,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="add_carrello"></span></td>
+        <td class="t">
+          <div class="name">B · Carrello «Ordina e ritira» su WhatsApp</div>
+          <div class="desc">Il carrello in alto a destra, su ogni pagina. Il cliente sceglie dal listino (es. una torta, una vaschetta di gelato, due frutti realistici), indica formato, gusti, giorno e ora di ritiro, e con un tocco invia a WhatsApp il messaggio già scritto con la lista completa. Nessun pagamento online: l'ordine vale quando Artide risponde e lo conferma. Il carrello resta salvato anche se il cliente chiude la pagina.</div>
+        </td>
+        <td class="p"><div class="list">Listino <s>562,50 €</s></div><div class="price">€ <span class="f" data-f="prezzo_carrello" data-v="450,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="add_qr"></span></td>
+        <td class="t">
+          <div class="name">C · Kit QR da banco</div>
+          <div class="desc">Una pagina di benvenuto con tre pulsanti (Ordina · Seguici su Instagram · Lascia una recensione su Google), un QR fisso che non scade mai e la grafica pronta per la stampa dei formati scelti al punto 4. Il sito conta quante persone arrivano dal QR. Stampa esclusa.</div>
+        </td>
+        <td class="p"><div class="list">Listino <s>112,50 €</s></div><div class="price">€ <span class="f" data-f="prezzo_qr" data-v="90,00"></span></div>
+          <div style="margin-top:1.6mm"><label class="o" style="margin:0"><span class="cb" data-c="qr_omaggio"></span>in omaggio</label></div></td>
+      </tr>
+    </table>
+    <p class="small muted" style="margin-top:2mm">Prezzo fisso, pagato una volta, senza canoni. Le aggiunte non cambiano dominio e hosting: il sito resta senza server e senza costi in più.</p>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 1 di 5</span></footer>
+</section>
+
+<!-- ============ PAGINA 2 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL Innova <span>·</span> Siti web e gestionali</div>
+      <h1>Preventivo integrativo · Allegato A</h1>
+    </div>
+    <div class="meta"><span>Incarico n.</span><span class="f" data-f="incarico"></span><span>Data</span><span class="f" data-f="data"></span></div>
+  </header>
+  <div class="body">
+    <h2><span class="n">4</span>Le scelte da fare insieme<small>Si compila solo per le aggiunte spuntate</small></h2>
+
+    <h3><span class="tag">A</span>Sezione Ingrosso</h3>
+    <div class="row"><span class="k">A chi vendete</span><span class="opts">
+      <label class="o"><span class="cb" data-c="ing_bar"></span>Bar</label>
+      <label class="o"><span class="cb" data-c="ing_rist"></span>Ristoranti e pizzerie</label>
+      <label class="o"><span class="cb" data-c="ing_hotel"></span>Hotel e B&amp;B</label>
+      <label class="o"><span class="cb" data-c="ing_eventi"></span>Catering</label>
+      <label class="o"><span class="cb" data-c="ing_altro"></span>Altro</label><span class="f" data-f="ing_altro_txt" style="width:22mm"></span></span></div>
+    <div class="row"><span class="k">Il listino prezzi</span><span class="opts">
+      <label class="o"><span class="cb" data-c="ing_list_pub"></span>Visibile a tutti</label>
+      <label class="o"><span class="cb" data-c="ing_list_rich"></span>Su richiesta via WhatsApp (consigliato)</label>
+      <label class="o"><span class="cb" data-c="ing_list_cod"></span>Pagina con codice d'accesso</label></span></div>
+    <div class="row"><span class="k">Prezzi indicati</span><span class="opts">
+      <label class="o"><span class="cb" data-c="ing_iva_escl"></span>IVA esclusa</label>
+      <label class="o"><span class="cb" data-c="ing_iva_incl"></span>IVA inclusa</label>
+      <span style="margin-left:2mm">Numero di voci, circa</span>&nbsp;<span class="f" data-f="ing_voci" style="width:16mm"></span></span></div>
+    <div class="row"><span class="k">Minimo e preavviso</span><span class="opts"><span class="f" data-f="ing_minimo" style="width:100%"></span></span></div>
+    <div class="row"><span class="k">Ritiro e consegna</span><span class="opts">
+      <label class="o"><span class="cb" data-c="ing_ritiro"></span>Ritiro in negozio</label>
+      <label class="o"><span class="cb" data-c="ing_consegna"></span>Consegna · zona e costo</label><span class="f" data-f="ing_zona" style="width:58mm"></span></span></div>
+
+    <h3><span class="tag">B</span>Carrello «Ordina e ritira»</h3>
+    <div class="row"><span class="k">Prodotti nel carrello</span><span class="opts">
+      <label class="o"><span class="cb" data-c="car_torte"></span>Torte</label>
+      <label class="o"><span class="cb" data-c="car_vaschette"></span>Vaschette di gelato</label>
+      <label class="o"><span class="cb" data-c="car_frutta"></span>Frutta realistica</label>
+      <label class="o"><span class="cb" data-c="car_mignon"></span>Mignon e pasticceria</label>
+      <label class="o"><span class="cb" data-c="car_semifreddi"></span>Semifreddi</label>
+      <label class="o"><span class="cb" data-c="car_ghiaccioli"></span>Ghiaccioli</label>
+      <label class="o"><span class="cb" data-c="car_altro"></span>Altro</label><span class="f" data-f="car_altro_txt" style="width:40mm"></span></span></div>
+    <div class="row"><span class="k">Formati delle vaschette</span><span class="opts"><span class="f" data-f="car_formati" style="width:62mm"></span><span style="margin-left:3mm">Gusti per vaschetta, max</span>&nbsp;<span class="f" data-f="car_gusti" style="width:14mm"></span></span></div>
+    <div class="row"><span class="k">Prezzi nel carrello</span><span class="opts">
+      <label class="o"><span class="cb" data-c="car_prezzi_si"></span>Sì, con totale indicativo</label>
+      <label class="o"><span class="cb" data-c="car_prezzi_no"></span>No, il prezzo lo conferma il negozio</label></span></div>
+    <div class="row"><span class="k">Preavviso minimo</span><span class="opts">Torte&nbsp;<span class="f" data-f="car_prev_torte" style="width:20mm"></span>&nbsp;ore<span style="margin-left:5mm">Altri prodotti</span>&nbsp;<span class="f" data-f="car_prev_altro" style="width:20mm"></span>&nbsp;ore</span></div>
+    <div class="row"><span class="k">Giorni e fasce di ritiro</span><span class="opts"><span class="f" data-f="car_fasce" style="width:100%"></span></span></div>
+    <div class="row"><span class="k">WhatsApp per gli ordini</span><span class="opts"><span class="f" data-f="car_whatsapp" style="width:50mm"></span><span style="margin-left:3mm">Chi risponde</span>&nbsp;<span class="f" data-f="car_chi" style="width:40mm"></span></span></div>
+    <div class="row"><span class="k">Altre scelte</span><span class="opts">
+      <label class="o"><span class="cb" data-c="car_ingrosso"></span>Il carrello vale anche per l'Ingrosso</label>
+      <label class="o"><span class="cb" data-c="car_torta_mod"></span>«Ordina una torta» resta per le torte personalizzate</label></span></div>
+
+    <h3><span class="tag">C</span>Kit QR da banco</h3>
+    <div class="row"><span class="k">Formati da preparare</span><span class="opts">
+      <label class="o"><span class="cb" data-c="qr_banco"></span>Espositore da banco</label>
+      <label class="o"><span class="cb" data-c="qr_vetrina"></span>Adesivo vetrina</label>
+      <label class="o"><span class="cb" data-c="qr_biglietto"></span>Bigliettino nel sacchetto</label>
+      <label class="o"><span class="cb" data-c="qr_scatole"></span>Adesivo per scatole e vaschette</label></span></div>
+    <div class="row"><span class="k">Premio a chi scansiona</span><span class="opts">
+      <label class="o"><span class="cb" data-c="qr_premio_no"></span>No</label>
+      <label class="o"><span class="cb" data-c="qr_premio_si"></span>Sì</label><span class="f" data-f="qr_premio" style="width:96mm"></span></span></div>
+    <div class="row"><span class="k">La stampa</span><span class="opts">
+      <label class="o"><span class="cb" data-c="qr_stampa_artide"></span>La fa Artide con i nostri file</label>
+      <label class="o"><span class="cb" data-c="qr_stampa_sl"></span>La organizza SL Innova, con preventivo a parte</label></span></div>
+
+    <h3>Aggiornamenti di listini e prezzi</h3>
+    <div class="row"><span class="k">Chi li aggiorna</span><span class="opts">
+      <label class="o"><span class="cb" data-c="agg_artide"></span>Artide dal telefono, come i gusti di oggi</label>
+      <label class="o"><span class="cb" data-c="agg_sl"></span>SL Innova su richiesta</label></span></div>
+
+    <div class="note">Il carrello manda solo una <b>richiesta d'ordine</b> su WhatsApp: il sito non incassa e non salva i dati dei clienti. Per ogni prodotto il sito mostra gli <b>allergeni</b> forniti da Artide, così il cliente li legge prima di ordinare.</div>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 2 di 5</span></footer>
+</section>
+
+<!-- ============ PAGINA 3 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL Innova <span>·</span> Siti web e gestionali</div>
+      <h1>Preventivo integrativo · Allegato A</h1>
+    </div>
+    <div class="meta"><span>Incarico n.</span><span class="f" data-f="incarico"></span><span>Data</span><span class="f" data-f="data"></span></div>
+  </header>
+  <div class="body">
+    <h2><span class="n">5</span>Instagram e Facebook<small>Il Cliente spunta un pacchetto</small></h2>
+    <p class="muted">Contenuti pensati per portare più persone sul sito e in negozio. Con il sito già online, ogni reel e ogni foto rimanda all'ordine su WhatsApp.</p>
+    <div class="packs">
+      <div class="pack">
+        <div class="top"><span class="cb" data-c="social_1"></span><span class="pname">Pacchetto Cono</span><span class="pprice">49,99 €</span></div>
+        <div class="qty"><div><b>2</b>video reel</div><div><b>3</b>foto</div></div>
+        <ul class="ticks small">
+          <li>Riprese e foto in negozio, in un'unica uscita</li>
+          <li>Montaggio dei reel con musica e scritte</li>
+          <li>Testi dei post e hashtag locali</li>
+          <li>Pubblicazione su Instagram e Facebook</li>
+        </ul>
+      </div>
+      <div class="pack reco">
+        <span class="badge">CONSIGLIATO</span>
+        <div class="top"><span class="cb" data-c="social_2"></span><span class="pname">Pacchetto Coppa</span><span class="pprice">69,99 €</span></div>
+        <div class="qty"><div><b>4</b>video reel</div><div><b>5</b>foto</div></div>
+        <ul class="ticks small">
+          <li>Tutto quello del Pacchetto Cono</li>
+          <li>Il doppio dei reel, quasi il doppio delle foto</li>
+          <li>Un piano delle uscite concordato con voi</li>
+          <li>Un reel dedicato alle novità del momento</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:3mm">
+      <div class="row"><span class="k">Durata</span><span class="opts">
+        <label class="o"><span class="cb" data-c="soc_mese"></span>Ogni mese, minimo</label><span class="f" data-f="soc_mesi" data-v="3" style="width:10mm"></span>&nbsp;mesi
+        <label class="o" style="margin-left:4mm"><span class="cb" data-c="soc_prova"></span>Una volta sola, per provare</label></span></div>
+      <div class="row"><span class="k">Pubblicazione</span><span class="opts">
+        <label class="o"><span class="cb" data-c="soc_pub_sl"></span>La fa SL Innova (accesso a Meta Business Suite)</label>
+        <label class="o"><span class="cb" data-c="soc_pub_artide"></span>SL Innova consegna i file, pubblica Artide</label></span></div>
+      <div class="row"><span class="k">Persone nei video</span><span class="opts">
+        <label class="o"><span class="cb" data-c="soc_persone_si"></span>Sì, con liberatoria firmata</label>
+        <label class="o"><span class="cb" data-c="soc_persone_no"></span>No, solo prodotti e mani al lavoro</label></span></div>
+      <div class="row"><span class="k">Inizio</span><span class="opts"><span class="f" data-f="soc_inizio" style="width:40mm"></span><span style="margin-left:3mm" class="muted small">consigliato: con la pubblicazione del sito</span></span></div>
+    </div>
+    <p class="small muted" style="margin-top:2mm">Non sono comprese le sponsorizzazioni a pagamento (il budget si paga direttamente a Meta) né la gestione di messaggi e commenti. Il primo servizio fotografico può fornire anche le foto dei prodotti per il sito.</p>
+
+    <h2><span class="n">6</span>Idee in più<small>Facoltative · il Cliente spunta quelle che desidera</small></h2>
+    <table class="items">
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_google"></span></td>
+        <td class="t"><div class="name">Profilo Google sistemato</div><div class="desc">Link al sito e all'ordine, foto, orari, prodotti e categorie aggiornati sulla scheda di Google Maps, dove vi trovano le 959 persone che vi hanno recensito.</div></td>
+        <td class="p"><div class="price">€ <span class="f" data-f="prezzo_google" data-v="79,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_feste"></span></td>
+        <td class="t"><div class="name">Pagina «Feste e ricorrenze»</div><div class="desc">Prenotazioni per Natale, Pasqua, San Valentino e Festa della mamma, collegate al carrello. Aggiornamento di ogni ricorrenza incluso per il primo anno.</div></td>
+        <td class="p"><div class="price">€ <span class="f" data-f="prezzo_feste" data-v="150,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_buono"></span></td>
+        <td class="t"><div class="name">Buono regalo Artide</div><div class="desc">Il cliente sceglie l'importo, lo chiede su WhatsApp e ritira in negozio il buono stampato. Grafica del buono inclusa.</div></td>
+        <td class="p"><div class="price">€ <span class="f" data-f="prezzo_buono" data-v="120,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_eventi"></span></td>
+        <td class="t"><div class="name">Sezione «Eventi e feste private»</div><div class="desc">Torte per matrimoni, comunioni e compleanni insieme al gelato per eventi (buffet, carretto), con richiesta di preventivo su WhatsApp.</div></td>
+        <td class="p"><div class="price">€ <span class="f" data-f="prezzo_eventi" data-v="150,00"></span></div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_novita"></span></td>
+        <td class="t"><div class="name">«Ricevi le novità» su WhatsApp</div><div class="desc">Un pulsante sul sito e sul QR per entrare nel canale WhatsApp di Artide: gusti nuovi, torte delle feste, ultime vaschette.</div></td>
+        <td class="p"><div class="price" style="color:var(--gold)">in omaggio</div></td>
+      </tr>
+      <tr>
+        <td class="c"><span class="cb" data-c="idea_manut"></span></td>
+        <td class="t"><div class="name">Cura del sito, dopo i 90 giorni</div><div class="desc">Listini, novità e foto aggiornati da noi, più piccole modifiche, fino a un'ora al mese. Si disdice quando volete.</div></td>
+        <td class="p"><div class="price">€ <span class="f" data-f="prezzo_manut" data-v="24,90"></span></div><div class="list">al mese</div></td>
+      </tr>
+    </table>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 3 di 5</span></footer>
+</section>
+
+<!-- ============ PAGINA 4 ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL Innova <span>·</span> Siti web e gestionali</div>
+      <h1>Preventivo integrativo · Allegato A</h1>
+    </div>
+    <div class="meta"><span>Incarico n.</span><span class="f" data-f="incarico"></span><span>Data</span><span class="f" data-f="data"></span></div>
+  </header>
+  <div class="body">
+    <h2><span class="n">7</span>Il riepilogo</h2>
+    <table class="sum">
+      <tr><td>Pacchetto Avanzato</td><td class="v"><b>2.000,00 €</b></td></tr>
+      <tr><td>Aggiunte al sito scelte (punto 3)</td><td class="v">€ <span class="f" data-f="tot_aggiunte"></span></td></tr>
+      <tr><td>Idee in più scelte, una tantum (punto 6)</td><td class="v">€ <span class="f" data-f="tot_idee"></span></td></tr>
+      <tr><td>Sconto concordato</td><td class="v">− € <span class="f" data-f="sconto"></span></td></tr>
+      <tr class="tot"><td>Totale del sito</td><td class="v">€ <span class="f" data-f="tot_sito"></span></td></tr>
+    </table>
+    <table class="sum" style="margin-top:3mm">
+      <tr><td>Pacchetto social scelto (punto 5)</td><td class="v">€ <span class="f" data-f="tot_social"></span></td></tr>
+      <tr><td class="muted small">&nbsp;&nbsp;<label class="o"><span class="cb" data-c="tot_social_mese"></span>al mese</label><label class="o"><span class="cb" data-c="tot_social_una"></span>una volta</label></td><td></td></tr>
+      <tr><td>Cura del sito, dopo i 90 giorni (punto 6)</td><td class="v">€ <span class="f" data-f="tot_manut"></span> / mese</td></tr>
+    </table>
+
+    <h2><span class="n">8</span>Pagamento, tempi e revisioni</h2>
+    <ul class="ticks">
+      <li><b>Sito e aggiunte</b> si pagano insieme, con la modalità spuntata nel contratto (50% alla firma e 50% prima della pubblicazione, oppure tutto alla firma) e con lo stesso bonifico.</li>
+      <li><b>Pacchetti social e cura del sito</b> si pagano all'inizio di ogni mese. Dopo la durata minima si disdicono per iscritto, anche su WhatsApp, con 30 giorni di preavviso.</li>
+      <li><b>Tempi.</b> Con le aggiunte, il sito completo è pronto in anteprima entro <b>40</b> giorni di calendario (30 dell'Avanzato + 10) da quando SL Innova ha firma, pagamento e materiali.</li>
+      <li><b>Revisioni.</b> Le aggiunte rientrano nelle 3 revisioni dell'Avanzato e nei 90 giorni di assistenza.</li>
+      <li><b>Materiali.</b> Quello che serve è nella checklist alle pagine seguenti (Allegato B). Se un materiale arriva in ritardo, i tempi si spostano di altrettanti giorni, come previsto al punto 6 del contratto.</li>
+    </ul>
+
+    <h2><span class="n">9</span>Note concordate</h2>
+    <span class="f area" data-f="note" data-multi="1" style="height:30mm"></span>
+
+    <div class="grid2" style="margin-top:6mm">
+      <div class="fieldbox"><div class="lbl">Luogo e data</div><span class="f" data-f="luogo_data"></span></div>
+    </div>
+    <div class="sign">
+      <div>Firma del Cliente</div>
+      <div>Firma di SL Innova</div>
+    </div>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 4 di 5</span></footer>
+</section>
+
+<!-- ============ PAGINA 5 · CHECKLIST ============ -->
+<section class="page">
+  <header class="head">
+    <img src="logo-sl.png" alt="SL Innova">
+    <div class="brand">
+      <div class="kicker">SL Innova <span>·</span> Siti web e gestionali</div>
+      <h1>Cosa ci serve per partire · Allegato B</h1>
+    </div>
+    <div class="meta"><span>Incarico n.</span><span class="f" data-f="incarico"></span><span>Data</span><span class="f" data-f="data"></span></div>
+  </header>
+  <div class="body" style="padding-top:4mm">
+    <p class="muted small" style="margin-bottom:2mm">Si spunta quando il materiale arriva. Le foto e i file si possono mandare su WhatsApp al +39 388 988 6352 o via email a info@slinnova.it.</p>
+    <table class="check">
+      <tr><th></th><th>Materiale</th><th>Note o entro il</th></tr>
+
+      <tr><td colspan="3" class="group">Dati e accessi</td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_dati"></span></td><td class="t">Dati mancanti nel contratto<div class="d">P. IVA o codice fiscale, legale rappresentante, telefono ed email</div></td><td class="w"><span class="f" data-f="ck_dati_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_dominio"></span></td><td class="t">Nome del dominio e dati per intestarlo<div class="d">es. artide.it · serve prima di stampare il QR</div></td><td class="w"><span class="f" data-f="ck_dominio_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_wa"></span></td><td class="t">Numero WhatsApp per gli ordini<div class="d">meglio WhatsApp Business, con il nome Artide</div></td><td class="w"><span class="f" data-f="ck_wa_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_google"></span></td><td class="t">Accesso al profilo Google dell'attività</td><td class="w"><span class="f" data-f="ck_google_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_meta"></span></td><td class="t">Accesso a Instagram e Facebook<div class="d">tramite Meta Business Suite, solo con un pacchetto social</div></td><td class="w"><span class="f" data-f="ck_meta_n"></span></td></tr>
+
+      <tr><td colspan="3" class="group">Chi è Artide</td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_logo"></span></td><td class="t">Logo in alta qualità<div class="d">vettoriale: PDF, SVG o AI</div></td><td class="w"><span class="f" data-f="ck_logo_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_storia"></span></td><td class="t">La vostra storia<div class="d">anno di apertura, chi siete, cosa vi rende diversi</div></td><td class="w"><span class="f" data-f="ck_storia_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_orari"></span></td><td class="t">Orari, giorno di chiusura e ferie</td><td class="w"><span class="f" data-f="ck_orari_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_foto"></span></td><td class="t">Foto reali<div class="d">esterno, interno, banco, laboratorio e le persone che vogliono comparire</div></td><td class="w"><span class="f" data-f="ck_foto_n"></span></td></tr>
+
+      <tr><td colspan="3" class="group">Prodotti, listini e prezzi</td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_gusti"></span></td><td class="t">Tutti i gusti di gelato<div class="d">fissi e stagionali · vegani, senza lattosio, senza glutine</div></td><td class="w"><span class="f" data-f="ck_gusti_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_listino"></span></td><td class="t">Listino al dettaglio completo<div class="d">vaschette (formati e prezzi), coni e coppette, ghiaccioli, semifreddi</div></td><td class="w"><span class="f" data-f="ck_listino_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_pasticceria"></span></td><td class="t">Pasticceria e mignon<div class="d">elenco e prezzi, a pezzo o al kg</div></td><td class="w"><span class="f" data-f="ck_pasticceria_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_frutta"></span></td><td class="t">Frutta realistica<div class="d">elenco dei frutti, una foto per frutto, prezzo e breve descrizione</div></td><td class="w"><span class="f" data-f="ck_frutta_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_torte"></span></td><td class="t">Torte: nuziale, comunione, compleanno<div class="d">basi e gusti, prezzo al kg o a porzione, preavviso, foto</div></td><td class="w"><span class="f" data-f="ck_torte_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_novita"></span></td><td class="t">Le novità del momento<div class="d">foto e prezzi</div></td><td class="w"><span class="f" data-f="ck_novita_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_ingrosso"></span></td><td class="t">Listino ingrosso<div class="d">prodotti, formati, prezzi, ordine minimo, consegna</div></td><td class="w"><span class="f" data-f="ck_ingrosso_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_allergeni"></span></td><td class="t">Tabella degli allergeni<div class="d">la stessa del negozio, verificata dal vostro consulente HACCP</div></td><td class="w"><span class="f" data-f="ck_allergeni_n"></span></td></tr>
+
+      <tr><td colspan="3" class="group">Ordini e promozione</td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_ritiro"></span></td><td class="t">Regole per gli ordini<div class="d">preavviso, fasce di ritiro, quanti ordini al giorno al massimo</div></td><td class="w"><span class="f" data-f="ck_ritiro_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_premio"></span></td><td class="t">Premio per chi scansiona il QR<div class="d">es. un assaggio o un gusto in più</div></td><td class="w"><span class="f" data-f="ck_premio_n"></span></td></tr>
+      <tr><td class="c"><span class="cb" data-c="ck_liberatorie"></span></td><td class="t">Liberatorie di chi compare in foto e video<div class="d">il modulo lo prepara SL Innova</div></td><td class="w"><span class="f" data-f="ck_liberatorie_n"></span></td></tr>
+    </table>
+  </div>
+  <footer class="foot"><span>SL Innova · P. IVA 12885450010 · info@slinnova.it · +39 388 988 6352 · slinnova.it</span><span>Pagina 5 di 5</span></footer>
+</section>
+
+</body>
+</html>
