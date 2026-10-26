@@ -1,8 +1,9 @@
 """Appoggia i campi compilabili (testo e caselle) su base.pdf, nelle posizioni salvate da render.js.
 
-Uso: node render.js && python3 campi.py
+Uso: node render.js aggiunte.html && python3 campi.py Artide-aggiunte.pdf
 """
 import json
+import sys
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
@@ -72,8 +73,8 @@ def main():
         })
 
         if c["kind"] == "text":
-            # i campi nella fascia scura dell'intestazione si scrivono in bianco
-            color = "1 1 1 rg" if c["y"] < 72 else "0.11 0.11 0.12 rg"
+            # sul fondo scuro (data-ink="light") si scrive in chiaro
+            color = "1 1 1 rg" if c.get("light") else "0.11 0.11 0.12 rg"
             props = {
                 NameObject("/FT"): NameObject("/Tx"),
                 NameObject("/DA"): TextStringObject(f"/Helv {FONT_SIZE} Tf {color}"),
@@ -85,7 +86,8 @@ def main():
                 NameObject("/N"): text_appearance(writer, "" if c["multi"] else c["value"], w, h, font_res, color)})
         else:
             # segno di spunta disegnato come tratto, cosi' non dipende dai caratteri del lettore PDF
-            on = stream(writer, f"q 0.11 0.11 0.12 RG 1.3 w 1 J 1 j {w * 0.2:.2f} {h * 0.52:.2f} m "
+            ink = "0.89 0.79 0.58" if c.get("light") else "0.11 0.11 0.12"
+            on = stream(writer, f"q {ink} RG 1.3 w 1 J 1 j {w * 0.2:.2f} {h * 0.52:.2f} m "
                                 f"{w * 0.42:.2f} {h * 0.26:.2f} l {w * 0.82:.2f} {h * 0.8:.2f} l S Q", w, h)
             off = stream(writer, "", w, h)
             props = {
@@ -132,9 +134,9 @@ def main():
         NameObject("/DR"): DictionaryObject({NameObject("/Font"): DictionaryObject({
             NameObject("/Helv"): helv, NameObject("/ZaDb"): zadb})}),
     })
-    writer.add_metadata({"/Title": "Preventivo integrativo Artide · SL Innova", "/Author": "SL Innova"})
+    writer.add_metadata({"/Title": "Artide · Le aggiunte al sito · SL Innova", "/Author": "SL Innova"})
 
-    out = DIR / "Artide-preventivo-integrativo.pdf"
+    out = DIR / (sys.argv[1] if len(sys.argv) > 1 else "campi.pdf")
     with open(out, "wb") as fh:
         writer.write(fh)
     print(out.name, "·", len(campi), "riquadri,", len(fields), "campi")

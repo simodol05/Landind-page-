@@ -1,11 +1,21 @@
-# Artide · Preventivo integrativo (Allegato A) e checklist (Allegato B)
+# Artide · Le aggiunte al sito e il contratto
 
-`Artide-preventivo-integrativo.pdf` e' il file da aprire sull'iPad: campi e caselle si compilano
-direttamente, le firme si fanno con lo strumento Firma/Markup.
+`Artide-aggiunte-e-contratto.pdf` e' il file da aprire sull'iPad (12 pagine):
 
-Per modificarlo:
+1. copertina · 2. riepilogo delle tre aggiunte · 3. carrello WhatsApp · 4. sezione ingrosso ·
+5. QR da banco · 6. pacchetti social · 7. cosa ci serve da Artide · 8. pagamento ·
+9. firma · 10–11. contratto compilabile · 12. QR dei dati del bonifico.
 
-1. cambia testi e prezzi in `preventivo.html` (i prezzi proposti sono negli attributi `data-v`);
-2. rigenera con `node render.js && python3 campi.py`.
+Caselle e campi si compilano direttamente, le firme si fanno con lo strumento Firma/Markup.
 
-`render.js` impagina la pagina con Chromium e salva le posizioni dei campi, `campi.py` li appoggia sul PDF.
+Per rigenerarlo dopo aver modificato `aggiunte.html`:
+
+```
+node render.js aggiunte.html
+python3 campi.py slide.pdf
+python3 assembla.py slide.pdf contratto.pdf Artide-aggiunte-e-contratto.pdf
+```
+
+- `render.js` impagina le slide con Chromium e salva le posizioni dei campi;
+- `campi.py` appoggia caselle e campi sulle slide;
+- `assembla.py` inserisce le due pagine del contratto (`contratto.pdf`) dopo la slide della firma.
