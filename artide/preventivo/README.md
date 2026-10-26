@@ -8,14 +8,17 @@
 
 Caselle e campi si compilano direttamente, le firme si fanno con lo strumento Firma/Markup.
 
-Per rigenerarlo dopo aver modificato `aggiunte.html`:
+Per rigenerarlo dopo aver modificato `aggiunte.html` o `contratto.html`:
 
 ```
-node render.js aggiunte.html
-python3 campi.py slide.pdf
+node render.js contratto.html && python3 campi.py contratto.pdf
+node render.js aggiunte.html && python3 campi.py slide.pdf
 python3 assembla.py slide.pdf contratto.pdf Artide-aggiunte-e-contratto.pdf
 ```
 
+L'immagine dell'espositore della slide 5 si rigenera con
+`node foto.js espositore.html espositore.png 1000 1100` (poi va salvata come `espositore.jpg`).
+
 - `render.js` impagina le slide con Chromium e salva le posizioni dei campi;
 - `campi.py` appoggia caselle e campi sulle slide;
-- `assembla.py` inserisce le due pagine del contratto (`contratto.pdf`) dopo la slide della firma.
+- `assembla.py` inserisce le due pagine del contratto dopo la slide della firma.

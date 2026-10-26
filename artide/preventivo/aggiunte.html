@@ -90,16 +90,6 @@
   .mock .rowp span:last-child { color: var(--muted); }
   .mock .btn { margin-top: 5mm; text-align: center; background: var(--gold); color: #1a1a1a; font-weight: 700; font-size: 8.6pt; border-radius: 10mm; padding: 2.6mm; }
 
-  .stand { width: 82mm; margin: 0 auto; background: #f7f3ea; color: var(--navy); border-radius: 4mm; padding: 7mm 7mm 6mm; text-align: center; box-shadow: 0 6mm 16mm rgba(0,0,0,.4); position: relative; }
-  .stand::after { content: ""; position: absolute; left: 12mm; right: 12mm; bottom: -5mm; height: 5mm; background: linear-gradient(#c9c2b2, #a69f8f); border-radius: 0 0 2mm 2mm; z-index: -1; }
-  .stand b { font-family: Fraunces, serif; font-weight: 500; font-size: 15pt; letter-spacing: .16em; display: block; }
-  .stand .sub { font-size: 5.6pt; letter-spacing: .22em; color: #6b6f80; }
-  .stand .call { font-family: Fraunces, serif; font-size: 12.5pt; margin: 4mm 0 3mm; }
-  .stand .call em { color: #a47d3d; }
-  .stand img { width: 34mm; height: 34mm; }
-  .stand .pills { display: flex; justify-content: center; gap: 1.4mm; margin-top: 3.5mm; flex-wrap: wrap; }
-  .stand .pills span { font-size: 6.4pt; border: 1px solid #cfc6b4; border-radius: 5mm; padding: 1mm 2.4mm; }
-  .stand .gift { margin-top: 3mm; font-size: 7.2pt; color: #a47d3d; font-weight: 600; }
 
   /* social */
   .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; margin-top: 10mm; }
@@ -155,6 +145,7 @@
   .qrcard { background: #fff; border-radius: 6mm; padding: 10mm; text-align: center; color: #1a1a1a; }
   .qrcard img { width: 70mm; height: 70mm; }
   .qrcard div { margin-top: 5mm; font-weight: 600; font-size: 10pt; }
+  .qrimg { height: 142mm; border-radius: 4mm; box-shadow: 0 6mm 16mm rgba(0,0,0,.45); display: block; margin: 0 auto; }
 </style>
 </head>
 <body>
@@ -240,7 +231,7 @@
     <div>
       <div class="kicker">Aggiunta 2</div>
       <h2>Il vostro gelato<br><em>anche per chi</em> lo rivende.</h2>
-      <span class="tag">99,99 € · QR da banco incluso</span>
+      <span class="tag">99,99 €</span>
       <ul class="points">
         <li><span>Una <b>pagina dedicata</b> a bar, ristoranti, hotel e catering.</span></li>
         <li><span><b>Cosa offrite all'ingrosso</b>, diviso per categoria, con i formati.</span></li>
@@ -286,15 +277,9 @@
         <li><span>Più recensioni su Google e più follower, <b>senza spendere in pubblicità</b>.</span></li>
       </ul>
     </div>
-    <div style="padding-top:8mm">
-      <div class="stand">
-        <b>ARTIDE</b><span class="sub">GELATERIA · PASTICCERIA</span>
-        <div class="call">Inquadra e <em>entra nell'igloo</em></div>
-        <img src="qr-esempio.png" alt="QR di esempio">
-        <div class="pills"><span>Ordina</span><span>Seguici</span><span>Lascia una recensione</span></div>
-        <div class="gift">Scansiona e ricevi un assaggio</div>
-      </div>
-      <div class="cap" style="margin-top:8mm">Esempio: provate a inquadrarlo, apre l'anteprima dell'Avanzato</div>
+    <div style="padding-top:2mm; text-align:center">
+      <img class="qrimg" src="espositore.jpg" alt="Espositore da banco con il QR">
+      <div class="cap">Esempio dell'espositore: il QR qui è finto, quello vero lo stampiamo noi</div>
     </div>
   </div>
   <div class="foot"><span>ARTIDE · Aggiunte SL Innova</span><span>05 / 12</span></div>
@@ -307,7 +292,7 @@
   <h2>Due pacchetti, <em>una volta sola</em>.</h2>
   <div class="packs">
     <div class="pack">
-      <div class="top"><span class="cb" data-c="social_cono" data-ink="light"></span><h3>Pacchetto Cono</h3><span class="pp">49,99 €</span></div>
+      <div class="top"><span class="cb" data-c="social_cono" data-ink="light"></span><h3>Base</h3><span class="pp">49,99 €</span></div>
       <div class="qty"><div><b>2</b>video reel</div><div><b>3</b>foto</div></div>
       <ul class="points">
         <li><span>Riprese e foto in negozio, in un'unica uscita</span></li>
@@ -318,10 +303,10 @@
     </div>
     <div class="pack reco">
       <span class="badge">CONSIGLIATO</span>
-      <div class="top"><span class="cb" data-c="social_coppa" data-ink="light"></span><h3>Pacchetto Coppa</h3><span class="pp">69,99 €</span></div>
+      <div class="top"><span class="cb" data-c="social_coppa" data-ink="light"></span><h3>Completo</h3><span class="pp">69,99 €</span></div>
       <div class="qty"><div><b>4</b>video reel</div><div><b>5</b>foto</div></div>
       <ul class="points">
-        <li><span>Tutto quello del Pacchetto Cono</span></li>
+        <li><span>Tutto quello del Base</span></li>
         <li><span>Il doppio dei reel e quasi il doppio delle foto</span></li>
         <li><span>Un reel dedicato alle novità del momento</span></li>
         <li><span>Il calendario delle uscite concordato con voi</span></li>
